@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.example.bluetooth.le;
+package com.etrans.bluetooth.le;
 
 import java.util.HashMap;
 

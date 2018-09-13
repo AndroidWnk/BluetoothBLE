@@ -14,11 +14,10 @@
  * limitations under the License.
  */
 
-package com.example.bluetooth.le;
+package com.etrans.bluetooth.le;
 
 import android.app.Activity;
 import android.bluetooth.BluetoothGattCharacteristic;
-import android.bluetooth.BluetoothGattService;
 import android.content.BroadcastReceiver;
 import android.content.ComponentName;
 import android.content.Context;
@@ -33,24 +32,13 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.ExpandableListView;
-import android.widget.SimpleExpandableListAdapter;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Locale;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
-
-import com.example.bluetooth.le.R;
 
 
-//对于给定的ble设备，这个activity提供接口去连接，展示数据，service和characteris。
+//对于给定的ble设备，这个activity提供接口去连接，展示数据，service和characteris。---设备详情
 //The Activity communicates with {@code BluetoothLeService}, which in turn interacts with the Bluetooth LE API.
 public class DeviceControlActivity extends Activity {
     private final static String TAG = DeviceControlActivity.class.getSimpleName();
@@ -171,11 +159,10 @@ public class DeviceControlActivity extends Activity {
         setTimeText = (EditText) findViewById(R.id.setTimeText);
         setTimeBtn = (Button) findViewById(R.id.setTimeBtn);
 
-
         getActionBar().setTitle(mDeviceName);
         getActionBar().setDisplayHomeAsUpEnabled(true);
-        Intent gattServiceIntent = new Intent(this, BluetoothLeService.class);
-        bindService(gattServiceIntent, mServiceConnection, BIND_AUTO_CREATE);
+        Intent gattIntent = new Intent(this, BluetoothLeService.class);
+        bindService(gattIntent, mServiceConnection, BIND_AUTO_CREATE);//绑定服务
     }
 
     //重启时、开始时注册广播

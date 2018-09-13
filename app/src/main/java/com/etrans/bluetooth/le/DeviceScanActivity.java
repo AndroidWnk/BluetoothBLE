@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.example.bluetooth.le;
+package com.etrans.bluetooth.le;
 
 import android.Manifest;
 import android.annotation.SuppressLint;
@@ -47,7 +47,7 @@ import android.widget.Toast;
 
 import java.util.ArrayList;
 
-//用来扫描可用设备并将其展示出来的activity
+//用来扫描可用设备并将其展示出来的activity--主界面
 @SuppressLint("NewApi")
 public class DeviceScanActivity extends ListActivity {
 

@@ -1,4 +1,4 @@
-package com.example.bluetooth.le;
+package com.etrans.bluetooth.le;
 
 //引用
 import android.annotation.SuppressLint;
@@ -19,7 +19,7 @@ import android.util.Log;
 
 import java.util.UUID;
 
-//管理连接和数据交换的 与GATTserver绑定的service
+//管理连接和数据交换的 与GATTserver绑定的service---服务
 @SuppressLint("NewApi")
 public class BluetoothLeService extends Service {
     private final static String TAG = BluetoothLeService.class.getSimpleName();

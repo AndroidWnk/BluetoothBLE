@@ -1,6 +1,4 @@
-package com.example.bluetooth.le;
-
-import com.example.bluetooth.le.R;
+package com.etrans.bluetooth.le;
 
 import android.os.Bundle;
 import android.app.Activity;
