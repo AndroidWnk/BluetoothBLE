@@ -23,6 +23,9 @@ import android.app.ListActivity;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothManager;
+import android.bluetooth.le.BluetoothLeScanner;
+import android.bluetooth.le.ScanCallback;
+import android.bluetooth.le.ScanResult;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
@@ -35,6 +38,7 @@ import android.provider.Settings;
 import android.support.annotation.NonNull;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -45,16 +49,20 @@ import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.etrans.bluetooth.le.utils.ByteUtils;
+
 import java.util.ArrayList;
+import java.util.List;
 
 //用来扫描可用设备并将其展示出来的activity--主界面
 @SuppressLint("NewApi")
 public class DeviceScanActivity extends ListActivity {
-
+    private static final String TAG = "DeviceScanActivity";
     private static final int REQUEST_CODE_LOCATION_SETTINGS = 2;
     private static final int REQUEST_CODE_ACCESS_COARSE_LOCATION = 1;
     private LeDeviceListAdapter mLeDeviceListAdapter;
     private BluetoothAdapter mBluetoothAdapter;
+    private BluetoothLeScanner bluetoothLeScanner;
     private boolean mScanning;
     private Handler mHandler;
 
@@ -65,7 +73,7 @@ public class DeviceScanActivity extends ListActivity {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-      //  getActionBar().setTitle(R.string.title_devices);
+        //  getActionBar().setTitle(R.string.title_devices);
         mHandler = new Handler();
 
         // 检查当前手机是否支持ble 蓝牙,如果不支持退出程序
@@ -77,6 +85,7 @@ public class DeviceScanActivity extends ListActivity {
         // 初始化 Bluetooth adapter, 通过蓝牙管理器得到一个参考蓝牙适配器(API必须在以上android4.3或以上和版本)
         final BluetoothManager bluetoothManager = (BluetoothManager) getSystemService(Context.BLUETOOTH_SERVICE);
         mBluetoothAdapter = bluetoothManager.getAdapter();
+        bluetoothLeScanner = mBluetoothAdapter.getBluetoothLeScanner();
 
         // 检查设备上是否支持蓝牙
         if (mBluetoothAdapter == null) {
@@ -102,8 +111,8 @@ public class DeviceScanActivity extends ListActivity {
             }
         }
 
-        Boolean haha =isLocationEnable(this);
-        if (!haha){
+        Boolean haha = isLocationEnable(this);
+        if (!haha) {
             setLocationService();
         }
     }
@@ -169,7 +178,7 @@ public class DeviceScanActivity extends ListActivity {
                 //定位依然没有打开的处理
                 Toast.makeText(this, "定位没有打开", Toast.LENGTH_SHORT).show();
             }
-        }else if (requestCode == REQUEST_ENABLE_BT && resultCode == Activity.RESULT_CANCELED) {
+        } else if (requestCode == REQUEST_ENABLE_BT && resultCode == Activity.RESULT_CANCELED) {
             finish();
             return;
         }
@@ -192,14 +201,15 @@ public class DeviceScanActivity extends ListActivity {
     //主页面的item被点击后，获取address和name发送到deviceControl里面进行连接
     @Override
     protected void onListItemClick(ListView l, View v, int position, long id) {
-    	System.out.println("==position=="+position);
+        System.out.println("==position==" + position);
         final BluetoothDevice device = mLeDeviceListAdapter.getDevice(position);
         if (device == null) return;
         final Intent intent = new Intent(this, DeviceControlActivity.class);
         intent.putExtra(DeviceControlActivity.EXTRAS_DEVICE_NAME, device.getName());
         intent.putExtra(DeviceControlActivity.EXTRAS_DEVICE_ADDRESS, device.getAddress());
         if (mScanning) {
-            mBluetoothAdapter.stopLeScan(mLeScanCallback);
+//            mBluetoothAdapter.stopLeScan(mLeScanCallback); //停止扫描，连接前，必须停止扫描，不然，失败率很高nk
+            bluetoothLeScanner.stopScan(scanCallback); //停止扫描，连接前，必须停止扫描，不然，失败率很高nk
             mScanning = false;
         }
         startActivity(intent);
@@ -209,22 +219,25 @@ public class DeviceScanActivity extends ListActivity {
     private void scanLeDevice(final boolean enable) {
         if (enable) {
             // Stops scanning after a pre-defined scan period.
-            mHandler.postDelayed(new Runnable() {
+            mHandler.postDelayed(new Runnable() { //十秒后停止扫描
                 @Override
                 public void run() {
                     mScanning = false;
                     //BluetoothLeScanner mBluetoothLeScanner = new BluetoothLeScanner();
-                    mBluetoothAdapter.stopLeScan(DeviceScanActivity.this.mLeScanCallback);
+//                    mBluetoothAdapter.stopLeScan(DeviceScanActivity.this.mLeScanCallback);
+                    bluetoothLeScanner.stopScan(scanCallback);
                     invalidateOptionsMenu();
                 }
             }, SCAN_PERIOD);
 
             mScanning = true;
             //扫描很费电，要预设扫描周期，扫描一定周期就停止扫描
-            mBluetoothAdapter.startLeScan(DeviceScanActivity.this.mLeScanCallback);
+//            mBluetoothAdapter.startLeScan(DeviceScanActivity.this.mLeScanCallback);
+            bluetoothLeScanner.startScan(scanCallback);
         } else {
             mScanning = false;
-            mBluetoothAdapter.stopLeScan(DeviceScanActivity.this.mLeScanCallback);
+//            mBluetoothAdapter.stopLeScan(DeviceScanActivity.this.mLeScanCallback);
+            bluetoothLeScanner.stopScan(scanCallback);
         }
         invalidateOptionsMenu();
     }
@@ -241,7 +254,7 @@ public class DeviceScanActivity extends ListActivity {
         }
 
         public void addDevice(BluetoothDevice device) {
-            if(!mLeDevices.contains(device)) {
+            if (!mLeDevices.contains(device)) {
                 mLeDevices.add(device);
             }
         }
@@ -285,22 +298,53 @@ public class DeviceScanActivity extends ListActivity {
 
             BluetoothDevice device = mLeDevices.get(i);
             final String deviceName = device.getName();
-            if (deviceName != null && deviceName.length() > 0)
+            if (deviceName != null && deviceName.length() > 0) {
                 viewHolder.deviceName.setText(deviceName);
-            else
+            } else {
                 viewHolder.deviceName.setText(R.string.unknown_device);
+            }
             viewHolder.deviceAddress.setText(device.getAddress());
 
             return view;
         }
     }
 
+
+
+    private ScanCallback scanCallback=new ScanCallback() {
+        @Override
+        public void onScanResult(int callbackType, ScanResult result) {
+            byte[] scanData=result.getScanRecord().getBytes();
+            //把byte数组转成16进制字符串，方便查看
+            Log.e("TAG","onScanResult :"+ByteUtils.getInstance().bytes2HexString(scanData));
+            Log.e("TAG","onScanResult :"+result.getScanRecord().toString());
+            mLeDeviceListAdapter.addDevice(result.getDevice());
+            mLeDeviceListAdapter.notifyDataSetChanged();
+        }
+        @Override
+        public void onBatchScanResults(List<ScanResult> results) {
+            super.onBatchScanResults(results);
+        }
+
+        @Override
+        public void onScanFailed(int errorCode) {
+            super.onScanFailed(errorCode);
+        }
+    };
+
+
+
+
+
     // 搜索函数更新到主线程来更新UI界面
     //作为BLE扫描结果的接口，实现如下。nk
     private BluetoothAdapter.LeScanCallback mLeScanCallback = new BluetoothAdapter.LeScanCallback() {
         @Override
         public void onLeScan(final BluetoothDevice device, int rssi, byte[] scanRecord) {
+            String str2 = ByteUtils.getInstance().bytes2HexString(scanRecord);
 
+            Log.i(TAG, "onLeScan: str2 = " + str2 + "\n");
+//            String str = new String(scanRecord);
             //TODO 网上说不一样
             if (Looper.myLooper() == Looper.getMainLooper()) {
                 // Android 5.0 及以上

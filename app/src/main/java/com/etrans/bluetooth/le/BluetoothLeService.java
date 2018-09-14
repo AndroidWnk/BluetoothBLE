@@ -1,6 +1,7 @@
 package com.etrans.bluetooth.le;
 
 //引用
+
 import android.annotation.SuppressLint;
 import android.app.Service;
 import android.bluetooth.BluetoothAdapter;
@@ -40,11 +41,11 @@ public class BluetoothLeService extends Service {
     private static final int STATE_CONNECTING = 1;
     private static final int STATE_CONNECTED = 2;
 
-    public final static String ACTION_GATT_CONNECTED           = "com.example.bluetooth.le.ACTION_GATT_CONNECTED";
-    public final static String ACTION_GATT_DISCONNECTED        = "com.example.bluetooth.le.ACTION_GATT_DISCONNECTED";
-    public final static String ACTION_GATT_SERVICES_DISCOVERED = "com.example.bluetooth.le.ACTION_GATT_SERVICES_DISCOVERED";
-    public final static String ACTION_DATA_AVAILABLE           = "com.example.bluetooth.le.ACTION_DATA_AVAILABLE";
-    public final static String EXTRA_DATA                      = "com.example.bluetooth.le.EXTRA_DATA";
+    public final static String ACTION_GATT_CONNECTED = "com.etrans.bluetooth.le.ACTION_GATT_CONNECTED";
+    public final static String ACTION_GATT_DISCONNECTED = "com.etrans.bluetooth.le.ACTION_GATT_DISCONNECTED";
+    public final static String ACTION_GATT_SERVICES_DISCOVERED = "com.etrans.bluetooth.le.ACTION_GATT_SERVICES_DISCOVERED";
+    public final static String ACTION_DATA_AVAILABLE = "com.etrans.bluetooth.le.ACTION_DATA_AVAILABLE";
+    public final static String EXTRA_DATA = "com.etrans.bluetooth.le.EXTRA_DATA";
 
     private BluetoothLeService mBluetoothLeService;
 
@@ -62,7 +63,7 @@ public class BluetoothLeService extends Service {
                 mConnectionState = STATE_CONNECTED;
                 broadcastUpdate(intentAction);
                 Log.i(TAG, "Connected to GATT server.");
-                //连接上之后发现服务为true
+                //连接上之后发现服务为返回true
                 Log.i(TAG, "Attempting to start service discovery:" +
                         mBluetoothGatt.discoverServices());
 
@@ -86,51 +87,48 @@ public class BluetoothLeService extends Service {
 
         }
 
-        //被读
+        //被读----读取特征值nk
         @Override
-        public void onCharacteristicRead(BluetoothGatt gatt,
-                                         BluetoothGattCharacteristic characteristic,
-                                         int status) {
+        public void onCharacteristicRead(BluetoothGatt gatt, BluetoothGattCharacteristic characteristic, int status) {
             if (status == BluetoothGatt.GATT_SUCCESS) {
                 broadcastUpdate(ACTION_DATA_AVAILABLE, characteristic);
-               // number += 1;
+                // number += 1;
             }
+        }
+        //特性书写-----写入特征值nk
+        @Override
+        public void onCharacteristicWrite(BluetoothGatt gatt,
+                                          BluetoothGattCharacteristic characteristic,
+                                          int status) {
+            broadcastUpdate(ACTION_DATA_AVAILABLE, characteristic);
+            number = 0;
         }
 
         //特性改变 setCharacteristicNotification(mNotifyCharacteristic, true);
-        //使能通知，使能属性为Notify的特征值之后，以后特征值改变时候，就会回调到onChracteristicChanged()中
+        //使能通知，使能属性为Notify的特征值之后，以后特征值改变时候，就会回调到onChracteristicChanged()中----特征值的变化通知nk
         @Override
-        public void onCharacteristicChanged(BluetoothGatt gatt,
-                                            BluetoothGattCharacteristic characteristic) {
+        public void onCharacteristicChanged(BluetoothGatt gatt, BluetoothGattCharacteristic characteristic) {
             broadcastUpdate(ACTION_DATA_AVAILABLE, characteristic);
             //TODO
            /* if ( number == 19){
                 number = 0;
             }else {*/
-                number += 1;
+            number += 1;
             //}
         }
 
-        //特性书写
-        @Override
-        public void onCharacteristicWrite (BluetoothGatt gatt,
-                                           BluetoothGattCharacteristic characteristic,
-                                           int status){
-            broadcastUpdate(ACTION_DATA_AVAILABLE, characteristic);
-            number = 0;
-        }
+
     };
 
     //广播连接状态的改变
     private void broadcastUpdate(final String action) {
-            final Intent intent = new Intent(action);
-            sendBroadcast(intent);
+        final Intent intent = new Intent(action);
+        sendBroadcast(intent);
 
     }
 
     //广播的更新，包括数据的处理,读取heart的数据
-    private void broadcastUpdate(final String action,
-                                 final BluetoothGattCharacteristic characteristic) {
+    private void broadcastUpdate(final String action, final BluetoothGattCharacteristic characteristic) {
         final Intent intent = new Intent(action);
 
         //这是openbulb处理和解析数据的方法
@@ -153,7 +151,7 @@ public class BluetoothLeService extends Service {
             final byte[] data = characteristic.getValue();
             if (data != null && data.length > 0) {
                 final StringBuilder stringBuilder = new StringBuilder(data.length);
-                for(byte byteChar : data)
+                for (byte byteChar : data)
                     stringBuilder.append(String.format("%02X ", byteChar));
                 intent.putExtra(EXTRA_DATA, new String(data) + "\n" + stringBuilder.toString());
                 intent.putExtra(EXTRA_DATA, new String(data));
@@ -165,11 +163,11 @@ public class BluetoothLeService extends Service {
         sendBroadcast(intent);
     }
 
-    public static int byteArrayToInt(byte[] b){
+    public static int byteArrayToInt(byte[] b) {
         byte[] a = new byte[4];
-        int i = a.length - 1,j = b.length - 1;
-        for (; i >= 0 ; i--,j--) {//从b的尾部(即int值的低位)开始copy数据
-            if(j >= 0)
+        int i = a.length - 1, j = b.length - 1;
+        for (; i >= 0; i--, j--) {//从b的尾部(即int值的低位)开始copy数据
+            if (j >= 0)
                 a[i] = b[j];
             else
                 a[i] = 0;//如果b.length不足4,则将高位补0
@@ -177,11 +175,12 @@ public class BluetoothLeService extends Service {
         int v0 = (a[0] & 0xff) << 24;//&0xff将byte值无差异转成int,避免Java自动类型提升后,会保留高位的符号位
         int v1 = (a[1] & 0xff) << 16;
         int v2 = (a[2] & 0xff) << 8;
-        int v3 = (a[3] & 0xff) ;
+        int v3 = (a[3] & 0xff);
         return v0 + v1 + v2 + v3;
     }
+
     //初始化本地iBinder
-    public class LocalBinder extends Binder {
+    public class LocalBinder extends Binder { //Binder
         BluetoothLeService getService() {
             return BluetoothLeService.this;
         }
@@ -231,10 +230,10 @@ public class BluetoothLeService extends Service {
             return false;
         }
 
-        // Previously connected device.  Try to reconnect.
+        //先前连接的设备。尝试重新连接。
         if (mBluetoothDeviceAddress != null && address.equals(mBluetoothDeviceAddress)
                 && mBluetoothGatt != null) {
-            Log.d(TAG, "Trying to use an existing mBluetoothGatt for connection.");
+            Log.d(TAG, "尝试使用现有的mbluestotgatt进行连接");
             if (mBluetoothGatt.connect()) {
                 mConnectionState = STATE_CONNECTING;
                 return true;
@@ -245,14 +244,14 @@ public class BluetoothLeService extends Service {
 
         final BluetoothDevice device = mBluetoothAdapter.getRemoteDevice(address);
         if (device == null) {
-            Log.w(TAG, "Device not found.  Unable to connect.");
+            Log.w(TAG, "没有找到设备。无法连接.");
             return false;
         }
-        // We want to directly connect to the device, so we are setting the autoConnect
+        // 我们想要直接连接到设备，所以我们正在设置自动连接。
         // parameter to false.
         //这个mBluetoothGatt很关键，后面要调用这个类的方法。
-        mBluetoothGatt = device.connectGatt(this, false, mGattCallback);
-        Log.d(TAG, "Trying to create a new connection.");
+        mBluetoothGatt = device.connectGatt(this, false, mGattCallback);//尝试连接设备nk,mGattCallback回调
+        Log.d(TAG, "尝试创建新连接.");
         mBluetoothDeviceAddress = address;
         mConnectionState = STATE_CONNECTING;
 
@@ -278,8 +277,7 @@ public class BluetoothLeService extends Service {
     }
 
     //获取C2541的特性服务
-    public BluetoothGattCharacteristic getBluetoothGattCharacteristic()
-    {
+    public BluetoothGattCharacteristic getBluetoothGattCharacteristic() {
         return mBluetoothGatt.getService(SPECIFIC_SERVICE_UUID).getCharacteristic(SPECIFIC_CHARCTER_UUID);
     }
 
@@ -294,7 +292,7 @@ public class BluetoothLeService extends Service {
 
     //发送characteristic，回调触发函数BluetoothGattCallback#onCharacteristicWrite
     //TODO 添加write的函数
-    public boolean  writeCharacteristic (BluetoothGattCharacteristic characteristic){
+    public boolean writeCharacteristic(BluetoothGattCharacteristic characteristic) {
         if (mBluetoothAdapter == null || mBluetoothGatt == null) {
             Log.w(TAG, "BluetoothAdapter not initialized");
             return false;

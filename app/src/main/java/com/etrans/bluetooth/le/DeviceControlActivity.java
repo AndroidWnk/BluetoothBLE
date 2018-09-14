@@ -76,9 +76,9 @@ public class DeviceControlActivity extends Activity {
                 Log.e(TAG, "Unable to initialize Bluetooth");
                 finish();
             }
-            // Automatically connects to the device upon successful start-up initialization.
+            // 在成功启动初始化时自动连接到设备。
            try {
-               mBluetoothLeService.connect(mDeviceAddress);
+               mBluetoothLeService.connect(mDeviceAddress); //到服务里面的方法去连接
            }catch (Exception e){
                System.out.println(e.getMessage());
            }
@@ -316,9 +316,13 @@ public class DeviceControlActivity extends Activity {
         if (paramString.length() > 0){
             arrayOfByte1 = paramString.getBytes();
         }
+        //向蓝牙设备发送数据  nk
        mNotifyCharacteristic.setValue(arrayOfByte2[0], 17, 0);
         mNotifyCharacteristic.setValue(arrayOfByte1);
         this.mBluetoothLeService.writeCharacteristic(mNotifyCharacteristic);
+
+
+
       /*  byte[] arrayOfByte1 = new byte[20];
         byte[] arrayOfByte2 = new byte[20];
         arrayOfByte2[0] = 0;
