@@ -62,7 +62,7 @@ public class DeviceControlActivity extends Activity {
     private BluetoothGattCharacteristic mNotifyCharacteristic;
 
     private final String LIST_NAME = "NAME";
-    private final String LIST_UUID = "UUID";
+    private final String LIST_UUID = "UUIDUtils";
 
 
     // Code to manage Service lifecycle.
@@ -116,11 +116,11 @@ public class DeviceControlActivity extends Activity {
             } else if (BluetoothLeService.ACTION_GATT_SERVICES_DISCOVERED.equals(action)) {
                 /*displayGattServices(mBluetoothLeService.getSupportedGattServices());*/
                 //TODO在此处修改了，使得发现服务后直接开启获得数据
-               mNotifyCharacteristic = mBluetoothLeService.getBluetoothGattCharacteristic();
+               mNotifyCharacteristic = mBluetoothLeService.getBluetoothGattCharacteristic();//根据写UUID找到写特征
                 if ((mNotifyCharacteristic == null) || ((0x10 | mNotifyCharacteristic.getProperties()) <= 0)) {
                     return;
                 }
-               mBluetoothLeService.setCharacteristicNotification(mNotifyCharacteristic, true);
+               mBluetoothLeService.setCharacteristicNotification(mNotifyCharacteristic, true);//设置开启之后，才能在onCharacteristicRead()这个方法中收到数据。
                 //TODO 刚加上
                 displayData(intent.getStringExtra(BluetoothLeService.EXTRA_DATA));
             } else if (BluetoothLeService.ACTION_DATA_AVAILABLE.equals(action)) {
@@ -302,6 +302,7 @@ public class DeviceControlActivity extends Activity {
     }
 
     //发送消息
+    //发送数据时，如果一包数据超过20字节，需要分包发送，一次最多发送二十字节。nk
     public void sendMsg(String paramString)
     {
        /* if ((mNotifyCharacteristic == null) || (paramString == null)){

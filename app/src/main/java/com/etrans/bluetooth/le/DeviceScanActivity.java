@@ -26,8 +26,10 @@ import android.bluetooth.BluetoothManager;
 import android.bluetooth.le.BluetoothLeScanner;
 import android.bluetooth.le.ScanCallback;
 import android.bluetooth.le.ScanResult;
+import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.pm.PackageManager;
 import android.location.LocationManager;
 import android.os.Build;
@@ -75,7 +77,8 @@ public class DeviceScanActivity extends ListActivity {
         super.onCreate(savedInstanceState);
         //  getActionBar().setTitle(R.string.title_devices);
         mHandler = new Handler();
-
+        IntentFilter statusFilter = new IntentFilter(BluetoothAdapter.ACTION_STATE_CHANGED);//蓝牙模块开关模式变化广播
+        registerReceiver(mStatusReceive, statusFilter);
         // 检查当前手机是否支持ble 蓝牙,如果不支持退出程序
         if (!getPackageManager().hasSystemFeature(PackageManager.FEATURE_BLUETOOTH_LE)) {
             Toast.makeText(this, R.string.ble_not_supported, Toast.LENGTH_SHORT).show();
@@ -138,7 +141,13 @@ public class DeviceScanActivity extends ListActivity {
         switch (item.getItemId()) {
             case R.id.menu_scan:
                 mLeDeviceListAdapter.clear();
-                scanLeDevice(true);
+                //如果当前手机蓝牙未开启，弹出dialog提示用户开启nk
+                if (!mBluetoothAdapter.isEnabled()) {
+                    Intent enableBtIntent = new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
+                    startActivityForResult(enableBtIntent, REQUEST_ENABLE_BT);
+                } else {
+                    scanLeDevice(true);
+                }
                 break;
             case R.id.menu_stop:
                 scanLeDevice(false);
@@ -181,6 +190,8 @@ public class DeviceScanActivity extends ListActivity {
         } else if (requestCode == REQUEST_ENABLE_BT && resultCode == Activity.RESULT_CANCELED) {
             finish();
             return;
+        } else if (requestCode == REQUEST_ENABLE_BT && resultCode == Activity.RESULT_OK) {
+            bluetoothLeScanner = mBluetoothAdapter.getBluetoothLeScanner();
         }
 
         /*if (requestCode == REQUEST_ENABLE_BT && resultCode == Activity.RESULT_CANCELED) {
@@ -209,7 +220,9 @@ public class DeviceScanActivity extends ListActivity {
         intent.putExtra(DeviceControlActivity.EXTRAS_DEVICE_ADDRESS, device.getAddress());
         if (mScanning) {
 //            mBluetoothAdapter.stopLeScan(mLeScanCallback); //停止扫描，连接前，必须停止扫描，不然，失败率很高nk
-            bluetoothLeScanner.stopScan(scanCallback); //停止扫描，连接前，必须停止扫描，不然，失败率很高nk
+            if (bluetoothLeScanner != null) {
+                bluetoothLeScanner.stopScan(scanCallback); //停止扫描，连接前，必须停止扫描，不然，失败率很高nk
+            }
             mScanning = false;
         }
         startActivity(intent);
@@ -225,7 +238,9 @@ public class DeviceScanActivity extends ListActivity {
                     mScanning = false;
                     //BluetoothLeScanner mBluetoothLeScanner = new BluetoothLeScanner();
 //                    mBluetoothAdapter.stopLeScan(DeviceScanActivity.this.mLeScanCallback);
-                    bluetoothLeScanner.stopScan(scanCallback);
+                    if (bluetoothLeScanner != null) {
+                        bluetoothLeScanner.stopScan(scanCallback);
+                    }
                     invalidateOptionsMenu();
                 }
             }, SCAN_PERIOD);
@@ -233,11 +248,22 @@ public class DeviceScanActivity extends ListActivity {
             mScanning = true;
             //扫描很费电，要预设扫描周期，扫描一定周期就停止扫描
 //            mBluetoothAdapter.startLeScan(DeviceScanActivity.this.mLeScanCallback);
-            bluetoothLeScanner.startScan(scanCallback);
+            if (bluetoothLeScanner != null) {
+                bluetoothLeScanner.startScan(scanCallback);
+            }
+
+            //测试过滤nk------
+//            List<ScanFilter> filters = new ArrayList<>();
+//            ScanFilter filter = new ScanFilter.Builder().setServiceUuid(ParcelUuid.fromString("0000ae8f-0000-1000-8000-00805f9b34fb")).build();
+//            filters.add(filter);
+//            bluetoothLeScanner.startScan(filters,new ScanSettings.Builder().build(),scanCallback);
+            //------------------------------
         } else {
             mScanning = false;
 //            mBluetoothAdapter.stopLeScan(DeviceScanActivity.this.mLeScanCallback);
-            bluetoothLeScanner.stopScan(scanCallback);
+            if (bluetoothLeScanner != null) {
+                bluetoothLeScanner.stopScan(scanCallback);
+            }
         }
         invalidateOptionsMenu();
     }
@@ -310,17 +336,18 @@ public class DeviceScanActivity extends ListActivity {
     }
 
 
-
-    private ScanCallback scanCallback=new ScanCallback() {
+    //作为BLE扫描结果的接口，实现如下。nk
+    private ScanCallback scanCallback = new ScanCallback() {
         @Override
         public void onScanResult(int callbackType, ScanResult result) {
-            byte[] scanData=result.getScanRecord().getBytes();
+            byte[] scanData = result.getScanRecord().getBytes();
             //把byte数组转成16进制字符串，方便查看
-            Log.e("TAG","onScanResult :"+ByteUtils.getInstance().bytes2HexString(scanData));
-            Log.e("TAG","onScanResult :"+result.getScanRecord().toString());
+            Log.e("TAG", "onScanResult :" + ByteUtils.getInstance().bytes2HexString(scanData));
+            Log.e("TAG", "onScanResult :" + result.getScanRecord().toString());
             mLeDeviceListAdapter.addDevice(result.getDevice());
             mLeDeviceListAdapter.notifyDataSetChanged();
         }
+
         @Override
         public void onBatchScanResults(List<ScanResult> results) {
             super.onBatchScanResults(results);
@@ -331,9 +358,6 @@ public class DeviceScanActivity extends ListActivity {
             super.onScanFailed(errorCode);
         }
     };
-
-
-
 
 
     // 搜索函数更新到主线程来更新UI界面
@@ -407,5 +431,33 @@ public class DeviceScanActivity extends ListActivity {
         this.startActivityForResult(locationIntent, REQUEST_CODE_LOCATION_SETTINGS);
     }
 
+    /**
+     * 蓝牙模块开关模式变化广播
+     */
+    private BroadcastReceiver mStatusReceive = new BroadcastReceiver() {
 
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            switch (intent.getAction()) {
+                case BluetoothAdapter.ACTION_STATE_CHANGED:
+                    int blueState = intent.getIntExtra(BluetoothAdapter.EXTRA_STATE, 0);
+                    switch (blueState) {
+                        case BluetoothAdapter.STATE_TURNING_ON:
+                            break;
+                        case BluetoothAdapter.STATE_ON:
+                            //开始扫描
+                            scanLeDevice(true);
+                            break;
+                        case BluetoothAdapter.STATE_TURNING_OFF:
+                            bluetoothLeScanner = null;
+                            mLeDeviceListAdapter.clear();
+                            mLeDeviceListAdapter.notifyDataSetChanged();
+                            break;
+                        case BluetoothAdapter.STATE_OFF:
+                            break;
+                    }
+                    break;
+            }
+        }
+    };
 }

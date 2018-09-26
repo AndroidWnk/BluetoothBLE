@@ -57,7 +57,7 @@ public class BluetoothLeService extends Service {
         @Override
         public void onConnectionStateChange(BluetoothGatt gatt, int status, int newState) {
             String intentAction;
-            if (newState == BluetoothProfile.STATE_CONNECTED) {
+            if (newState == BluetoothProfile.STATE_CONNECTED) { //连接了nk
 
                 intentAction = ACTION_GATT_CONNECTED;
                 mConnectionState = STATE_CONNECTED;
@@ -67,7 +67,7 @@ public class BluetoothLeService extends Service {
                 Log.i(TAG, "Attempting to start service discovery:" +
                         mBluetoothGatt.discoverServices());
 
-            } else if (newState == BluetoothProfile.STATE_DISCONNECTED) {
+            } else if (newState == BluetoothProfile.STATE_DISCONNECTED) { //断开了nk
                 intentAction = ACTION_GATT_DISCONNECTED;
                 mConnectionState = STATE_DISCONNECTED;
                 Log.i(TAG, "Disconnected from GATT server.");
@@ -76,6 +76,7 @@ public class BluetoothLeService extends Service {
         }
 
         //发现到服务之后回调到此处nk
+        //发现设备，遍历服务，初始化特征
         @Override
         public void onServicesDiscovered(BluetoothGatt gatt, int status) {
 
@@ -84,10 +85,10 @@ public class BluetoothLeService extends Service {
             } else {
                 Log.w(TAG, "onServicesDiscovered received: " + status);
             }
-
         }
 
-        //被读----读取特征值nk
+        //被读----读取特征值nk-------//characteristic.getValue()是数据，byte数组类型
+        //接收消息nk-----接收消息
         @Override
         public void onCharacteristicRead(BluetoothGatt gatt, BluetoothGattCharacteristic characteristic, int status) {
             if (status == BluetoothGatt.GATT_SUCCESS) {
@@ -96,6 +97,7 @@ public class BluetoothLeService extends Service {
             }
         }
         //特性书写-----写入特征值nk
+        //发送信息nk
         @Override
         public void onCharacteristicWrite(BluetoothGatt gatt,
                                           BluetoothGattCharacteristic characteristic,
@@ -133,7 +135,7 @@ public class BluetoothLeService extends Service {
 
         //这是openbulb处理和解析数据的方法
         if (UUID_HEART_RATE_MEASUREMENT.equals(characteristic.getUuid())) {
-            /*int flag = characteristic.getIntValue(BluetoothGattCharacteristic.FORMAT_UINT8, 0);
+            int flag = characteristic.getIntValue(BluetoothGattCharacteristic.FORMAT_UINT8, 0);
             int format = -1;
             if ((flag & 0x01) != 0) {
                 format = BluetoothGattCharacteristic.FORMAT_UINT16;
@@ -144,15 +146,16 @@ public class BluetoothLeService extends Service {
             }
             final int heartRate = characteristic.getIntValue(format, 1);
             Log.d(TAG, String.format("Received heart rate: %d", heartRate));
-            intent.putExtra(EXTRA_DATA, String.valueOf(heartRate));*/
+            intent.putExtra(EXTRA_DATA, String.valueOf(heartRate));
             intent.putExtra(EXTRA_DATA, characteristic.getValue());
         } else {
             //对于所有的profile，都是利用HEX来进行传递的
             final byte[] data = characteristic.getValue();
             if (data != null && data.length > 0) {
                 final StringBuilder stringBuilder = new StringBuilder(data.length);
-                for (byte byteChar : data)
+                for (byte byteChar : data){
                     stringBuilder.append(String.format("%02X ", byteChar));
+                }
                 intent.putExtra(EXTRA_DATA, new String(data) + "\n" + stringBuilder.toString());
                 intent.putExtra(EXTRA_DATA, new String(data));
             }
@@ -234,7 +237,7 @@ public class BluetoothLeService extends Service {
         if (mBluetoothDeviceAddress != null && address.equals(mBluetoothDeviceAddress)
                 && mBluetoothGatt != null) {
             Log.d(TAG, "尝试使用现有的mbluestotgatt进行连接");
-            if (mBluetoothGatt.connect()) {
+            if (mBluetoothGatt.connect()) { //注意到我们App的旧代码中也有对于初次连接失败的处理，它调用了BluetoothGatt.connect()
                 mConnectionState = STATE_CONNECTING;
                 return true;
             } else {
@@ -276,9 +279,15 @@ public class BluetoothLeService extends Service {
         mBluetoothGatt = null;
     }
 
-    //获取C2541的特性服务
+    //获取C2541的特性服务 直接获取设备数据
     public BluetoothGattCharacteristic getBluetoothGattCharacteristic() {
+        // 先获取BluetoothGattService,
+        // 再通过BluetoothGattService获取BluetoothGattCharacteristic特征值(UUID查询数据)nk
         return mBluetoothGatt.getService(SPECIFIC_SERVICE_UUID).getCharacteristic(SPECIFIC_CHARCTER_UUID);
+
+
+
+
     }
 
     //读取characteristic，回调触发函数BluetoothGattCallback#onCharacteristicRead
@@ -302,16 +311,17 @@ public class BluetoothLeService extends Service {
     }
 
     //开启或者关闭notification  虽然里面有heart 的内容
+    //开启通知:设置开启之后，才能在onCharacteristicRead()这个方法中收到数据。
     public void setCharacteristicNotification(BluetoothGattCharacteristic characteristic,
                                               boolean enabled) {
         if (mBluetoothAdapter == null || mBluetoothGatt == null) {
             Log.w(TAG, "BluetoothAdapter not initialized");
             return;
         }
-        mBluetoothGatt.setCharacteristicNotification(characteristic, enabled);
+        mBluetoothGatt.setCharacteristicNotification(characteristic, enabled);//发送消息,在onCharacteristicRead接收信息
 
         //TODO  这里都是需要改变的
-        // This is specific to Heart Rate Measurement.
+        // This is specific to Heart Rate Measurement.这是特定的心率测量
         if (SPECIFIC_CHARCTER_UUID.equals(characteristic.getUuid())) {
             BluetoothGattDescriptor descriptor = characteristic.getDescriptor(
                     UUID.fromString(SampleGattAttributes.CLIENT_CHARACTERISTIC_CONFIG));

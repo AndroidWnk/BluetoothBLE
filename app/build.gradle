@@ -5,7 +5,7 @@ android {
     buildToolsVersion '26.0.2'
 
     defaultConfig {
-        applicationId "com.etrans.bluetooth.le"
+        applicationId "com.etrans.bluetooth.ble"
         minSdkVersion 18
         targetSdkVersion 23
     }
