@@ -1,22 +1,27 @@
 package com.etrans.bluetooth.le;
 
-import android.os.Bundle;
 import android.app.Activity;
-import android.view.Menu;
+import android.content.SharedPreferences;
+import android.os.Bundle;
+import android.widget.Button;
+import android.widget.CheckBox;
+import android.widget.EditText;
 
 public class MainActivity extends Activity {
-
+	private EditText edit_name, edit_pass;
+	private CheckBox check_remember, check_automatic;
+	private Button button;
+	private SharedPreferences sharedPreferences;
+	private SharedPreferences.Editor editor;
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_main);
+
+
 	}
 
-	@Override
-	public boolean onCreateOptionsMenu(Menu menu) {
-		// Inflate the menu; this adds items to the action bar if it is present.
-		getMenuInflater().inflate(R.menu.main, menu);
-		return true;
-	}
+
+
 
 }

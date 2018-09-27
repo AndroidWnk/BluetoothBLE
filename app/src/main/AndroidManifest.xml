@@ -28,6 +28,14 @@
             </intent-filter>
         </activity>
         
+        <activity android:name="com.etrans.bluetooth.le.LoginActivity">
+
+            <!--<intent-filter>-->
+                <!--<action android:name="android.intent.action.MAIN" />-->
+                <!--<category android:name="android.intent.category.LAUNCHER" />-->
+            <!--</intent-filter>-->
+
+        </activity>
          <activity android:name="com.etrans.bluetooth.le.DeviceControlActivity"/>
         <service android:name="com.etrans.bluetooth.le.BluetoothLeService" android:enabled="true"/>
         

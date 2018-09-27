@@ -120,6 +120,7 @@ public class DeviceControlActivity extends Activity {
                 if ((mNotifyCharacteristic == null) || ((0x10 | mNotifyCharacteristic.getProperties()) <= 0)) {
                     return;
                 }
+                //得到这两个Service和characteristic就可以向蓝牙发送数据了。nk
                mBluetoothLeService.setCharacteristicNotification(mNotifyCharacteristic, true);//设置开启之后，才能在onCharacteristicRead()这个方法中收到数据。
                 //TODO 刚加上
                 displayData(intent.getStringExtra(BluetoothLeService.EXTRA_DATA));

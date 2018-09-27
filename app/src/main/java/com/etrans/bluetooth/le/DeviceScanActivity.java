@@ -25,7 +25,9 @@ import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothManager;
 import android.bluetooth.le.BluetoothLeScanner;
 import android.bluetooth.le.ScanCallback;
+import android.bluetooth.le.ScanFilter;
 import android.bluetooth.le.ScanResult;
+import android.bluetooth.le.ScanSettings;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -178,6 +180,7 @@ public class DeviceScanActivity extends ListActivity {
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         // 用户没有开启蓝牙
 
+        //有没有定位回传nk
         if (requestCode == REQUEST_CODE_LOCATION_SETTINGS) {
             if (isLocationEnable(this)) {
                 //定位已打开的处理
@@ -187,7 +190,9 @@ public class DeviceScanActivity extends ListActivity {
                 //定位依然没有打开的处理
                 Toast.makeText(this, "定位没有打开", Toast.LENGTH_SHORT).show();
             }
-        } else if (requestCode == REQUEST_ENABLE_BT && resultCode == Activity.RESULT_CANCELED) {
+        }
+        //有没有打开蓝牙回传nk
+        else if (requestCode == REQUEST_ENABLE_BT && resultCode == Activity.RESULT_CANCELED) {
             finish();
             return;
         } else if (requestCode == REQUEST_ENABLE_BT && resultCode == Activity.RESULT_OK) {
@@ -249,15 +254,34 @@ public class DeviceScanActivity extends ListActivity {
             //扫描很费电，要预设扫描周期，扫描一定周期就停止扫描
 //            mBluetoothAdapter.startLeScan(DeviceScanActivity.this.mLeScanCallback);
             if (bluetoothLeScanner != null) {
-                bluetoothLeScanner.startScan(scanCallback);
-            }
+//                bluetoothLeScanner.startScan(scanCallback);//扫描全部
 
-            //测试过滤nk------
+
+            //测试过滤nk------test1 过滤UUID
 //            List<ScanFilter> filters = new ArrayList<>();
-//            ScanFilter filter = new ScanFilter.Builder().setServiceUuid(ParcelUuid.fromString("0000ae8f-0000-1000-8000-00805f9b34fb")).build();
+//                ScanFilter filter = new ScanFilter.Builder().setServiceUuid(ParcelUuid.fromString("00005500-d102-11e1-9b23-00025b00a5a6")).build();
 //            filters.add(filter);
 //            bluetoothLeScanner.startScan(filters,new ScanSettings.Builder().build(),scanCallback);
             //------------------------------
+            //测试过滤nk------test2过滤设备地址 = EF:66:61:F0:5D:4B
+            List<ScanFilter> filters2 = new ArrayList<>();
+            ScanFilter filter2 = new ScanFilter.Builder().setDeviceAddress("EF:66:61:F0:5D:4B").build();
+            filters2.add(filter2);
+            bluetoothLeScanner.startScan(filters2,new ScanSettings.Builder().build(),scanCallback);
+            //------------------------------
+            //测试过滤nk------test3过滤设备名称，需要固定名称不能模糊搜索
+//            List<ScanFilter> filters3 = new ArrayList<>();
+//            ScanFilter filter3 = new ScanFilter.Builder().setDeviceName("e-trans#007").build();
+//            filters3.add(filter3);
+//            bluetoothLeScanner.startScan(filters3,new ScanSettings.Builder().build(),scanCallback);
+            //------------------------------
+            //测试过滤nk------test3过滤设备名称，需要固定名称不能模糊搜索
+//            List<ScanFilter> filters4 = new ArrayList<>();
+//            ScanFilter filter4 = new ScanFilter.Builder().set.build();
+//            filters4.add(filter4);
+//            bluetoothLeScanner.startScan(filters4,new ScanSettings.Builder().build(),scanCallback);
+            //------------------------------
+            }
         } else {
             mScanning = false;
 //            mBluetoothAdapter.stopLeScan(DeviceScanActivity.this.mLeScanCallback);
@@ -342,8 +366,12 @@ public class DeviceScanActivity extends ListActivity {
         public void onScanResult(int callbackType, ScanResult result) {
             byte[] scanData = result.getScanRecord().getBytes();
             //把byte数组转成16进制字符串，方便查看
-            Log.e("TAG", "onScanResult :" + ByteUtils.getInstance().bytes2HexString(scanData));
-            Log.e("TAG", "onScanResult :" + result.getScanRecord().toString());
+            //获取到scanRecord后就能根据协议解析广播包了，根据需求提取对应字段。scanRecord的数据必须进行格式转换，否则列表显示会出现乱码，格式不匹配！nk
+            Log.e("TAG", "onScanResult ByteUtils.getInstance().bytes2HexString:" + ByteUtils.getInstance().bytes2HexString(scanData));
+            Log.e("TAG", "onScanResult result.toString():" + result.toString());
+            //test
+
+            //////
             mLeDeviceListAdapter.addDevice(result.getDevice());
             mLeDeviceListAdapter.notifyDataSetChanged();
         }

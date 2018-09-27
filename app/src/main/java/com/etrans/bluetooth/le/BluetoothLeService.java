@@ -26,7 +26,7 @@ public class BluetoothLeService extends Service {
     private final static String TAG = BluetoothLeService.class.getSimpleName();
     //蓝牙模块的某个服务的UUID
     public final static UUID UUID_HEART_RATE_MEASUREMENT = UUID.fromString(SampleGattAttributes.HEART_RATE_MEASUREMENT);
-    private static final UUID SPECIFIC_SERVICE_UUID = UUID.fromString("0000ffe0-0000-1000-8000-00805f9b34fb");
+    private static final UUID SPECIFIC_SERVICE_UUID = UUID.fromString( "0000ffe0-0000-1000-8000-00805f9b34fb");
     private static final UUID SPECIFIC_CHARCTER_UUID = UUID.fromString("0000ffe1-0000-1000-8000-00805f9b34fb");
     private static final String SERVICE_CHARCTER_STR = "0000ffe1-0000-1000-8000-00805f9b34fb";
     private static final String SERVICE_UUID_STR = "0000ffe0-0000-1000-8000-00805f9b34fb";
@@ -107,7 +107,7 @@ public class BluetoothLeService extends Service {
         }
 
         //特性改变 setCharacteristicNotification(mNotifyCharacteristic, true);
-        //使能通知，使能属性为Notify的特征值之后，以后特征值改变时候，就会回调到onChracteristicChanged()中----特征值的变化通知nk
+        //使能通知，使能属性为Notify的特征值之后，以后特征值改变时候，就会回调到 onCharacteristicChanged()中----特征值的变化通知nk
         @Override
         public void onCharacteristicChanged(BluetoothGatt gatt, BluetoothGattCharacteristic characteristic) {
             broadcastUpdate(ACTION_DATA_AVAILABLE, characteristic);
@@ -283,6 +283,7 @@ public class BluetoothLeService extends Service {
     public BluetoothGattCharacteristic getBluetoothGattCharacteristic() {
         // 先获取BluetoothGattService,
         // 再通过BluetoothGattService获取BluetoothGattCharacteristic特征值(UUID查询数据)nk
+        //有了这两个Service和characteristic的UUID，就可以对蓝牙发送数据，并发出通知（当写数据发生改变时发出）。nk
         return mBluetoothGatt.getService(SPECIFIC_SERVICE_UUID).getCharacteristic(SPECIFIC_CHARCTER_UUID);
 
 
@@ -291,6 +292,7 @@ public class BluetoothLeService extends Service {
     }
 
     //读取characteristic，回调触发函数BluetoothGattCallback#onCharacteristicRead
+    //读取蓝牙中数据nk
     public void readCharacteristic(BluetoothGattCharacteristic characteristic) {
         if (mBluetoothAdapter == null || mBluetoothGatt == null) {
             Log.w(TAG, "BluetoothAdapter not initialized");
@@ -300,6 +302,7 @@ public class BluetoothLeService extends Service {
     }
 
     //发送characteristic，回调触发函数BluetoothGattCallback#onCharacteristicWrite
+    //向蓝牙中写入数据。nk
     //TODO 添加write的函数
     public boolean writeCharacteristic(BluetoothGattCharacteristic characteristic) {
         if (mBluetoothAdapter == null || mBluetoothGatt == null) {
