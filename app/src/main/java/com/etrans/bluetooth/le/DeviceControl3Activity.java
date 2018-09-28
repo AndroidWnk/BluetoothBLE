@@ -17,6 +17,8 @@
 package com.etrans.bluetooth.le;
 
 import android.app.Activity;
+import android.app.Fragment;
+import android.app.FragmentTransaction;
 import android.bluetooth.BluetoothGattCharacteristic;
 import android.content.BroadcastReceiver;
 import android.content.ComponentName;
@@ -27,21 +29,23 @@ import android.content.ServiceConnection;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.util.Log;
-import android.view.Menu;
-import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
-import android.widget.EditText;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import com.etrans.bluetooth.le.fragment.FragmentOne;
+import com.etrans.bluetooth.le.fragment.FragmentThree;
+import com.etrans.bluetooth.le.fragment.FragmentTwo;
 
 import java.util.ArrayList;
 
 
 //对于给定的ble设备，这个activity提供接口去连接，展示数据，service和characteris。---设备详情
 //The Activity communicates with {@code BluetoothLeService}, which in turn interacts with the Bluetooth LE API.
-public class DeviceControlActivity extends Activity {
-    private final static String TAG = DeviceControlActivity.class.getSimpleName();
+public class DeviceControl3Activity extends Activity implements View.OnClickListener {
+    private final static String TAG = DeviceControl3Activity.class.getSimpleName();
 
     public static final String EXTRAS_DEVICE_NAME = "DEVICE_NAME";
     public static final String EXTRAS_DEVICE_ADDRESS = "DEVICE_ADDRESS";
@@ -49,8 +53,8 @@ public class DeviceControlActivity extends Activity {
     private TextView mConnectionState;
     private TextView mDataField;
     private Button openBulb;
-    private EditText setTimeText;   //接受数据输入句柄
-    private Button setTimeBtn;    //接受定时开关指令
+    //    private EditText setTimeText;   //接受数据输入句柄123
+    private Button setTimeBtn, btn_connect, btn_disconnect;    //接受定时开关指令
 
     private String mDeviceName;
     private String mDeviceAddress;
@@ -63,7 +67,15 @@ public class DeviceControlActivity extends Activity {
 
     private final String LIST_NAME = "NAME";
     private final String LIST_UUID = "UUIDUtils";
+    private TextView tv_device_address, tv_DeviceName;
 
+    private Fragment fraOne, fraTwo, fraThree;
+    private Button btn_query, btn_set, btn_about;
+    private FragmentTransaction mFragmentTransaction;
+    private LinearLayout ll_deviceinfo;
+
+    private Button btn_scan;
+    private boolean showdeviceinfo = false;
 
     // Code to manage Service lifecycle.
     // Code to manage Service lifecycle.
@@ -77,11 +89,12 @@ public class DeviceControlActivity extends Activity {
                 finish();
             }
             // 在成功启动初始化时自动连接到设备。
-           try {
-               mBluetoothLeService.connect(mDeviceAddress); //到服务里面的方法去连接
-           }catch (Exception e){
-               System.out.println(e.getMessage());
-           }
+            try {
+                mBluetoothLeService.connect(mDeviceAddress); //到服务里面的方法去连接
+                updateConnectionState(R.string.Connection);
+            } catch (Exception e) {
+                System.out.println(e.getMessage());
+            }
         }
 
         @Override
@@ -100,33 +113,37 @@ public class DeviceControlActivity extends Activity {
            /* if ((mNotifyCharacteristic == null) || ((0x10 | mNotifyCharacteristic.getProperties()) <= 0)){
                 return;
             }*/
-           /* DeviceControlActivity.this.mBluetoothLeService.setCharacteristicNotification(mNotifyCharacteristic, true);*/
+            /* DeviceControlActivity.this.mBluetoothLeService.setCharacteristicNotification(mNotifyCharacteristic, true);*/
 
             if (BluetoothLeService.ACTION_GATT_CONNECTED.equals(action)) {
                 mConnected = true;
+                Showbtn();
                 updateConnectionState(R.string.connected);
-                invalidateOptionsMenu();
+//                invalidateOptionsMenu();
                 //TODO 刚加上
                 displayData(intent.getStringExtra(BluetoothLeService.EXTRA_DATA));
             } else if (BluetoothLeService.ACTION_GATT_DISCONNECTED.equals(action)) {
                 mConnected = false;
+                Showbtn();
                 updateConnectionState(R.string.disconnected);
-                invalidateOptionsMenu();
+//                invalidateOptionsMenu();
                 clearUI();
-            } else if (BluetoothLeService.ACTION_GATT_SERVICES_DISCOVERED.equals(action)) {
+            } else if (BluetoothLeService.ACTION_GATT_SERVICES_DISCOVERED.equals(action)) { //GATT行动服务发现nk
+                //到这里就可以去获取数据了，可以去显示获取数据的按钮
+                Toast.makeText(DeviceControl3Activity.this, "连接成功可以主动获取数据了", Toast.LENGTH_LONG).show();
                 /*displayGattServices(mBluetoothLeService.getSupportedGattServices());*/
-                //TODO在此处修改了，使得发现服务后直接开启获得数据
-               mNotifyCharacteristic = mBluetoothLeService.getBluetoothGattCharacteristic();//根据写UUID找到写特征
+                //TODO在此处修改了，使得发现服务后直接开启获得数据,连接成功了就根据UUID获取数据
+//                mNotifyCharacteristic = mBluetoothLeService.getBluetoothGattCharacteristic();//根据写UUID找到写特征,暂时先注释，有UUID的时候打开并获取
                 if ((mNotifyCharacteristic == null) || ((0x10 | mNotifyCharacteristic.getProperties()) <= 0)) {
                     return;
                 }
                 //得到这两个Service和characteristic就可以向蓝牙发送数据了。nk
-               mBluetoothLeService.setCharacteristicNotification(mNotifyCharacteristic, true);//设置开启之后，才能在onCharacteristicRead()这个方法中收到数据。
+                mBluetoothLeService.setCharacteristicNotification(mNotifyCharacteristic, true);//设置开启之后，才能在onCharacteristicRead()这个方法中收到数据。
                 //TODO 刚加上
                 displayData(intent.getStringExtra(BluetoothLeService.EXTRA_DATA));
             } else if (BluetoothLeService.ACTION_DATA_AVAILABLE.equals(action)) {
                 //TODO在此处修改了，使得发现服务后直接开启获得数据
-                mBluetoothLeService.setCharacteristicNotification(mNotifyCharacteristic,true);
+                mBluetoothLeService.setCharacteristicNotification(mNotifyCharacteristic, true);
                 displayData(intent.getStringExtra(BluetoothLeService.EXTRA_DATA));
                 //使得定时的textview里面不显示数据
                 /*String str2 = intent.getStringExtra(BluetoothLeService.EXTRA_DATA);
@@ -137,34 +154,70 @@ public class DeviceControlActivity extends Activity {
 
     //设备未连接时清除界面内容
     private void clearUI() {
-       /* mGattServicesList.setAdapter((SimpleExpandableListAdapter) null);*/
+        /* mGattServicesList.setAdapter((SimpleExpandableListAdapter) null);*/
         mDataField.setText(R.string.no_data);
     }
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.gatt_services_characteristics);
+        setContentView(R.layout.gatt_services_characteristics3);
 
         final Intent intent = getIntent();
         mDeviceName = intent.getStringExtra(EXTRAS_DEVICE_NAME);
         mDeviceAddress = intent.getStringExtra(EXTRAS_DEVICE_ADDRESS);
-
-        // Sets up UI references.
-        ((TextView) findViewById(R.id.device_address)).setText(mDeviceAddress);
-        ((TextView) findViewById(R.id.device_name)).setText(mDeviceName);
-        /*mGattServicesList = (ExpandableListView) findViewById(R.id.gatt_services_list);*/
-        /*mGattServicesList.setOnChildClickListener(servicesListClickListner);*/
-        mConnectionState = (TextView) findViewById(R.id.connection_state);
-        mDataField = (TextView) findViewById(R.id.data_value);
-        openBulb = (Button)findViewById(R.id.openBulb) ;
-        setTimeText = (EditText) findViewById(R.id.setTimeText);
-        setTimeBtn = (Button) findViewById(R.id.setTimeBtn);
-
-//        getActionBar().setTitle(mDeviceName);123
-//        getActionBar().setDisplayHomeAsUpEnabled(true);123
+        setView();//初始化监听nk
+        tv_device_address.setText(mDeviceAddress);
+        tv_DeviceName.setText(mDeviceName);
         Intent gattIntent = new Intent(this, BluetoothLeService.class);
         bindService(gattIntent, mServiceConnection, BIND_AUTO_CREATE);//绑定服务
+    }
+
+
+    private void setView() {
+        tv_device_address = (TextView) findViewById(R.id.device_address);
+        tv_device_address.setText(mDeviceAddress);
+        tv_DeviceName = (TextView) findViewById(R.id.device_name);
+        tv_DeviceName.setText(mDeviceName);
+        mConnectionState = (TextView) findViewById(R.id.connection_state);
+        mDataField = (TextView) findViewById(R.id.data_value);
+        openBulb = (Button) findViewById(R.id.openBulb);
+//        setTimeText = (EditText) findViewById(R.id.setTimeText);123
+        setTimeBtn = (Button) findViewById(R.id.setTimeBtn);
+        btn_disconnect = (Button) findViewById(R.id.btn_disconnect);
+        btn_connect = (Button) findViewById(R.id.btn_connect);
+        btn_connect.setOnClickListener(this);
+        btn_disconnect.setOnClickListener(this);
+        Showbtn();
+
+        //fragment
+        //主要逻辑在MainActivity的onClick中
+        btn_query = (Button) findViewById(R.id.btn_query);
+        btn_query.setOnClickListener(this);
+        btn_set = (Button) findViewById(R.id.btn_set);
+        btn_set.setOnClickListener(this);
+        btn_about = (Button) findViewById(R.id.btn_about);
+        btn_about.setOnClickListener(this);
+        ll_deviceinfo = (LinearLayout) findViewById(R.id.ll_deviceinfo);
+        btn_scan = (Button) findViewById(R.id.btn_scan);
+        btn_scan.setOnClickListener(this);
+
+
+        mFragmentTransaction = getFragmentManager().beginTransaction();
+        if (fraOne == null) {
+            fraOne = new FragmentOne();
+        }
+        mFragmentTransaction.replace(R.id.fl_main, fraOne).commit();
+    }
+
+    private void Showbtn() {
+        if (mConnected) {
+            btn_connect.setVisibility(View.GONE);
+            btn_disconnect.setVisibility(View.VISIBLE);
+        } else {
+            btn_connect.setVisibility(View.VISIBLE);
+            btn_disconnect.setVisibility(View.GONE);
+        }
     }
 
     //重启时、开始时注册广播
@@ -175,6 +228,7 @@ public class DeviceControlActivity extends Activity {
         registerReceiver(mGattUpdateReceiver, makeGattUpdateIntentFilter());
         if (mBluetoothLeService != null) {
             final boolean result = mBluetoothLeService.connect(mDeviceAddress);
+            updateConnectionState(R.string.Connection);
             Log.d(TAG, "Connect request result=" + result);
         }
     }
@@ -195,35 +249,35 @@ public class DeviceControlActivity extends Activity {
     }
 
     //判断是否连接，若未连接就展示没有连接的设备
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        getMenuInflater().inflate(R.menu.gatt_services, menu);
-        if (mConnected) {
-            menu.findItem(R.id.menu_connect).setVisible(false);
-            menu.findItem(R.id.menu_disconnect).setVisible(true);
-        } else {
-            menu.findItem(R.id.menu_connect).setVisible(true);
-            menu.findItem(R.id.menu_disconnect).setVisible(false);
-        }
-        return true;
-    }
+//    @Override
+//    public boolean onCreateOptionsMenu(Menu menu) {
+//        getMenuInflater().inflate(R.menu.gatt_services, menu);
+//        if (mConnected) {
+//            menu.findItem(R.id.menu_connect).setVisible(false);
+//            menu.findItem(R.id.menu_disconnect).setVisible(true);
+//        } else {
+//            menu.findItem(R.id.menu_connect).setVisible(true);
+//            menu.findItem(R.id.menu_disconnect).setVisible(false);
+//        }
+//        return true;
+//    }
 
     //主菜单item被点击之后，intend获取来自deviceScanActivity的address和name从而进行连接
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        switch(item.getItemId()) {
-            case R.id.menu_connect:
-                mBluetoothLeService.connect(mDeviceAddress);
-                return true;
-            case R.id.menu_disconnect:
-                mBluetoothLeService.disconnect();
-                return true;
-            case android.R.id.home:
-                onBackPressed();
-                return true;
-        }
-        return super.onOptionsItemSelected(item);
-    }
+//    @Override
+//    public boolean onOptionsItemSelected(MenuItem item) {
+//        switch (item.getItemId()) {
+//            case R.id.menu_connect:
+//                mBluetoothLeService.connect(mDeviceAddress);
+//                return true;
+//            case R.id.menu_disconnect:
+//                mBluetoothLeService.disconnect();
+//                return true;
+//            case android.R.id.home:
+//                onBackPressed();
+//                return true;
+//        }
+//        return super.onOptionsItemSelected(item);
+//    }
 
     //显示当前连接状态
     private void updateConnectionState(final int resourceId) {
@@ -238,7 +292,7 @@ public class DeviceControlActivity extends Activity {
     //显示传来的数据
     private void displayData(String data) {
         if (data != null) {
-           /* mDataField.append(data);*/
+            /* mDataField.append(data);*/
             mDataField.setText(data);
         }
     }
@@ -246,10 +300,10 @@ public class DeviceControlActivity extends Activity {
     //开灯按键响应函数
     public void onSwitchBulbClicked(View v) {
         if (mConnected == false) {
-            Toast.makeText(DeviceControlActivity.this, "请先连接设备", Toast.LENGTH_SHORT).show();
+            Toast.makeText(DeviceControl3Activity.this, "请先连接设备", Toast.LENGTH_SHORT).show();
         } else {
             if (openBulb.getText() == "开灯") {
-               /* sendMsg("Sapp_mode1E");*/
+                /* sendMsg("Sapp_mode1E");*/
                 sendMsg("Sopen_led1E");
               /*  openBulb.getBackground().setAlpha(50);
                 setTimeBtn.getBackground().setAlpha(50);*/
@@ -268,10 +322,10 @@ public class DeviceControlActivity extends Activity {
     }
 
     //定时发送开关灯命令
-    public  void onSetTimeOpenBulb(View v){
+    public void onSetTimeOpenBulb(View v) {
         //转化成是string类型
-        String mText = setTimeText.getText().toString();
-        sendMsg(mText);
+//        String mText = setTimeText.getText().toString();123
+//        sendMsg(mText);123
         //判断用户输入的定时是否是数字
         //TODO 对用户定时的时间是否有要求
         /*Pattern p = Pattern.compile("[^6]");//[0-9]*
@@ -305,8 +359,7 @@ public class DeviceControlActivity extends Activity {
 
     //发送消息
     //发送数据时，如果一包数据超过20字节，需要分包发送，一次最多发送二十字节。nk
-    public void sendMsg(String paramString)
-    {
+    public void sendMsg(String paramString) {
        /* if ((mNotifyCharacteristic == null) || (paramString == null)){
             return;
         }
@@ -316,11 +369,11 @@ public class DeviceControlActivity extends Activity {
         byte[] arrayOfByte1 = new byte[20];
         byte[] arrayOfByte2 = new byte[20];
         arrayOfByte2[0] = 0;
-        if (paramString.length() > 0){
+        if (paramString.length() > 0) {
             arrayOfByte1 = paramString.getBytes();
         }
         //向蓝牙设备发送数据  nk
-       mNotifyCharacteristic.setValue(arrayOfByte2[0], 17, 0);
+        mNotifyCharacteristic.setValue(arrayOfByte2[0], 17, 0);
         mNotifyCharacteristic.setValue(arrayOfByte1);
         this.mBluetoothLeService.writeCharacteristic(mNotifyCharacteristic);
 
@@ -347,6 +400,55 @@ public class DeviceControlActivity extends Activity {
         return intentFilter;
     }
 
+    @Override
+    public void onClick(View v) {
+
+        //每次点击事件都会初始化FragmentTransaction
+        mFragmentTransaction = getFragmentManager().beginTransaction();
+
+        switch (v.getId()) {
+            case R.id.btn_connect:
+                mBluetoothLeService.connect(mDeviceAddress);
+                updateConnectionState(R.string.Connection);
+                break;
+            case R.id.btn_disconnect:
+                mBluetoothLeService.disconnect();
+                break;
+            case R.id.btn_scan:
+                showdeviceinfo = !showdeviceinfo;
+                if (showdeviceinfo) {
+                    ll_deviceinfo.setVisibility(View.GONE);
+                } else {
+                    ll_deviceinfo.setVisibility(View.VISIBLE);
+                }
+                break;
+
+            case R.id.btn_query:
+                if (fraOne == null) {
+                    fraOne = new FragmentOne();
+                }
+                mFragmentTransaction.replace(R.id.fl_main, fraOne).commit();
+//                mFragmentTransaction.addToBackStack(null);//添加fragment到返回栈
+//                mFragmentTransaction.commit();
+                break;
+            case R.id.btn_set:
+                if (fraTwo == null) {
+                    fraTwo = new FragmentTwo();
+                }
+                mFragmentTransaction.replace(R.id.fl_main, fraTwo).commit();
+//                mFragmentTransaction.addToBackStack(null);//添加fragment到返回栈
+//                mFragmentTransaction.commit();
+                break;
+            case R.id.btn_about:
+                if (fraThree == null) {
+                    fraThree = new FragmentThree();
+                }
+                mFragmentTransaction.replace(R.id.fl_main, fraThree).commit();
+//                mFragmentTransaction.addToBackStack(null);//添加fragment到返回栈
+//                mFragmentTransaction.commit();
+                break;
+        }
+    }
 }
 
 

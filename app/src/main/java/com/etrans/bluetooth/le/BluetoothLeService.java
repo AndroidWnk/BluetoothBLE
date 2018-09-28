@@ -26,7 +26,7 @@ public class BluetoothLeService extends Service {
     private final static String TAG = BluetoothLeService.class.getSimpleName();
     //蓝牙模块的某个服务的UUID
     public final static UUID UUID_HEART_RATE_MEASUREMENT = UUID.fromString(SampleGattAttributes.HEART_RATE_MEASUREMENT);
-    private static final UUID SPECIFIC_SERVICE_UUID = UUID.fromString( "0000ffe0-0000-1000-8000-00805f9b34fb");
+    private static final UUID SPECIFIC_SERVICE_UUID = UUID.fromString("0000ffe0-0000-1000-8000-00805f9b34fb");
     private static final UUID SPECIFIC_CHARCTER_UUID = UUID.fromString("0000ffe1-0000-1000-8000-00805f9b34fb");
     private static final String SERVICE_CHARCTER_STR = "0000ffe1-0000-1000-8000-00805f9b34fb";
     private static final String SERVICE_UUID_STR = "0000ffe0-0000-1000-8000-00805f9b34fb";
@@ -68,6 +68,9 @@ public class BluetoothLeService extends Service {
                         mBluetoothGatt.discoverServices());
 
             } else if (newState == BluetoothProfile.STATE_DISCONNECTED) { //断开了nk
+
+                disConnect();//多次创建gatt连接对象的直接结果是创建过6个以上gatt后就会再也连接不上任何设备，原因应该是android中对BLE限制了同时连接的数量为6个 nk
+
                 intentAction = ACTION_GATT_DISCONNECTED;
                 mConnectionState = STATE_DISCONNECTED;
                 Log.i(TAG, "Disconnected from GATT server.");
@@ -81,9 +84,11 @@ public class BluetoothLeService extends Service {
         public void onServicesDiscovered(BluetoothGatt gatt, int status) {
 
             if (status == BluetoothGatt.GATT_SUCCESS) {
-                broadcastUpdate(ACTION_GATT_SERVICES_DISCOVERED);
+                broadcastUpdate(ACTION_GATT_SERVICES_DISCOVERED);//连接成功试图获取数据，
+                Log.i(TAG, "onServicesDiscovered: 连接成功");
             } else {
                 Log.w(TAG, "onServicesDiscovered received: " + status);
+                Log.i(TAG, "onServicesDiscovered: 连接失败");
             }
         }
 
@@ -96,6 +101,7 @@ public class BluetoothLeService extends Service {
                 // number += 1;
             }
         }
+
         //特性书写-----写入特征值nk
         //发送信息nk
         @Override
@@ -153,7 +159,7 @@ public class BluetoothLeService extends Service {
             final byte[] data = characteristic.getValue();
             if (data != null && data.length > 0) {
                 final StringBuilder stringBuilder = new StringBuilder(data.length);
-                for (byte byteChar : data){
+                for (byte byteChar : data) {
                     stringBuilder.append(String.format("%02X ", byteChar));
                 }
                 intent.putExtra(EXTRA_DATA, new String(data) + "\n" + stringBuilder.toString());
@@ -234,8 +240,7 @@ public class BluetoothLeService extends Service {
         }
 
         //先前连接的设备。尝试重新连接。
-        if (mBluetoothDeviceAddress != null && address.equals(mBluetoothDeviceAddress)
-                && mBluetoothGatt != null) {
+        if (mBluetoothDeviceAddress != null && address.equals(mBluetoothDeviceAddress) && mBluetoothGatt != null) {
             Log.d(TAG, "尝试使用现有的mbluestotgatt进行连接");
             if (mBluetoothGatt.connect()) { //注意到我们App的旧代码中也有对于初次连接失败的处理，它调用了BluetoothGatt.connect()
                 mConnectionState = STATE_CONNECTING;
@@ -287,8 +292,6 @@ public class BluetoothLeService extends Service {
         return mBluetoothGatt.getService(SPECIFIC_SERVICE_UUID).getCharacteristic(SPECIFIC_CHARCTER_UUID);
 
 
-
-
     }
 
     //读取characteristic，回调触发函数BluetoothGattCallback#onCharacteristicRead
@@ -331,6 +334,22 @@ public class BluetoothLeService extends Service {
             descriptor.setValue(BluetoothGattDescriptor.ENABLE_NOTIFICATION_VALUE);
             mBluetoothGatt.writeDescriptor(descriptor);
         }
+    }
+
+
+    // 断开连接
+    public boolean disConnect() {
+        Log.d(TAG, "mBluetoothGatt" + mBluetoothGatt);
+        if (mBluetoothGatt != null) {
+//            setEnableNotify(BleConnectUtil.mBluetoothGattCharacteristicNotify, false);
+            mBluetoothGatt.disconnect();
+            mBluetoothGatt.close();
+            mBluetoothGatt = null;
+            mConnectionState = STATE_DISCONNECTED;
+//            mDeviceAddress = "";
+            return true;
+        }
+        return false;
     }
 
     //取回可以连接的GATTservice，在BluetoothGatt#discoverServices()运行成功后可以被调用，返回a list of supported services
