@@ -394,10 +394,10 @@ public class DeviceScan2Activity extends Activity implements View.OnClickListene
             //test
 
             //////
-//            if(result.getDevice().getName()!= null){
+            if(result.getDevice().getName()!= null){
                 mLeDeviceListAdapter.addDevice(result.getDevice());
                 mLeDeviceListAdapter.notifyDataSetChanged();
-//            }
+            }
         }
 
         @Override

@@ -26,8 +26,20 @@ public class BluetoothLeService extends Service {
     private final static String TAG = BluetoothLeService.class.getSimpleName();
     //蓝牙模块的某个服务的UUID
     public final static UUID UUID_HEART_RATE_MEASUREMENT = UUID.fromString(SampleGattAttributes.HEART_RATE_MEASUREMENT);
-    private static final UUID SPECIFIC_SERVICE_UUID = UUID.fromString("0000ffe0-0000-1000-8000-00805f9b34fb");
-    private static final UUID SPECIFIC_CHARCTER_UUID = UUID.fromString("0000ffe1-0000-1000-8000-00805f9b34fb");
+    //t_box两个UUID
+    private static final UUID SPECIFIC_SERVICE_UUID = UUID.fromString("00005500-d102-11e1-9b23-e9025b00a5a5");
+    private static final UUID SPECIFIC_CHARCTER_UUID = UUID.fromString("00005501-d102-11e1-9b23-e9025b00a5a5");
+    private static final UUID SPECIFIC_CHARCTER_Notify_UUID = UUID.fromString("00005503-d102-11e1-9b23-e9025b00a5a5");
+
+    //TboxUUID
+    //服务uuid
+    private static final String serviceUuidStr = "00002a50-0000-1000-8000-00805f9b34fb";
+    //写通道 uuid
+    private static final String writeCharactUuid = "00005501-d102-11e1-9b23-e9025b00a5a5";
+    //通知通道 uuid
+    private static final String notifyCharactUuid = "00005503-d102-11e1-9b23-e9025b00a5a5";
+
+    ////
     private static final String SERVICE_CHARCTER_STR = "0000ffe1-0000-1000-8000-00805f9b34fb";
     private static final String SERVICE_UUID_STR = "0000ffe0-0000-1000-8000-00805f9b34fb";
 
@@ -112,7 +124,7 @@ public class BluetoothLeService extends Service {
             number = 0;
         }
 
-        //特性改变 setCharacteristicNotification(mNotifyCharacteristic, true);
+        //特性改变 setCharacteristic(mNotifyCharacteristic, true);
         //使能通知，使能属性为Notify的特征值之后，以后特征值改变时候，就会回调到 onCharacteristicChanged()中----特征值的变化通知nk
         @Override
         public void onCharacteristicChanged(BluetoothGatt gatt, BluetoothGattCharacteristic characteristic) {
@@ -291,6 +303,12 @@ public class BluetoothLeService extends Service {
         //有了这两个Service和characteristic的UUID，就可以对蓝牙发送数据，并发出通知（当写数据发生改变时发出）。nk
         return mBluetoothGatt.getService(SPECIFIC_SERVICE_UUID).getCharacteristic(SPECIFIC_CHARCTER_UUID);
 
+    }
+    public BluetoothGattCharacteristic getBluetoothGattCharacteristicNotify() {
+        // 先获取BluetoothGattService,
+        // 再通过BluetoothGattService获取BluetoothGattCharacteristic特征值(UUID查询数据)nk
+        //有了这两个Service和characteristic的UUID，就可以对蓝牙发送数据，并发出通知（当写数据发生改变时发出）。nk
+        return mBluetoothGatt.getService(SPECIFIC_SERVICE_UUID).getCharacteristic(SPECIFIC_CHARCTER_Notify_UUID);
 
     }
 
@@ -318,24 +336,38 @@ public class BluetoothLeService extends Service {
 
     //开启或者关闭notification  虽然里面有heart 的内容
     //开启通知:设置开启之后，才能在onCharacteristicRead()这个方法中收到数据。
-    public void setCharacteristicNotification(BluetoothGattCharacteristic characteristic,
-                                              boolean enabled) {
+    public void setCharacteristic(BluetoothGattCharacteristic characteristic, boolean enabled) {
         if (mBluetoothAdapter == null || mBluetoothGatt == null) {
             Log.w(TAG, "BluetoothAdapter not initialized");
             return;
         }
-        mBluetoothGatt.setCharacteristicNotification(characteristic, enabled);//发送消息,在onCharacteristicRead接收信息
+        if (0 != (characteristic.getProperties() & BluetoothGattCharacteristic.PROPERTY_NOTIFY)) {
+            mBluetoothGatt.setCharacteristicNotification(characteristic, true);
+            BluetoothGattDescriptor descriptor = characteristic.getDescriptor(
+                    UUID.fromString("00002902-0000-1000-8000-00805f9b34fb"));
+            descriptor.setValue(BluetoothGattDescriptor.ENABLE_NOTIFICATION_VALUE);
+            mBluetoothGatt.writeDescriptor(descriptor);
+        }else{
+            mBluetoothGatt.setCharacteristicNotification(characteristic, enabled);//发送消息,在onCharacteristicRead接收信息
+        }
 
         //TODO  这里都是需要改变的
         // This is specific to Heart Rate Measurement.这是特定的心率测量
-        if (SPECIFIC_CHARCTER_UUID.equals(characteristic.getUuid())) {
-            BluetoothGattDescriptor descriptor = characteristic.getDescriptor(
-                    UUID.fromString(SampleGattAttributes.CLIENT_CHARACTERISTIC_CONFIG));
-            descriptor.setValue(BluetoothGattDescriptor.ENABLE_NOTIFICATION_VALUE);
-            mBluetoothGatt.writeDescriptor(descriptor);
-        }
+//        if (SPECIFIC_CHARCTER_Notify_UUID.equals(characteristic.getUuid())) {
+//            BluetoothGattDescriptor descriptor = characteristic.getDescriptor(
+//                    UUID.fromString(SampleGattAttributes.CLIENT_CHARACTERISTIC_CONFIG));
+//            descriptor.setValue(BluetoothGattDescriptor.ENABLE_NOTIFICATION_VALUE);
+//            mBluetoothGatt.writeDescriptor(descriptor);
+//        }
+//        else if (0 != (characteristic.getProperties() & BluetoothGattCharacteristic.PROPERTY_NOTIFY)) {
+//            mBluetoothGatt.setCharacteristic(characteristic, true);
+//            BluetoothGattDescriptor descriptor = characteristic.getDescriptor(
+//                    UUID.fromString("00002902-0000-1000-8000-00805f9b34fb"));
+//            descriptor.setValue(BluetoothGattDescriptor.ENABLE_NOTIFICATION_VALUE);
+//            mBluetoothGatt.writeDescriptor(descriptor);
+//
+//        }
     }
-
 
     // 断开连接
     public boolean disConnect() {
@@ -358,4 +390,6 @@ public class BluetoothLeService extends Service {
 
         return mBluetoothGatt.getServices();
     }*/
+
+
 }

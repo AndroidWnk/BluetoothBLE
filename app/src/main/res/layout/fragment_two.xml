@@ -13,15 +13,15 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="@string/label_device_name"
+            android:text="终端ID："
             android:textSize="18sp" />
 
         <Space
-            android:layout_width="5dp"
+            android:layout_width="25dp"
             android:layout_height="wrap_content" />
 
-        <TextView
-            android:id="@+id/device_name1"
+        <EditText
+            android:id="@+id/et_ID"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:textSize="18sp" />
@@ -35,15 +35,15 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="@string/label_device_name"
+            android:text="车辆vin号："
             android:textSize="18sp" />
 
         <Space
-            android:layout_width="5dp"
+            android:layout_width="6dp"
             android:layout_height="wrap_content" />
 
-        <TextView
-            android:id="@+id/device_name2"
+        <EditText
+            android:id="@+id/et_vin"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:textSize="18sp" />
@@ -57,17 +57,89 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="@string/label_device_name"
+            android:text="车牌号："
             android:textSize="18sp" />
 
         <Space
-            android:layout_width="5dp"
+            android:layout_width="25dp"
             android:layout_height="wrap_content" />
 
-        <TextView
-            android:id="@+id/device_name3"
+        <EditText
+            android:id="@+id/et_devicenum"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:textSize="18sp" />
     </LinearLayout>
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="10dp"
+        android:orientation="horizontal">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="通讯号码："
+            android:textSize="18sp" />
+
+        <Space
+            android:layout_width="8dp"
+            android:layout_height="wrap_content" />
+
+        <EditText
+            android:id="@+id/et_callnum"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textSize="18sp" />
+
+    </LinearLayout>
+    <ImageView
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:background="@color/font_tab_0" />
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="10dp"
+        android:orientation="vertical">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="通信服务器"
+            android:textSize="18sp" />
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            >
+            <TextView
+                android:text="域名/IP："
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content" />
+            <TextView
+                android:id="@+id/tv_ip"
+                android:text="125.23.21.256"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content" />
+            <Space
+                android:layout_width="15dp"
+                android:layout_height="wrap_content" />
+            <TextView
+                android:text="端口："
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content" />
+            <TextView
+                android:id="@+id/tv_port"
+                android:text="8080"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content" />
+        </LinearLayout>
+
+
+    </LinearLayout>
+    <ImageView
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:background="@color/font_tab_0" />
 </LinearLayout>

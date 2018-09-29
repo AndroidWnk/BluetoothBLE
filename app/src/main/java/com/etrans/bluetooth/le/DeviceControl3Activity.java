@@ -54,7 +54,7 @@ public class DeviceControl3Activity extends Activity implements View.OnClickList
     private TextView mDataField;
     private Button openBulb;
     //    private EditText setTimeText;   //接受数据输入句柄123
-    private Button setTimeBtn, btn_connect, btn_disconnect;    //接受定时开关指令
+    private Button setTimeBtn, btn_connect, btn_disconnect,btn_getdata,btn_setdata;    //接受定时开关指令
 
     private String mDeviceName;
     private String mDeviceAddress;
@@ -63,7 +63,7 @@ public class DeviceControl3Activity extends Activity implements View.OnClickList
     private ArrayList<ArrayList<BluetoothGattCharacteristic>> mGattCharacteristics =
             new ArrayList<ArrayList<BluetoothGattCharacteristic>>();
     private boolean mConnected = false;
-    private BluetoothGattCharacteristic mNotifyCharacteristic;
+    private BluetoothGattCharacteristic mNotifyCharacteristic,mBluetoothGattCharacteristicNotify,mBluetoothGattCharacteristicName;
 
     private final String LIST_NAME = "NAME";
     private final String LIST_UUID = "UUIDUtils";
@@ -96,7 +96,6 @@ public class DeviceControl3Activity extends Activity implements View.OnClickList
                 System.out.println(e.getMessage());
             }
         }
-
         @Override
         public void onServiceDisconnected(ComponentName componentName) {
             mBluetoothLeService = null;
@@ -113,7 +112,7 @@ public class DeviceControl3Activity extends Activity implements View.OnClickList
            /* if ((mNotifyCharacteristic == null) || ((0x10 | mNotifyCharacteristic.getProperties()) <= 0)){
                 return;
             }*/
-            /* DeviceControlActivity.this.mBluetoothLeService.setCharacteristicNotification(mNotifyCharacteristic, true);*/
+            /* DeviceControlActivity.this.mBluetoothLeService.setCharacteristic(mNotifyCharacteristic, true);*/
 
             if (BluetoothLeService.ACTION_GATT_CONNECTED.equals(action)) {
                 mConnected = true;
@@ -133,17 +132,20 @@ public class DeviceControl3Activity extends Activity implements View.OnClickList
                 Toast.makeText(DeviceControl3Activity.this, "连接成功可以主动获取数据了", Toast.LENGTH_LONG).show();
                 /*displayGattServices(mBluetoothLeService.getSupportedGattServices());*/
                 //TODO在此处修改了，使得发现服务后直接开启获得数据,连接成功了就根据UUID获取数据
+                mNotifyCharacteristic = mBluetoothLeService.getBluetoothGattCharacteristic();//根据写UUID找到写特征,暂时先注释，有UUID的时候打开并获取
+                mBluetoothGattCharacteristicNotify = mBluetoothLeService.getBluetoothGattCharacteristicNotify();//根据写UUID找到写特征,暂时先注释，有UUID的时候打开并获取
 //                mNotifyCharacteristic = mBluetoothLeService.getBluetoothGattCharacteristic();//根据写UUID找到写特征,暂时先注释，有UUID的时候打开并获取
                 if ((mNotifyCharacteristic == null) || ((0x10 | mNotifyCharacteristic.getProperties()) <= 0)) {
                     return;
                 }
                 //得到这两个Service和characteristic就可以向蓝牙发送数据了。nk
-                mBluetoothLeService.setCharacteristicNotification(mNotifyCharacteristic, true);//设置开启之后，才能在onCharacteristicRead()这个方法中收到数据。
+                mBluetoothLeService.setCharacteristic(mNotifyCharacteristic, true);//设置开启之后，才能在 onCharacteristicRead() 这个方法中收到数据。//发送数据
+                mBluetoothLeService.setCharacteristic(mBluetoothGattCharacteristicNotify, true);//设置开启之后，才能在 onCharacteristicRead() 这个方法中收到数据。//接收数据
                 //TODO 刚加上
                 displayData(intent.getStringExtra(BluetoothLeService.EXTRA_DATA));
             } else if (BluetoothLeService.ACTION_DATA_AVAILABLE.equals(action)) {
                 //TODO在此处修改了，使得发现服务后直接开启获得数据
-                mBluetoothLeService.setCharacteristicNotification(mNotifyCharacteristic, true);
+                mBluetoothLeService.setCharacteristic(mNotifyCharacteristic, true);
                 displayData(intent.getStringExtra(BluetoothLeService.EXTRA_DATA));
                 //使得定时的textview里面不显示数据
                 /*String str2 = intent.getStringExtra(BluetoothLeService.EXTRA_DATA);
@@ -185,9 +187,13 @@ public class DeviceControl3Activity extends Activity implements View.OnClickList
 //        setTimeText = (EditText) findViewById(R.id.setTimeText);123
         setTimeBtn = (Button) findViewById(R.id.setTimeBtn);
         btn_disconnect = (Button) findViewById(R.id.btn_disconnect);
+        btn_getdata = (Button) findViewById(R.id.btn_getdata);
+        btn_setdata = (Button) findViewById(R.id.btn_setdata);
         btn_connect = (Button) findViewById(R.id.btn_connect);
         btn_connect.setOnClickListener(this);
         btn_disconnect.setOnClickListener(this);
+        btn_getdata.setOnClickListener(this);
+        btn_setdata.setOnClickListener(this);
         Showbtn();
 
         //fragment
@@ -446,6 +452,18 @@ public class DeviceControl3Activity extends Activity implements View.OnClickList
                 mFragmentTransaction.replace(R.id.fl_main, fraThree).commit();
 //                mFragmentTransaction.addToBackStack(null);//添加fragment到返回栈
 //                mFragmentTransaction.commit();
+                break;
+            case R.id.btn_getdata:
+
+                mNotifyCharacteristic = mBluetoothLeService.getBluetoothGattCharacteristic();//根据写UUID找到写特征,暂时先注释，有UUID的时候打开并获取
+
+                break;
+            case R.id.btn_setdata:
+                if (mConnected == false) {
+                    Toast.makeText(DeviceControl3Activity.this, "请先连接设备", Toast.LENGTH_SHORT).show();
+                } else {
+                    sendMsg("Sopen_led1E");
+                }
                 break;
         }
     }

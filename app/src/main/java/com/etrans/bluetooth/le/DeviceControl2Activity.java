@@ -100,7 +100,7 @@ public class DeviceControl2Activity extends Activity implements View.OnClickList
            /* if ((mNotifyCharacteristic == null) || ((0x10 | mNotifyCharacteristic.getProperties()) <= 0)){
                 return;
             }*/
-            /* DeviceControlActivity.this.mBluetoothLeService.setCharacteristicNotification(mNotifyCharacteristic, true);*/
+            /* DeviceControlActivity.this.mBluetoothLeService.setCharacteristic(mNotifyCharacteristic, true);*/
 
             if (BluetoothLeService.ACTION_GATT_CONNECTED.equals(action)) {
                 mConnected = true;
@@ -125,12 +125,12 @@ public class DeviceControl2Activity extends Activity implements View.OnClickList
                     return;
                 }
                 //得到这两个Service和characteristic就可以向蓝牙发送数据了。nk
-                mBluetoothLeService.setCharacteristicNotification(mNotifyCharacteristic, true);//设置开启之后，才能在onCharacteristicRead()这个方法中收到数据。
+                mBluetoothLeService.setCharacteristic(mNotifyCharacteristic, true);//设置开启之后，才能在onCharacteristicRead()这个方法中收到数据。
                 //TODO 刚加上
                 displayData(intent.getStringExtra(BluetoothLeService.EXTRA_DATA));
             } else if (BluetoothLeService.ACTION_DATA_AVAILABLE.equals(action)) {
                 //TODO在此处修改了，使得发现服务后直接开启获得数据
-                mBluetoothLeService.setCharacteristicNotification(mNotifyCharacteristic, true);
+                mBluetoothLeService.setCharacteristic(mNotifyCharacteristic, true);
                 displayData(intent.getStringExtra(BluetoothLeService.EXTRA_DATA));
                 //使得定时的textview里面不显示数据
                 /*String str2 = intent.getStringExtra(BluetoothLeService.EXTRA_DATA);
