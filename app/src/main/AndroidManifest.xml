@@ -29,14 +29,6 @@
                 <!--<category android:name="android.intent.category.LAUNCHER" />-->
             <!--</intent-filter>-->
         </activity>
-        <activity
-            android:name="com.etrans.bluetooth.le.DeviceScan2Activity"
-            android:label="@string/app_name" >
-            <!--<intent-filter>-->
-                <!--<action android:name="android.intent.action.MAIN" />-->
-                <!--<category android:name="android.intent.category.LAUNCHER" />-->
-            <!--</intent-filter>-->
-        </activity>
 
         <activity android:name="com.etrans.bluetooth.le.LoginActivity">
 
@@ -46,7 +38,7 @@
             </intent-filter>
 
         </activity>
-        <activity android:name="com.etrans.bluetooth.le.DeviceControl3Activity"
+        <activity android:name="com.etrans.bluetooth.le.DeviceControlActivity"
             android:label="@string/app_name" >
 
             <!--<intent-filter>-->

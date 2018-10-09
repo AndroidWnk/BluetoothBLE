@@ -9,6 +9,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
+import com.etrans.bluetooth.le.Myapplication;
 import com.etrans.bluetooth.le.R;
 import com.etrans.bluetooth.le.utils.APKVersionCodeUtils;
 
@@ -20,7 +21,7 @@ import com.etrans.bluetooth.le.utils.APKVersionCodeUtils;
  */
 public class FragmentThree extends Fragment {
 
-    private TextView tv_version;
+    private TextView tv_version,tv_password;
 
 
     public static Handler hand = null;
@@ -52,11 +53,13 @@ public class FragmentThree extends Fragment {
     private void initView(View view){
 
         tv_version = (TextView) view.findViewById(R.id.tv_version);
+        tv_password = (TextView) view.findViewById(R.id.tv_password);//登录密码
 
         setData();
     }
     private void setData(){
         tv_version.setText(APKVersionCodeUtils.getVerName(getActivity())+"");
+        tv_password.setText(Myapplication.AES_PASSWROD.substring(0, 5)+"");
     }
 
 }

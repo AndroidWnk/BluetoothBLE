@@ -35,7 +35,7 @@ public class LoginActivity extends Activity implements View.OnClickListener, Act
     private CheckBox check_remember, check_automatic;
     private Button btn_login, btn_getname;
     private String IMEI = "";
-    private String AESpasswrod = "";
+//    private String AESpasswrod = "";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -71,15 +71,13 @@ public class LoginActivity extends Activity implements View.OnClickListener, Act
             check_remember.setChecked(true);
             edit_name.setText(names);
             edit_pass.setText(passs);
-
-
         }
 
         //取出自动登录的状态值
         boolean isautomatic = SpUtil.getBoolean(this, "isautomatic", false);
         if (isautomatic) {
             //跳转
-            Intent it = new Intent(this, DeviceControl3Activity.class);
+            Intent it = new Intent(this, DeviceControlActivity.class);
             startActivity(it);
             //销毁页面
             finish();
@@ -106,7 +104,7 @@ public class LoginActivity extends Activity implements View.OnClickListener, Act
                     ToastFactory.showToast(this, "请输入密码");
                     return;
                 }
-                else if(!pass.equals(AESpasswrod.substring(0, 5))){
+                else if(!pass.equals(Myapplication.AES_PASSWROD.substring(0, 5))){
                     ToastFactory.showToast(this, "密码错误！");
                     return;
                 }
@@ -131,7 +129,7 @@ public class LoginActivity extends Activity implements View.OnClickListener, Act
                 }
 
                 //跳转
-                Intent it = new Intent(LoginActivity.this, DeviceControl3Activity.class);
+                Intent it = new Intent(LoginActivity.this, DeviceControlActivity.class);
                 startActivity(it);
                 //销毁页面
                 finish();
@@ -159,7 +157,8 @@ public class LoginActivity extends Activity implements View.OnClickListener, Act
     private void getpassword(String Imei)  {
         //加密
         try {
-            AESpasswrod = AESCipher.aesEncryptString(Imei, "16BytesLengthKey");
+//            AESpasswrod = AESCipher.aesEncryptString(Imei, "16BytesLengthKey");
+            Myapplication.AES_PASSWROD = AESCipher.aesEncryptString(Imei, "16BytesLengthKey");
         } catch (InvalidKeyException e) {
             e.printStackTrace();
         } catch (NoSuchAlgorithmException e) {
@@ -175,7 +174,7 @@ public class LoginActivity extends Activity implements View.OnClickListener, Act
         } catch (UnsupportedEncodingException e) {
             e.printStackTrace();
         }
-        Log.i(TAG, "AESKey: 加密前 = "+Imei+",加密后 = "+AESpasswrod);
+        Log.i(TAG, "AESKey: 加密前 = "+Imei+",加密后 = "+Myapplication.AES_PASSWROD);
     }
 
 }

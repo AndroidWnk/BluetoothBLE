@@ -7,6 +7,7 @@ import com.etrans.bluetooth.le.fragment.FragmentOne;
 
 public class Myapplication extends Application {
     public static final int MSG_APP_DATA = 1001;//
+    public static String AES_PASSWROD = "_PASSWROD";//
     public static Handler hand = null;
     public String data;
     private String IMEI = "";//设备串号  唯一ID号
