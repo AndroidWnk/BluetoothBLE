@@ -82,7 +82,7 @@ public class DeviceControl3Activity extends Activity implements View.OnClickList
     private TextView mConnectionState, device_state;
     private TextView mDataField;
     private Button openBulb;
-    //    private EditText setTimeText;   //接受数据输入句柄123
+    //    private EditText setTimeText;   //接受数据输入句柄
     private Button setTimeBtn, btn_connect, btn_disconnect, btn_showconnection, btn_getdata, btn_setdata;    //接受定时开关指令
 
     private String mDeviceName;
@@ -272,7 +272,7 @@ public class DeviceControl3Activity extends Activity implements View.OnClickList
         device_state = (TextView) findViewById(R.id.device_state);
         mDataField = (TextView) findViewById(R.id.data_value);
         openBulb = (Button) findViewById(R.id.openBulb);
-//        setTimeText = (EditText) findViewById(R.id.setTimeText);123
+//        setTimeText = (EditText) findViewById(R.id.setTimeText);
         setTimeBtn = (Button) findViewById(R.id.setTimeBtn);
         btn_disconnect = (Button) findViewById(R.id.btn_disconnect);
         btn_showconnection = (Button) findViewById(R.id.btn_showconnection);
@@ -331,7 +331,7 @@ public class DeviceControl3Activity extends Activity implements View.OnClickList
 
     private void ShowScanbtn(boolean scan) {
         if (scan) {
-            btn_scan.setText("停止搜索");
+            btn_scan.setText("正在搜索");
         } else {
             btn_scan.setText("搜索");
         }
@@ -474,8 +474,8 @@ public class DeviceControl3Activity extends Activity implements View.OnClickList
     //定时发送开关灯命令
     public void onSetTimeOpenBulb(View v) {
         //转化成是string类型
-//        String mText = setTimeText.getText().toString();123
-//        sendMsg(mText);123
+//        String mText = setTimeText.getText().toString();
+//        sendMsg(mText);
         //判断用户输入的定时是否是数字
         //TODO 对用户定时的时间是否有要求
         /*Pattern p = Pattern.compile("[^6]");//[0-9]*
@@ -607,8 +607,8 @@ public class DeviceControl3Activity extends Activity implements View.OnClickList
         switch (v.getId()) {
             case R.id.ll_deviceconnection:
                 if (mConnected) {
-                    ll_deviceinfo.setVisibility(View.VISIBLE);
-                    listview.setVisibility(View.GONE);
+//                    ll_deviceinfo.setVisibility(View.VISIBLE);
+//                    listview.setVisibility(View.GONE);
                 }
                 break;
             case R.id.btn_connect:
@@ -619,9 +619,10 @@ public class DeviceControl3Activity extends Activity implements View.OnClickList
                 mBluetoothLeService.disconnect();
                 break;
             case R.id.btn_scan:
-                ll_deviceinfo.setVisibility(View.GONE);
-                listview.setVisibility(View.VISIBLE);
                 if (!showScan) {
+                    ll_deviceinfo.setVisibility(View.GONE);
+                    listview.setVisibility(View.VISIBLE);
+                    showScan = true;
                     mLeDeviceListAdapter.clear();
                     mLeDeviceListAdapter.notifyDataSetChanged();
                     //如果当前手机蓝牙未开启，弹出dialog提示用户开启nk
@@ -632,8 +633,11 @@ public class DeviceControl3Activity extends Activity implements View.OnClickList
                         scanLeDevice(true);
                     }
                 } else {
+                    ll_deviceinfo.setVisibility(View.VISIBLE);
+                    listview.setVisibility(View.GONE);
+                    showScan = false;
                     scanLeDevice(false);
-                    mHandler.removeCallbacks(runnable);
+//                    mHandler.removeCallbacks(runnable);//屏蔽自动停止搜索
                 }
 
                 break;
@@ -804,8 +808,8 @@ public class DeviceControl3Activity extends Activity implements View.OnClickList
         }
         if (enable) {
             // Stops scanning after a pre-defined scan period.
-            mHandler.removeCallbacks(runnable);
-            mHandler.postDelayed(runnable, SCAN_PERIOD);
+//            mHandler.removeCallbacks(runnable);//屏蔽自动停止搜索
+//            mHandler.postDelayed(runnable, SCAN_PERIOD);//屏蔽自动停止搜索
 
             //扫描很费电，要预设扫描周期，扫描一定周期就停止扫描
 //            mBluetoothAdapter.startLeScan(DeviceScanActivity.this.mLeScanCallback);
