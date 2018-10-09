@@ -1,5 +1,9 @@
 package com.etrans.bluetooth.le.utils;
 
+import android.annotation.SuppressLint;
+import android.content.Context;
+import android.telephony.TelephonyManager;
+
 import java.util.HashMap;
 
 /**
@@ -148,5 +152,18 @@ public class UUIDUtils {
         attributes.put("00002a6a-0000-1000-8000-00805f9b34fb", "LN Feature");
         attributes.put("00002a6b-0000-1000-8000-00805f9b34fb", "LN Control Point");
     }
+
+    @SuppressLint("MissingPermission")
+    public static String getIMEI(Context context) {
+        String imei;
+        try {
+            TelephonyManager telephonyManager = (TelephonyManager) context.getSystemService(Context.TELEPHONY_SERVICE);
+            imei = telephonyManager.getDeviceId();
+        } catch (Exception e) {
+            imei = "";
+        }
+        return imei;
+    }
+
 
 }

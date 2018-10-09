@@ -367,8 +367,8 @@ public class DeviceScan2Activity extends Activity implements View.OnClickListene
                     System.out.println("==position==" + position);
                     if (device == null) return;
                     Intent intent = new Intent(DeviceScan2Activity.this, DeviceControl3Activity.class);
-                    intent.putExtra(DeviceControlActivity.EXTRAS_DEVICE_NAME, finalName);
-                    intent.putExtra(DeviceControlActivity.EXTRAS_DEVICE_ADDRESS, device.getAddress());
+                    intent.putExtra(DeviceControl3Activity.EXTRAS_DEVICE_NAME, finalName);
+                    intent.putExtra(DeviceControl3Activity.EXTRAS_DEVICE_ADDRESS, device.getAddress());
                     Showbtn(false);
                     if (bluetoothLeScanner != null) {
                         bluetoothLeScanner.stopScan(scanCallback); //停止扫描，连接前，必须停止扫描，不然，失败率很高nk

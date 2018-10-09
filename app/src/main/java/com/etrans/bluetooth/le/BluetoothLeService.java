@@ -63,7 +63,7 @@ public class BluetoothLeService extends Service {
 
     private BluetoothLeService mBluetoothLeService;
     private StringBuilder mOutputInfo = new StringBuilder();
-    private StringBuilder mOutput = new StringBuilder();
+//    private StringBuilder mOutput = new StringBuilder();
     public int number = 0;
 
     // GATT返回值，例如连接状态和service的改变 etc
@@ -168,27 +168,32 @@ public class BluetoothLeService extends Service {
             Log.d(TAG, String.format("Received heart rate: %d", heartRate));
             intent.putExtra(EXTRA_DATA, String.valueOf(heartRate));
             intent.putExtra(EXTRA_DATA, characteristic.getValue());
-        } else if(SPECIFIC_CHARCTER_Notify_UUID.equals(characteristic.getUuid())){ //这是接收的数据
+        } else if (SPECIFIC_CHARCTER_Notify_UUID.equals(characteristic.getUuid())) { //这是接收的数据5503
             //对于所有的profile，都是利用HEX来进行传递的
             final byte[] data = characteristic.getValue();
             if (data != null && data.length > 0) {
-                mOutput.append(HexUtil.encodeHexStr(data)).append("\n");//在缓冲区做判断
-                if(mOutput.toString().indexOf("232300")!=-1){ //如果缓冲区里包含起始符
-                    mOutputInfo.delete(0,mOutputInfo.length());//删除之前的StringBuilder
-                    mOutputInfo.append(HexUtil.encodeHexStr(data)).append("\n");//重新写进去
-                }else{
-                    mOutputInfo.append(HexUtil.encodeHexStr(data)).append("\n");//否则直接写
+//                mOutput.append(HexUtil.encodeHexStr(data)).append("\n");//在缓冲区做判断
+                if (HexUtil.encodeHexStr(data).indexOf("232300") != -1) { //如果缓冲区里包含起始符
+                    mOutputInfo.delete(0, mOutputInfo.length());//删除之前的StringBuilder
+//                    mOutputInfo.append(HexUtil.encodeHexStr(data)).append("\n");//重新写进去
                 }
-
-                mOutput.delete(0,mOutput.length());//清空缓冲区
+//                else{
+//                    mOutputInfo.append(HexUtil.encodeHexStr(data)).append("\n");//否则直接写
+//                }
+                mOutputInfo.append(HexUtil.encodeHexStr(data)).append("\n");//否则直接写
+                Log.i(TAG, "stateNKbroadcastUpdate: 接收回来的数据：" + mOutputInfo.toString());
+//                mOutput.delete(0,mOutput.length());//清空缓冲区
 //                final StringBuilder stringBuilder = new StringBuilder(data.length);
 //                for (byte byteChar : data) {
 //                    stringBuilder.append(String.format("%02X ", byteChar));
 //                }
 //                intent.putExtra(EXTRA_DATA, new String(data) + "\n" + stringBuilder.toString());
 //                intent.putExtra(EXTRA_DATA, new String(data));
-                intent.putExtra(EXTRA_DATA, mOutputInfo.toString());
-                Log.i(TAG, "stateNKbroadcastUpdate: 接收回来的数据："+mOutputInfo.toString());
+                if (HexUtil.encodeHexStr(data).indexOf("0a") != -1) {
+                    intent.putExtra(EXTRA_DATA, mOutputInfo.toString());
+                    sendBroadcast(intent);
+                }
+
 
                 //之前
 //                final StringBuilder stringBuilder = new StringBuilder(data.length);
@@ -203,27 +208,32 @@ public class BluetoothLeService extends Service {
             //TODO 处理数据
 
 
-        }else if(SPECIFIC_CHARCTER_UUID.equals(characteristic.getUuid())){ //这是发送出去的数据
+        } else if (SPECIFIC_CHARCTER_UUID.equals(characteristic.getUuid())) { //这是发送出去的数据5501
             //对于所有的profile，都是利用HEX来进行传递的
             final byte[] data = characteristic.getValue();
             if (data != null && data.length > 0) {
-                mOutput.append(HexUtil.encodeHexStr(data)).append("\n");//在缓冲区做判断
-                if(mOutput.toString().indexOf("232300")!=-1){ //如果缓冲区里包含起始符
-                    mOutputInfo.delete(0,mOutputInfo.length());//删除之前的StringBuilder
-                    mOutputInfo.append(HexUtil.encodeHexStr(data)).append("\n");//重新写进去
-                }else{
-                    mOutputInfo.append(HexUtil.encodeHexStr(data)).append("\n");//否则直接写
+//                mOutput.append(HexUtil.encodeHexStr(data)).append("\n");//在缓冲区做判断
+                if (HexUtil.encodeHexStr(data).indexOf("232300") != -1) { //如果缓冲区里包含起始符
+                    mOutputInfo.delete(0, mOutputInfo.length());//删除之前的StringBuilder
+//                    mOutputInfo.append(HexUtil.encodeHexStr(data)).append("\n");//重新写进去
                 }
-
-                mOutput.delete(0,mOutput.length());//清空缓冲区
+//                else{
+//                    mOutputInfo.append(HexUtil.encodeHexStr(data)).append("\n");//否则直接写
+//                }
+                mOutputInfo.append(HexUtil.encodeHexStr(data)).append("\n");//否则直接写
+                Log.i(TAG, "stateNKbroadcastUpdate: 接收回来的数据：" + mOutputInfo.toString());
+//                mOutput.delete(0,mOutput.length());//清空缓冲区
 //                final StringBuilder stringBuilder = new StringBuilder(data.length);
 //                for (byte byteChar : data) {
 //                    stringBuilder.append(String.format("%02X ", byteChar));
 //                }
 //                intent.putExtra(EXTRA_DATA, new String(data) + "\n" + stringBuilder.toString());
 //                intent.putExtra(EXTRA_DATA, new String(data));
-                intent.putExtra(EXTRA_DATA, mOutputInfo.toString());
-                Log.i(TAG, "stateNKbroadcastUpdate: 发送出去的数据："+mOutputInfo.toString());
+                if (HexUtil.encodeHexStr(data).indexOf("0a") != -1) {
+                    intent.putExtra(EXTRA_DATA, mOutputInfo.toString());
+                    sendBroadcast(intent);
+                }
+
 
                 //之前
 //                final StringBuilder stringBuilder = new StringBuilder(data.length);
@@ -239,7 +249,7 @@ public class BluetoothLeService extends Service {
 
 
         }
-        sendBroadcast(intent);
+//        sendBroadcast(intent);
     }
 
     public static int byteArrayToInt(byte[] b) {
@@ -362,6 +372,7 @@ public class BluetoothLeService extends Service {
         return mBluetoothGatt.getService(SPECIFIC_SERVICE_UUID).getCharacteristic(SPECIFIC_CHARCTER_UUID);
 
     }
+
     public BluetoothGattCharacteristic getBluetoothGattCharacteristicNotify() {
         // 先获取BluetoothGattService,
         // 再通过BluetoothGattService获取BluetoothGattCharacteristic特征值(UUID查询数据)nk
@@ -383,7 +394,7 @@ public class BluetoothLeService extends Service {
                     UUID.fromString("00002902-0000-1000-8000-00805f9b34fb"));
             descriptor.setValue(BluetoothGattDescriptor.ENABLE_NOTIFICATION_VALUE);
             mBluetoothGatt.writeDescriptor(descriptor);
-        }else{
+        } else {
             mBluetoothGatt.setCharacteristicNotification(characteristic, enabled);//发送消息,在onCharacteristicRead接收信息
         }
 
@@ -404,9 +415,6 @@ public class BluetoothLeService extends Service {
 //
 //        }
     }
-
-
-
 
 
     //读取characteristic，回调触发函数BluetoothGattCallback#onCharacteristicRead
@@ -430,7 +438,6 @@ public class BluetoothLeService extends Service {
         mBluetoothGatt.writeCharacteristic(characteristic);
         return true;
     }
-
 
 
     // 断开连接

@@ -220,9 +220,9 @@ public class DeviceScanActivity extends ListActivity {
         System.out.println("==position==" + position);
         final BluetoothDevice device = mLeDeviceListAdapter.getDevice(position);
         if (device == null) return;
-        final Intent intent = new Intent(this, DeviceControlActivity.class);
-        intent.putExtra(DeviceControlActivity.EXTRAS_DEVICE_NAME, device.getName());
-        intent.putExtra(DeviceControlActivity.EXTRAS_DEVICE_ADDRESS, device.getAddress());
+        final Intent intent = new Intent(this, DeviceControl3Activity.class);
+        intent.putExtra(DeviceControl3Activity.EXTRAS_DEVICE_NAME, device.getName());
+        intent.putExtra(DeviceControl3Activity.EXTRAS_DEVICE_ADDRESS, device.getAddress());
         if (mScanning) {
 //            mBluetoothAdapter.stopLeScan(mLeScanCallback); //停止扫描，连接前，必须停止扫描，不然，失败率很高nk
             if (bluetoothLeScanner != null) {

@@ -155,4 +155,32 @@ public class ByteUtils {
         return hexString.toString().toLowerCase();
     }
 
+
+    public static String ShowData(String data){
+        StringBuilder mOutput = new StringBuilder();
+        if(data == null){
+            return "";
+        }
+        String [] temp = null;
+        temp = data.split("\n");
+        for (String dataInfo : temp) { //遍历配对列表
+            if(!dataInfo.contains("232300")){ //不包含起始符
+                if (dataInfo.contains("0d")) { //在配对列表里则过滤
+                    mOutput.append(dataInfo.substring(6,dataInfo.indexOf("0d")));
+                    break;
+                }else{
+                    mOutput.append(dataInfo.substring(6,38));
+                }
+            }else{
+                mOutput.delete(0, mOutput.length());//删除之前的StringBuilder
+            }
+        }
+        byte[] sb = ByteUtils.getInstance().toByteArray(mOutput.toString());
+        //byte数组转字符串
+        String str = new String(sb);
+        return str;
+    }
+
+
+
 }

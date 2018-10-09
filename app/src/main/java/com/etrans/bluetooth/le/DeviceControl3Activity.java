@@ -72,7 +72,8 @@ import java.util.List;
 //The Activity communicates with {@code BluetoothLeService}, which in turn interacts with the Bluetooth LE API.
 public class DeviceControl3Activity extends Activity implements View.OnClickListener {
     private final static String TAG = DeviceControl3Activity.class.getSimpleName();
-
+    public static final String EXTRAS_DEVICE_NAME = "DEVICE_NAME";
+    public static final String EXTRAS_DEVICE_ADDRESS = "DEVICE_ADDRESS";
     public String extras_device_name = "DEVICE_NAME";
     public String extras_device_address = "DEVICE_ADDRESS";
     private static final int REQUEST_CODE_LOCATION_SETTINGS = 2;
@@ -165,7 +166,7 @@ public class DeviceControl3Activity extends Activity implements View.OnClickList
                 updateConnectionState(R.string.connected);
 //                invalidateOptionsMenu();
                 //TODO 刚加上
-                displayData(intent.getStringExtra(BluetoothLeService.EXTRA_DATA));
+                TboxData(intent.getStringExtra(BluetoothLeService.EXTRA_DATA));
             } else if (BluetoothLeService.ACTION_GATT_DISCONNECTED.equals(action)) {
                 mConnected = false;
                 ShowConnectionbtn(true);//显示断开还是连接按钮
@@ -188,11 +189,11 @@ public class DeviceControl3Activity extends Activity implements View.OnClickList
                 mBluetoothLeService.setCharacteristic(mNotifyCharacteristic, true);//设置开启之后，才能在 onCharacteristicRead() 这个方法中收到数据。//发送数据
                 mBluetoothLeService.setCharacteristic(mBluetoothGattCharacteristicNotify, true);//设置开启之后，才能在 onCharacteristicRead() 这个方法中收到数据。//接收数据
                 //TODO 刚加上
-                displayData(intent.getStringExtra(BluetoothLeService.EXTRA_DATA));
+                TboxData(intent.getStringExtra(BluetoothLeService.EXTRA_DATA));
             } else if (BluetoothLeService.ACTION_DATA_AVAILABLE.equals(action)) {
                 //TODO在此处修改了，使得发现服务后直接开启获得数据
                 mBluetoothLeService.setCharacteristic(mNotifyCharacteristic, true);
-                displayData(intent.getStringExtra(BluetoothLeService.EXTRA_DATA));
+                TboxData(intent.getStringExtra(BluetoothLeService.EXTRA_DATA));
                 //使得定时的textview里面不显示数据
                 /*String str2 = intent.getStringExtra(BluetoothLeService.EXTRA_DATA);
                 setTimeText.setText(str2);*/
@@ -421,18 +422,27 @@ public class DeviceControl3Activity extends Activity implements View.OnClickList
     }
 
     //显示传来的数据
-    private void displayData(String data) {
+    private void TboxData(String data) {
         if (data != null) {
             /* mDataField.append(data);*/
             mDataField.setText(data);
 
-    Handler handler = FragmentOne.getHandler();
-        if (handler != null) {
-        Message msg = Message.obtain();
-        msg.what = FragmentOne.MSG_DEVICE_NAME;
-        msg.obj = data;
-        handler.sendMessage(msg);
-    }
+            String str = ByteUtils.ShowData(data);
+
+//            Handler handler = FragmentOne.getHandler();
+//            if (handler != null) {
+//                Message msg = Message.obtain();
+//                msg.what = FragmentOne.MSG_DATA;
+//                msg.obj = data;
+//                handler.sendMessage(msg);
+//            }
+            Handler handler = Myapplication.getHandler();
+            if (handler != null) {
+                Message msg = Message.obtain();
+                msg.what = Myapplication.MSG_APP_DATA;
+                msg.obj = str;
+                handler.sendMessage(msg);
+            }
 
         }
     }
@@ -529,6 +539,7 @@ public class DeviceControl3Activity extends Activity implements View.OnClickList
         mNotifyCharacteristic.setValue(arrayOfByte1);
         this.mBluetoothLeService.writeCharacteristic(mNotifyCharacteristic);*/
     }
+
     /**
      * android ble 发送
      * 每条数据长度应保证在20个字节以内
@@ -538,6 +549,7 @@ public class DeviceControl3Activity extends Activity implements View.OnClickList
      */
     String currentSendOrder;
     byte[] sData = null;
+
     public void sendMsg2(final String currentSendAllOrder) { //新发送代码
         if (currentSendAllOrder.length() > 0) {
             currentSendOrder = currentSendAllOrder;
@@ -550,7 +562,6 @@ public class DeviceControl3Activity extends Activity implements View.OnClickList
                 BaseBiz.dataEs.execute(new Runnable() {
                     @Override
                     public void run() {
-
                         for (int i = 0; i < currentSendAllOrder.length(); i = i + 20) {
                             final String[] shortOrder = {""};
                             final int finalI = i;
@@ -566,95 +577,14 @@ public class DeviceControl3Activity extends Activity implements View.OnClickList
                             mNotifyCharacteristic.setValue(shortOrder[0]);
                             try {
                                 isSuccess[0] = mBluetoothLeService.writeCharacteristic(mNotifyCharacteristic);
-                                Thread.sleep( 150);
+                                Thread.sleep(150);
                             } catch (InterruptedException e) {
                                 e.printStackTrace();
                             }
-//                    new Thread(new Runnable() {
-//                        @Override
-//                        public void run() {
-//                            try {
-//                                isSuccess[0] = mBluetoothLeService.writeCharacteristic(mNotifyCharacteristic);
-//                                Thread.sleep(3000);
-//                            } catch (InterruptedException e) {
-//                                e.printStackTrace();
-//                            }
-//                        }
-//                    }).start();
-
-//                    BaseBiz.dataEs.execute(new Runnable() {
-//                        @Override
-//                        public void run() {
-//                                try {
-//                                    isSuccess[0] = mBluetoothLeService.writeCharacteristic(mNotifyCharacteristic);
-//                                    Thread.sleep( 500);
-//                                } catch (InterruptedException e) {
-//                                    e.printStackTrace();
-//                                }
-//                        }
-//                    });
-
-
                         }
-
-
-
-
                     }
                 });
-
-//                for (int i = 0; i < currentSendAllOrder.length(); i = i + 40) {
-//                    final String[] shortOrder = {""};
-//                    final int finalI = i;
-//
-//                    if (currentSendAllOrder.length() - i >= 40) {
-//                        shortOrder[0] = currentSendAllOrder.substring(finalI, finalI + 40);
-//                    } else {
-//                        shortOrder[0] = currentSendAllOrder.substring(finalI, currentSendAllOrder.length());
-//                    }
-//
-//                    Log.e("--->", "shortOrder[0]2：" + shortOrder[0]);
-////                    sData = HexUtil.hex2byte(shortOrder[0]);//如果是16进制的字符串就要转成byte数组
-//                    mNotifyCharacteristic.setValue(shortOrder[0]);
-//                    isSuccess[0] = this.mBluetoothLeService.writeCharacteristic(mNotifyCharacteristic);
-////                    new Thread(new Runnable() {
-////                        @Override
-////                        public void run() {
-////                            try {
-////                                isSuccess[0] = mBluetoothLeService.writeCharacteristic(mNotifyCharacteristic);
-////                                Thread.sleep(3000);
-////                            } catch (InterruptedException e) {
-////                                e.printStackTrace();
-////                            }
-////                        }
-////                    }).start();
-//
-////                    BaseBiz.dataEs.execute(new Runnable() {
-////                        @Override
-////                        public void run() {
-////                                try {
-////                                    isSuccess[0] = mBluetoothLeService.writeCharacteristic(mNotifyCharacteristic);
-////                                    Thread.sleep( 500);
-////                                } catch (InterruptedException e) {
-////                                    e.printStackTrace();
-////                                }
-////                        }
-////                    });
-//
-//
-//                }
             }
-//            handler.postDelayed(new Runnable() {
-//                @Override
-//                public void run() {
-//                    if (!isSuccess[0]) {
-////                        dialog.dismiss();
-//                        handler.sendEmptyMessage(1111);//isSuccess为false表示断开连接了要通知界面断开了
-//                    }
-//                    Log.e("--->", "是否发送成功：" + isSuccess[0]);
-//                }
-////            }, (currentSendAllOrder.length() / 40 + 1) * 15);
-//            },   3000);
         }
     }
 

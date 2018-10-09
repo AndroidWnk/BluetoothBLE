@@ -3,13 +3,14 @@ package com.etrans.bluetooth.le.fragment;
 import android.app.Fragment;
 import android.os.Bundle;
 import android.os.Handler;
+import android.os.Message;
 import android.support.annotation.Nullable;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
+import com.etrans.bluetooth.le.Myapplication;
 import com.etrans.bluetooth.le.R;
 
 /**
@@ -22,9 +23,11 @@ public class FragmentOne extends Fragment {
     private static final String TAG = "FragmentOne";
 
 
-    public static final int MSG_DEVICE_NAME = 29;//获取手机设备名称
+    public static final int MSG_DATA = 29;//
     private TextView tv_ID;
-
+//    private StringBuilder mOutput = new StringBuilder();
+    private Myapplication myapp;
+//    private String data;
 
     public static Handler hand = null;
 
@@ -33,13 +36,13 @@ public class FragmentOne extends Fragment {
     }
 
     private Handler handler = new Handler() {
-        public void handleMessage(android.os.Message msg) {
+        public void handleMessage(Message msg) {
             switch (msg.what) {
-                case MSG_DEVICE_NAME:// 蓝牙设备名称
-                    String name = (String) msg.obj;
-                    tv_ID.setText(name);
-                    Log.i(TAG, "handleMessage: name = "+name);
-//                    tv_ID.append(name);
+                case MSG_DATA:// 蓝牙设备名称
+//                    app.getData();
+//                    Myapplication.app.data = (String) msg.obj;
+                    tv_ID.setText(myapp.getData());
+//                    ShowData(myapp.getData());
                     break;
 
             }
@@ -53,6 +56,7 @@ public class FragmentOne extends Fragment {
     public View onCreateView(LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_one, container, false);
         hand = handler;
+        myapp = (Myapplication) getActivity().getApplication();
         initView(view);
         return view;
     }
@@ -64,19 +68,8 @@ public class FragmentOne extends Fragment {
         setData();
     }
     private void setData(){
-//        tv_ID.setText(APKVersionCodeUtils.getVerName(getActivity())+"");
+//            ShowData(myapp.getData());
+        tv_ID.setText(myapp.getData());
     }
 
-
-//    发送方：
-//    Handler handler = MainActivity.getHandler();
-//
-//if (handler != null) {
-//        Message msg = Message.obtain();
-//        msg.what = MainActivity.MSG_CURRENT_CONNECT_DEVICE_NAME;
-//        msg.obj = name;
-//        handler.sendMessage(msg);
-//    }
-//
-//    public static final int MSG_CURRENT_CONNECT_DEVICE_NAME = 29;//获取手机设备名称
 }
