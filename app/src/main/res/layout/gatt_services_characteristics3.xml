@@ -44,7 +44,7 @@
                     android:layout_height="wrap_content"
                     android:layout_alignParentStart="true"
                     android:layout_alignParentBottom="true"
-                    android:text="发送数据" />
+                    android:text="模拟发送数据" />
 
             </LinearLayout>
 
@@ -232,15 +232,19 @@
 
                     <Button
                         android:id="@+id/btn_scan"
+                        android:background="@drawable/corners_bg"
                         android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
+                        android:layout_height="40dp"
+                        android:layout_marginRight="1dp"
                         android:layout_weight="1"
                         android:text="搜索" />
 
                     <Button
                         android:id="@+id/btn_showconnection"
                         android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
+                        android:background="@drawable/corners_bg"
+                        android:layout_height="40dp"
+                        android:layout_marginLeft="1dp"
                         android:layout_weight="1"
                         android:text="断开" />
 

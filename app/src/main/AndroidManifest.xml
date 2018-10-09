@@ -49,7 +49,14 @@
 
         </activity>
         <service android:name="com.etrans.bluetooth.le.BluetoothLeService" android:enabled="true"/>
-        
+
+
+        <receiver android:name="com.etrans.bluetooth.le.receiver.XxTestReceiver">
+            <intent-filter>
+                <action android:name="android.media.testtesk" />
+            </intent-filter>
+        </receiver>
+
     </application>
 
 </manifest>

@@ -655,14 +655,29 @@ public class DeviceControlActivity extends Activity implements View.OnClickListe
 
                 break;
             case R.id.btn_setdata:
-                if (mConnected == false) {
-                    Toast.makeText(DeviceControlActivity.this, "请先连接设备", Toast.LENGTH_SHORT).show();
-                } else {
-//                    sendMsg("Sopen_led1E");
-//                    sendMsg("12345678901234567890123456789012345678901234567890");
-                    sendMsg2("abcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyz");
-//                    sendMsg("abcabcabcabcabcabc");
-                }
+
+                //发送广播
+
+//                Intent i1 = new Intent();
+//                i1.setAction("android.media.testtesk");
+//                sendBroadcast(i1);
+
+
+                Intent it = new Intent("android.media.testtesk");
+                it.setComponent(new ComponentName("com.etrans.bluetooth.le",
+                        "com.etrans.bluetooth.le.receiver.XxTestReceiver"));
+                sendBroadcast(it);
+
+
+                //发送数据
+//                if (mConnected == false) {
+//                    Toast.makeText(DeviceControlActivity.this, "请先连接设备", Toast.LENGTH_SHORT).show();
+//                } else {
+////                    sendMsg("Sopen_led1E");
+////                    sendMsg("12345678901234567890123456789012345678901234567890");
+//                    sendMsg2("abcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyz");
+////                    sendMsg("abcabcabcabcabcabc");
+//                }
                 break;
             case R.id.btn_showconnection:
 
