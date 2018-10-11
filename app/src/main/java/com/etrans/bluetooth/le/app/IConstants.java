@@ -26,7 +26,7 @@ public class IConstants {
     public static String QUERYALL = VIN+PHONENUM+IDNUM+CARNUM+IP01+PORT01+SOFTWARE_VERSION+HARDWARE_VERSION;    //查询全部数据
 
 
-    //查询所有数据 2a2a 03 fe 01 03 01 02 03 cs
+    //设置所编辑的数据 2a2a 02 fe 01
     public static String SET = BASE+CMD_SET+CMD_FE+AES01;
 
 

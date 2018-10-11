@@ -39,9 +39,10 @@ public class JSONUtils {
 //            JSONObject jsonObject=new JSONObject();
         String str = "";
         for (Map.Entry<String, Object> entry : map.entrySet()) {
-            String key = entry.getKey();
+            String key = entry.getKey();//参数
 //            Object val = entry.getValue();
-            Object val = ByteUtils.toHexString(entry.getValue().toString().getBytes());
+            Object val = ByteUtils.integerToHexString(entry.getValue().toString().length())+ //数据单元长度(hex表示)
+                    ByteUtils.toHexString(entry.getValue().toString().getBytes()); //数据单元
             str += key + val;
         }
         return str;//返回字符串

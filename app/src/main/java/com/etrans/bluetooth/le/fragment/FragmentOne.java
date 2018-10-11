@@ -85,19 +85,22 @@ public class FragmentOne extends Fragment implements View.OnClickListener {
         switch (view.getId()) {
             case R.id.btn_query:
                 String str = IConstants.QUERY+
-                        ByteUtils.Decimal0(IConstants.QUERYALL.length())+
+                        ByteUtils.integerToHexString(IConstants.QUERYALL.length()/2)+ //长度hex值
+//                        ByteUtils.Decimal0(IConstants.QUERYALL.length())+
                         IConstants.QUERYALL;
                 //2a2a 03 fe 01 //上文
 //                String str1 = IConstants.QUERY3;//01 02 03  //下文
 //                String str2 = str1.length()+"";//01 02 03  //下文
 //                ByteUtils.Decimal0(str1.length());
 
-
-
-
                 //2a2a03fe0103010203cs 查询前面三个参数
                 String validate_code = ByteUtils.checkXor(str.substring(4,str.length()));//验证码   cs
-                str += validate_code;
+                str += validate_code;//补上验证码
+
+
+
+
+
                 Log.i(TAG, "发送查询数据: str = "+str);
                 Handler handler = DeviceControlActivity.getHandler();
                 if (handler != null) {

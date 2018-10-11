@@ -5,7 +5,7 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
 import android.support.annotation.Nullable;
-·import android.text.Editable;
+import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -22,6 +22,7 @@ import com.etrans.bluetooth.le.R;
 import com.etrans.bluetooth.le.app.IConstants;
 import com.etrans.bluetooth.le.utils.ByteUtils;
 import com.etrans.bluetooth.le.utils.JSONUtils;
+import com.etrans.bluetooth.le.utils.ToastFactory;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -37,8 +38,8 @@ public class FragmentTwo extends Fragment implements View.OnClickListener{
 
 //    private StringBuilder mOutput = new StringBuilder();
     private Myapplication myapp;
-    private EditText et_ID,et_callnum;
-    private boolean ID_Changed,callnum_Changed;
+    private EditText et_ID,et_callnum,et_vin,et_devicenum;
+    private boolean ID_Changed,callnum_Changed,vin_Changed,devicenum_Changed;
     private Button btn_add,btn_reduce,btn_upgrade,btn_set;
     private ImageView img_add,img_reduce;
     private LinearLayout ll_ip1,ll_ip2;
@@ -74,6 +75,8 @@ public class FragmentTwo extends Fragment implements View.OnClickListener{
     private void initView(View view){
         et_ID = (EditText) view.findViewById(R.id.et_ID);
         et_callnum = (EditText) view.findViewById(R.id.et_callnum);
+        et_vin = (EditText) view.findViewById(R.id.et_vin);
+        et_devicenum = (EditText) view.findViewById(R.id.et_devicenum);
         btn_add = view.findViewById(R.id.btn_add);
         img_add = view.findViewById(R.id.img_add);
         btn_reduce = view.findViewById(R.id.btn_reduce);
@@ -136,6 +139,40 @@ public class FragmentTwo extends Fragment implements View.OnClickListener{
                 Log.e("输入结束执行该方法", "输入结束");
             }
         });
+        et_vin.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+                Log.e("输入前确认执行该方法", "开始输入");
+            }
+
+            @Override
+            public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+                Log.e("输入过程中执行该方法", "文字变化");
+                vin_Changed = true;
+            }
+
+            @Override
+            public void afterTextChanged(Editable editable) {
+                Log.e("输入结束执行该方法", "输入结束");
+            }
+        });
+        et_devicenum.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+                Log.e("输入前确认执行该方法", "开始输入");
+            }
+
+            @Override
+            public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+                Log.e("输入过程中执行该方法", "文字变化");
+                devicenum_Changed = true;
+            }
+
+            @Override
+            public void afterTextChanged(Editable editable) {
+                Log.e("输入结束执行该方法", "输入结束");
+            }
+        });
     }
 
 
@@ -157,58 +194,84 @@ public class FragmentTwo extends Fragment implements View.OnClickListener{
                 ll_ip2.setVisibility(View.GONE);
                 break;
             case R.id.btn_upgrade:
-
+                ToastFactory.showToast(getActivity(),"暂时未开发，敬请期待");
                 break;
             case R.id.btn_set:
 
                 Map<String, Object> map = new HashMap<String, Object>();
+                map.clear();
                 if(ID_Changed){
-                    map.put(IConstants.IDNUM, et_ID.getText().toString().trim());
+                    if(et_ID.getText().toString().trim().length()>1){
+                        map.put(IConstants.IDNUM, et_ID.getText().toString().trim());
+                    }else{
+                        ToastFactory.showToast(getActivity(),"终端号输入不正确！");
+                    }
                 }
                 if(callnum_Changed){
-                    map.put(IConstants.PHONENUM, et_callnum.getText().toString().trim());
+                    if(et_callnum.getText().toString().trim().length()>1){
+                        map.put(IConstants.PHONENUM, et_callnum.getText().toString().trim());
+                    }else{
+                        ToastFactory.showToast(getActivity(),"手机号输入不正确！");
+                    }
                 }
-
+                if(vin_Changed){
+                    if(et_vin.getText().toString().trim().length()>1){
+                        map.put(IConstants.VIN, et_vin.getText().toString().trim());
+                    }else{
+                        ToastFactory.showToast(getActivity(),"VIN号输入不正确！");
+                    }
+                }
+                if(devicenum_Changed){
+                    if(et_devicenum.getText().toString().trim().length()>1){
+                        map.put(IConstants.CARNUM, et_devicenum.getText().toString().trim());
+                    }else{
+                        ToastFactory.showToast(getActivity(),"车牌号输入不正确！");
+                    }
+                }
+                String contentdata = JSONUtils.getString(map);//获取编辑的数据
                 Log.i(TAG, "JSONUtils.getString(map) = "+ JSONUtils.getString(map));
+                String SendData = IConstants.SET+ //添加起始符设置
 
-                Log.i(TAG, "onClick: OK");
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-                //{"vin":"VFGBH12584LKDHF","id":"VERG12345678","callnum":"13725645879"}
-//                Map<String, Object> map = new HashMap<String, Object>();
-                map.clear();
-                map.put("id", "VERG12345678");
-                map.put("vin", "VFGBH12584LKDHF");
-//                map.put("devicenum", "粤A98764");
-                map.put("callnum", "13725645879");
-                Log.i(TAG, "JSONUtils.getJSONString(map) = "+ JSONUtils.getJSONString(map));
-//                byte[] processStatus = JSONUtils.getJSONString(map).getBytes();
-//                String str = new String(processStatus);
-                String str = JSONUtils.getJSONString(map);
-                str = "**03fe010403010203cs";
-                str = "**3fe143123cs";
-                String str1 = ByteUtils.checkXor("03fe0103010203");//异或校验 这个值和数据应答回来的值一样则数据正确
-
+                        ByteUtils.integerToHexString(contentdata.length()/2)+ //数据单元长度
+//                        ByteUtils.Decimal0(contentdata.length())+ //
+                        contentdata;//数据单元
+                String validate_code = ByteUtils.checkXor(SendData.substring(4,SendData.length()));//验证码   cs
+                SendData += validate_code;//添加验证码
+                Log.i(TAG, "发送设置数据: SendData = "+SendData);
                 Handler handler = DeviceControlActivity.getHandler();
                 if (handler != null) {
                     Message msg = Message.obtain();
                     msg.what = DeviceControlActivity.MSG_SENDALLORDER;
-                    msg.obj = str;
+                    msg.obj = SendData;
                     handler.sendMessage(msg);
                 }
                 Log.i(TAG, "onClick: OK");
+
+
+
+//                //{"vin":"VFGBH12584LKDHF","id":"VERG12345678","callnum":"13725645879"}
+////                Map<String, Object> map = new HashMap<String, Object>();
+//                map.clear();
+//                map.put("id", "VERG12345678");
+//                map.put("vin", "VFGBH12584LKDHF");
+////                map.put("devicenum", "粤A98764");
+//                map.put("callnum", "13725645879");
+//                Log.i(TAG, "JSONUtils.getJSONString(map) = "+ JSONUtils.getJSONString(map));
+////                byte[] processStatus = JSONUtils.getJSONString(map).getBytes();
+////                String str = new String(processStatus);
+//                String str = JSONUtils.getJSONString(map);
+//                str = "**03fe010403010203cs";
+//                str = "**3fe143123cs";
+//                String str1 = ByteUtils.checkXor("03fe0103010203");//异或校验 这个值和数据应答回来的值一样则数据正确
+//
+//                Handler handler = DeviceControlActivity.getHandler();
+//                if (handler != null) {
+//                    Message msg = Message.obtain();
+//                    msg.what = DeviceControlActivity.MSG_SENDALLORDER;
+//                    msg.obj = str;
+//                    handler.sendMessage(msg);
+//                }
+//                Log.i(TAG, "onClick: OK");
                 break;
         }
     }
