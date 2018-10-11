@@ -1,70 +1,119 @@
-<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:paddingBottom="@dimen/activity_vertical_margin"
-    android:paddingLeft="@dimen/activity_horizontal_margin"
-    android:paddingRight="@dimen/activity_horizontal_margin"
-    android:paddingTop="@dimen/activity_vertical_margin"
-    tools:context=".MainActivity" >
+    android:gravity="center"
+    android:layout_marginBottom="150dp"
+    android:orientation="vertical"
+    tools:context=".MainActivity">
 
-    <EditText
-        android:id="@+id/edit_name"
+    <LinearLayout
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignParentTop="true"
-        android:layout_centerHorizontal="true"
-        android:layout_marginTop="55dp"
-        android:ems="10"
-        android:hint="请输入账号" >
+        android:orientation="vertical"
+        android:gravity="center"
+        android:layout_height="wrap_content">
+        <ImageView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="@drawable/img_launcher"
+            />
+        <ImageView
+            android:layout_marginTop="10dp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:background="@drawable/img_logo"
+            />
 
-    </EditText>
-
-
-    <EditText
-        android:id="@+id/edit_pass"
+    </LinearLayout>
+    <LinearLayout
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_below="@+id/edit_name"
-        android:layout_centerHorizontal="true"
-        android:layout_marginTop="32dp"
-        android:ems="10"
-        android:hint="请输入密码" />
+        android:orientation="horizontal"
+        android:layout_marginTop="50dp"
+        android:layout_height="wrap_content">
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:orientation="vertical"
+            android:layout_height="wrap_content">
+
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal">
+                <ImageView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:background="@drawable/img_user"
+                    android:focusableInTouchMode="false"/>
+                <EditText
+                    android:id="@+id/edit_name"
+                    android:ems="10"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:hint="请输入账号">
+
+                </EditText>
+
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="10dp"
+                android:orientation="horizontal">
+                <ImageView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:background="@drawable/img_pass"
+                    android:focusableInTouchMode="false"/>
+                <EditText
+                    android:id="@+id/edit_pass"
+                    android:ems="10"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:hint="请输入密码" />
 
 
-    <Button
-        android:id="@+id/btn_getname"
+            </LinearLayout>
+
+
+        </LinearLayout>
+        <Button
+            android:id="@+id/btn_getname"
+            android:layout_width="wrap_content"
+            android:layout_height="30dp"
+            android:background="@drawable/corners_bg"
+            android:text="获取" />
+    </LinearLayout>
+
+    <LinearLayout
         android:layout_width="wrap_content"
+        android:layout_marginTop="10dp"
         android:layout_height="wrap_content"
-        android:layout_alignTop="@+id/edit_name"
-        android:layout_toEndOf="@+id/edit_name"
-        android:text="获取" />
-    <CheckBox
-        android:id="@+id/check_pass"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignLeft="@+id/edit_pass"
-        android:layout_below="@+id/edit_pass"
-        android:layout_marginTop="40dp"
-        android:text="记住密码" />
+        android:orientation="horizontal">
+
+        <CheckBox
+            android:id="@+id/check_pass"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="记住密码" />
+        <CheckBox
+            android:layout_marginLeft="80dp"
+            android:id="@+id/check_login"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="自动登录" />
+    </LinearLayout>
 
 
-    <CheckBox
-        android:id="@+id/check_login"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_alignBaseline="@+id/check_pass"
-        android:layout_alignBottom="@+id/check_pass"
-        android:layout_alignRight="@+id/edit_pass"
-        android:text="自动登录" />
 
 
     <Button
         android:id="@+id/btn_login"
-        android:layout_width="wrap_content"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_alignParentBottom="true"
-        android:layout_centerHorizontal="true"
-        android:layout_marginBottom="88dp"
-        android:text="登录" />
-</RelativeLayout>
+        android:layout_margin="20dp"
+        android:background="@drawable/loginbtn_bg"
+        android:text="登录"
+        android:textColor="@color/white" />
+
+</LinearLayout>

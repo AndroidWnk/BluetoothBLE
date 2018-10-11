@@ -7,10 +7,10 @@ import java.util.Map;
 public class JSONUtils {
 
 
-    public static String getValue(String json, String key){
+    public static String getValue(String json, String key) {
         try {
-            JSONObject jsonObject=new JSONObject(json);
-            return  jsonObject.getString(key);//根据key返回对应值
+            JSONObject jsonObject = new JSONObject(json);
+            return jsonObject.getString(key);//根据key返回对应值
         } catch (Exception e) {
             e.printStackTrace();
             return null;
@@ -18,20 +18,33 @@ public class JSONUtils {
 
     }
 
-    public static String getJSONString(Map<String,Object> map){
-        try{
-            JSONObject jsonObject=new JSONObject();
-            for(Map.Entry<String,Object> entry:map.entrySet()){
-                String key=entry.getKey();
-                Object val=entry.getValue();
-                jsonObject.put(key,val);
+    public static String getJSONString(Map<String, Object> map) {
+        try {
+            JSONObject jsonObject = new JSONObject();
+            for (Map.Entry<String, Object> entry : map.entrySet()) {
+                String key = entry.getKey();
+                Object val = entry.getValue();
+                jsonObject.put(key, val);
             }
             return jsonObject.toString();//返回字符串
 
-        }catch (Exception e){
+        } catch (Exception e) {
             e.printStackTrace();
             return null;
         }
+
+    }
+
+    public static String getString(Map<String, Object> map) {
+//            JSONObject jsonObject=new JSONObject();
+        String str = "";
+        for (Map.Entry<String, Object> entry : map.entrySet()) {
+            String key = entry.getKey();
+//            Object val = entry.getValue();
+            Object val = ByteUtils.toHexString(entry.getValue().toString().getBytes());
+            str += key + val;
+        }
+        return str;//返回字符串
 
     }
 

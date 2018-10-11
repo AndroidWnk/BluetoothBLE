@@ -1,5 +1,6 @@
 package com.etrans.bluetooth.le.utils;
 
+import java.text.DecimalFormat;
 import java.util.List;
 
 public class ByteUtils {
@@ -181,6 +182,44 @@ public class ByteUtils {
         return str;
     }
 
+    /**
+     *  异或校验
+     *
+     * @param data 十六进制串
+     * @return checkData  十六进制串
+     *
+     * */
+    public static String checkXor(String data) {
+        int checkData = 0;
+        for (int i = 0; i < data.length(); i = i + 2) {
+            //将十六进制字符串转成十进制
+            int start = Integer.parseInt(data.substring(i, i + 2), 16);
+            //进行异或运算
+            checkData = start ^ checkData;
+        }
+        return integerToHexString(checkData);
+    }
+    /**
+     * 将十进制整数转为十六进制数，并补位
+     */
+    public static String integerToHexString(int s) {
+        String ss = Integer.toHexString(s);
+        if (ss.length() % 2 != 0) {
+            ss = "0" + ss;//0F格式
+        }
+        return ss.toUpperCase();
+    }
+
+
+    /**
+     * 个位数时前面补0
+     * @param
+     * @return
+     */
+    public static String Decimal0(int num) {
+        DecimalFormat df=new DecimalFormat("00");
+        return df.format(num/2);
+    }
 
 
 }

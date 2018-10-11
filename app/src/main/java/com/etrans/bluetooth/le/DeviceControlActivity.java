@@ -52,6 +52,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.Button;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.TextView;
@@ -80,11 +81,9 @@ public class DeviceControlActivity extends Activity implements View.OnClickListe
     private static final int REQUEST_CODE_LOCATION_SETTINGS = 2;
     private static final int REQUEST_CODE_ACCESS_COARSE_LOCATION = 1;
     private static final int REQUEST_ENABLE_BT = 1;
-    private TextView mConnectionState, device_state, device_nameid;
-    private TextView mDataField;
-    private Button openBulb;
-    //    private EditText setTimeText;   //接受数据输入句柄
-    private Button setTimeBtn, btn_connect, btn_disconnect, btn_showconnection, btn_getdata, btn_setdata;    //接受定时开关指令
+    private TextView device_state, device_nameid;
+    private ImageView img_device_state;
+    private Button btn_showconnection;    //接受定时开关指令
 
     private String mDeviceName;
     private String mDeviceAddress;
@@ -96,7 +95,6 @@ public class DeviceControlActivity extends Activity implements View.OnClickListe
 
     private final String LIST_NAME = "NAME";
     private final String LIST_UUID = "UUIDUtils";
-    private TextView tv_device_address, tv_DeviceName;
 
     private Fragment fraOne, fraTwo, fraThree;
     private Button btn_query, btn_set, btn_about;
@@ -178,7 +176,6 @@ public class DeviceControlActivity extends Activity implements View.OnClickListe
             if (BluetoothLeService.ACTION_GATT_CONNECTED.equals(action)) {
                 mConnected = true;
                 ShowConnectionbtn(false); //下面的断开或连接状态
-                Showbtn();//上面的断开或连接状态
                 updateConnectionState(R.string.connected);//已连接状态
 
 //                invalidateOptionsMenu();
@@ -187,13 +184,12 @@ public class DeviceControlActivity extends Activity implements View.OnClickListe
             } else if (BluetoothLeService.ACTION_GATT_DISCONNECTED.equals(action)) {
                 mConnected = false;
                 ShowConnectionbtn(true);//显示断开还是连接按钮
-                Showbtn();
-                updateConnectionState(R.string.disconnected);
+                updateConnectionState(R.string.disconnected);//断开
 //                invalidateOptionsMenu();
                 clearUI();
             } else if (BluetoothLeService.ACTION_GATT_SERVICES_DISCOVERED.equals(action)) { //GATT行动服务发现nk
                 //到这里就可以去获取数据了，可以去显示获取数据的按钮
-                Toast.makeText(DeviceControlActivity.this, "连接成功可以主动获取数据了", Toast.LENGTH_LONG).show();
+                ToastFactory.showToast(DeviceControlActivity.this,"连接成功可以主动获取数据了");
                 /*displayGattServices(mBluetoothLeService.getSupportedGattServices());*/
                 //TODO在此处修改了，使得发现服务后直接开启获得数据,连接成功了就根据UUID获取数据
                 mNotifyCharacteristic = mBluetoothLeService.getBluetoothGattCharacteristic();//根据写UUID找到写特征,暂时先注释，有UUID的时候打开并获取
@@ -221,7 +217,7 @@ public class DeviceControlActivity extends Activity implements View.OnClickListe
     //设备未连接时清除界面内容
     private void clearUI() {
         /* mGattServicesList.setAdapter((SimpleExpandableListAdapter) null);*/
-        mDataField.setText(R.string.no_data);
+//        mDataField.setText(R.string.no_data);
     }
 
     @Override
@@ -246,8 +242,6 @@ public class DeviceControlActivity extends Activity implements View.OnClickListe
         mBluetoothAdapter = bluetoothManager.getAdapter();
         bluetoothLeScanner = mBluetoothAdapter.getBluetoothLeScanner();
 
-//        tv_device_address.setText(mDeviceAddress);
-//        tv_DeviceName.setText(mDeviceName);
         Intent gattIntent = new Intent(this, BluetoothLeService.class);
         bindService(gattIntent, mServiceConnection, BIND_AUTO_CREATE);//绑定服务
 
@@ -282,31 +276,14 @@ public class DeviceControlActivity extends Activity implements View.OnClickListe
     }
 
     private void setView() {
-        tv_device_address = (TextView) findViewById(R.id.device_address);
-//        tv_device_address.setText(mDeviceAddress);
-        tv_DeviceName = (TextView) findViewById(R.id.device_name);
-//        tv_DeviceName.setText(mDeviceName);
-        mConnectionState = (TextView) findViewById(R.id.connection_state);
         device_state = (TextView) findViewById(R.id.device_state);
+        img_device_state = findViewById(R.id.img_device_state);
         device_nameid = (TextView) findViewById(R.id.device_nameid);
-        mDataField = (TextView) findViewById(R.id.data_value);
-        openBulb = (Button) findViewById(R.id.openBulb);
-//        setTimeText = (EditText) findViewById(R.id.setTimeText);
-        setTimeBtn = (Button) findViewById(R.id.setTimeBtn);
-        btn_disconnect = (Button) findViewById(R.id.btn_disconnect);
         btn_showconnection = (Button) findViewById(R.id.btn_showconnection);
-        btn_getdata = (Button) findViewById(R.id.btn_getdata);
-        btn_setdata = (Button) findViewById(R.id.btn_setdata);
-        btn_connect = (Button) findViewById(R.id.btn_connect);
-        btn_connect.setOnClickListener(this);
-        btn_disconnect.setOnClickListener(this);
         btn_showconnection.setOnClickListener(this);
-        btn_getdata.setOnClickListener(this);
-        btn_setdata.setOnClickListener(this);
         listview = (ListView) findViewById(R.id.listview);
         mLeDeviceListAdapter = new LeDeviceListAdapter();
         listview.setAdapter(mLeDeviceListAdapter);
-        Showbtn();
 
         //fragment
         //主要逻辑在MainActivity的onClick中
@@ -328,17 +305,9 @@ public class DeviceControlActivity extends Activity implements View.OnClickListe
             fraOne = new FragmentOne();
         }
         mFragmentTransaction.replace(R.id.fl_main, fraOne).commit();
+        showquery();
     }
 
-    private void Showbtn() {
-        if (mConnected) {
-            btn_connect.setVisibility(View.GONE);
-            btn_disconnect.setVisibility(View.VISIBLE);
-        } else {
-            btn_connect.setVisibility(View.VISIBLE);
-            btn_disconnect.setVisibility(View.GONE);
-        }
-    }
 
     private void ShowConnectionbtn(boolean connection) {
         if (connection) {
@@ -406,8 +375,17 @@ public class DeviceControlActivity extends Activity implements View.OnClickListe
         runOnUiThread(new Runnable() {
             @Override
             public void run() {
-                mConnectionState.setText(resourceId);
-                device_state.setText(resourceId);
+                switch (resourceId){
+                    case R.string.connected: //连接
+                        img_device_state.setImageResource(R.drawable.img_bluetooth_connect);
+                        device_state.setVisibility(View.GONE);
+                        break;
+                    case R.string.disconnected: //断开
+                        img_device_state.setImageResource(R.drawable.img_bluetooth_disconnect);
+                        device_state.setVisibility(View.VISIBLE);
+                        break;
+                }
+//                device_state.setText(resourceId);//蓝牙名称右边
             }
         });
     }
@@ -416,7 +394,6 @@ public class DeviceControlActivity extends Activity implements View.OnClickListe
     private void TboxData(String data) {
         if (data != null) {
             /* mDataField.append(data);*/
-            mDataField.setText(data);
 
             String str = ByteUtils.ShowData(data);
 
@@ -438,65 +415,7 @@ public class DeviceControlActivity extends Activity implements View.OnClickListe
         }
     }
 
-    //开灯按键响应函数
-    public void onSwitchBulbClicked(View v) {
-        if (mConnected == false) {
-            Toast.makeText(DeviceControlActivity.this, "请先连接设备", Toast.LENGTH_SHORT).show();
-        } else {
-            if (openBulb.getText() == "开灯") {
-                /* sendMsg("Sapp_mode1E");*/
-                sendMsg("Sopen_led1E");
-              /*  openBulb.getBackground().setAlpha(50);
-                setTimeBtn.getBackground().setAlpha(50);*/
-                openBulb.setText("关灯");
-                setTimeBtn.setText("定时关灯");
-            } else/* if (openBulb.getText() == "关灯")*/ {
-                /*sendMsg("Sapp_mode1E");*/
-                sendMsg("Sclose_led1E");
-                /*openBulb.getBackground().setAlpha(200);
-                setTimeBtn.getBackground().setAlpha(200);*/
-                openBulb.setText("开灯");
-                setTimeBtn.setText("定时开灯");
-            }
 
-        }
-    }
-
-    //定时发送开关灯命令
-    public void onSetTimeOpenBulb(View v) {
-        //转化成是string类型
-//        String mText = setTimeText.getText().toString();
-//        sendMsg(mText);
-        //判断用户输入的定时是否是数字
-        //TODO 对用户定时的时间是否有要求
-        /*Pattern p = Pattern.compile("[^6]");//[0-9]*
-        Matcher m = p.matcher(mText);
-        if (mText.equals("")){
-            Toast.makeText(DeviceControlActivity.this, "请先输入时间", Toast.LENGTH_SHORT).show();
-        }else{
-            if (m.matches()){
-                if (setTimeBtn.getText() == "定时开灯"){
-                    sendMsg("Sopen:"+mText+"E");
-                    Toast.makeText(DeviceControlActivity.this, "在"+mText+"分钟后"+setTimeBtn.getText(), Toast.LENGTH_SHORT).show();
-                    setTimeText.setText(null);
-                    openBulb.getBackground().setAlpha(50);
-                    setTimeBtn.getBackground().setAlpha(50);
-                    setTimeBtn.setText("定时关灯");
-                    openBulb.setText("关灯");
-                }else*//* if (setTimeBtn.getText() == "定时开灯")*//*{
-                    sendMsg("Sclose:"+mText+"E");
-                    Toast.makeText(DeviceControlActivity.this, "在"+mText+"分钟后"+setTimeBtn.getText(), Toast.LENGTH_SHORT).show();
-                    setTimeText.setText(null);
-                    openBulb.getBackground().setAlpha(200);
-                    setTimeBtn.getBackground().setAlpha(200);
-                    setTimeBtn.setText("定时开灯");
-                    openBulb.setText("开灯");
-                }
-            }else{
-                Toast.makeText(DeviceControlActivity.this, "请输入数字", Toast.LENGTH_SHORT).show();
-            }
-        }*/
-    }
 
     //发送消息
     //发送数据时，如果一包数据超过20字节，需要分包发送，一次最多发送二十字节。nk
@@ -536,10 +455,10 @@ public class DeviceControlActivity extends Activity implements View.OnClickListe
      * 每条数据长度应保证在20个字节以内
      * 2条数据至少要空15ms
      *
-     * @param data
+     * @param Hexdata
      */
-    public void sendMsg2(final String data) { //新发送代码
-        final String Hexdata = ByteUtils.toHexString(data.getBytes());
+    public void sendMsg2(String Hexdata) { //新发送代码
+//        Hexdata = ByteUtils.toHexString(Hexdata.getBytes());//转换成16进制
         if (Hexdata.length() > 0) {
             final boolean[] isSuccess = new boolean[1];
             if (Hexdata.length() <= 40) {
@@ -547,17 +466,18 @@ public class DeviceControlActivity extends Activity implements View.OnClickListe
                 mNotifyCharacteristic.setValue(Hexdata);
                 isSuccess[0] = this.mBluetoothLeService.writeCharacteristic(mNotifyCharacteristic);
             } else {
+                final String finalHexdata = Hexdata;
                 BaseBiz.dataEs.execute(new Runnable() {
                     @Override
                     public void run() {
-                        for (int i = 0; i < Hexdata.length(); i = i + 40) {
+                        for (int i = 0; i < finalHexdata.length(); i = i + 40) {
                             final String[] shortOrder = {""};
                             final int finalI = i;
 
-                            if (Hexdata.length() - i >= 40) {
-                                shortOrder[0] = Hexdata.substring(finalI, finalI + 40);
+                            if (finalHexdata.length() - i >= 40) {
+                                shortOrder[0] = finalHexdata.substring(finalI, finalI + 40);
                             } else {
-                                shortOrder[0] = Hexdata.substring(finalI, Hexdata.length());
+                                shortOrder[0] = finalHexdata.substring(finalI, finalHexdata.length());
                             }
 
                             Log.e("--->", "shortOrder[0]2：" + shortOrder[0]);
@@ -599,13 +519,6 @@ public class DeviceControlActivity extends Activity implements View.OnClickListe
 //                    listview.setVisibility(View.GONE);
                 }
                 break;
-            case R.id.btn_connect:
-                mBluetoothLeService.connect(extras_device_address);
-                updateConnectionState(R.string.Connection);
-                break;
-            case R.id.btn_disconnect:
-                mBluetoothLeService.disconnect();
-                break;
             case R.id.btn_scan:
                 if (!showScan) {
 
@@ -630,6 +543,7 @@ public class DeviceControlActivity extends Activity implements View.OnClickListe
                     fraOne = new FragmentOne();
                 }
                 mFragmentTransaction.replace(R.id.fl_main, fraOne).commit();
+                showquery();
 //                mFragmentTransaction.addToBackStack(null);//添加fragment到返回栈
 //                mFragmentTransaction.commit();
                 break;
@@ -638,6 +552,7 @@ public class DeviceControlActivity extends Activity implements View.OnClickListe
                     fraTwo = new FragmentTwo();
                 }
                 mFragmentTransaction.replace(R.id.fl_main, fraTwo).commit();
+                showset();
 //                mFragmentTransaction.addToBackStack(null);//添加fragment到返回栈
 //                mFragmentTransaction.commit();
                 break;
@@ -646,39 +561,28 @@ public class DeviceControlActivity extends Activity implements View.OnClickListe
                     fraThree = new FragmentThree();
                 }
                 mFragmentTransaction.replace(R.id.fl_main, fraThree).commit();
+                showabout();
 //                mFragmentTransaction.addToBackStack(null);//添加fragment到返回栈
 //                mFragmentTransaction.commit();
                 break;
-            case R.id.btn_getdata:
-
-                mNotifyCharacteristic = mBluetoothLeService.getBluetoothGattCharacteristic();//根据写UUID找到写特征,暂时先注释，有UUID的时候打开并获取
-
-                break;
-            case R.id.btn_setdata:
-
-                //发送广播
-
-//                Intent i1 = new Intent();
-//                i1.setAction("android.media.testtesk");
-//                sendBroadcast(i1);
-
-
-                Intent it = new Intent("android.media.testtesk");
-                it.setComponent(new ComponentName("com.etrans.bluetooth.le",
-                        "com.etrans.bluetooth.le.receiver.XxTestReceiver"));
-                sendBroadcast(it);
-
-
-                //发送数据
-//                if (mConnected == false) {
-//                    Toast.makeText(DeviceControlActivity.this, "请先连接设备", Toast.LENGTH_SHORT).show();
-//                } else {
-////                    sendMsg("Sopen_led1E");
-////                    sendMsg("12345678901234567890123456789012345678901234567890");
-//                    sendMsg2("abcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyz");
-////                    sendMsg("abcabcabcabcabcabc");
-//                }
-                break;
+//            case R.id.btn_setdata:
+//                //发送广播
+//                Intent it = new Intent("android.media.testtesk");
+//                it.setComponent(new ComponentName("com.etrans.bluetooth.le",
+//                        "com.etrans.bluetooth.le.receiver.XxTestReceiver"));
+//                sendBroadcast(it);
+//
+//
+//                //发送数据
+////                if (mConnected == false) {
+////                    Toast.makeText(DeviceControlActivity.this, "请先连接设备", Toast.LENGTH_SHORT).show();
+////                } else {
+//////                    sendMsg("Sopen_led1E");
+//////                    sendMsg("12345678901234567890123456789012345678901234567890");
+////                    sendMsg2("abcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyz");
+//////                    sendMsg("abcabcabcabcabcabc");
+////                }
+//                break;
             case R.id.btn_showconnection:
 
                 if (mConnected) {
@@ -690,6 +594,36 @@ public class DeviceControlActivity extends Activity implements View.OnClickListe
                 break;
         }
     }
+
+
+    private void showquery(){
+        btn_query.setBackground(getDrawable(R.drawable.setbtn_pressed_bg));
+        btn_set.setBackground(getDrawable(R.drawable.setbtn_selected_bg));
+        btn_about.setBackground(getDrawable(R.drawable.setbtn_selected_bg));
+
+        btn_query.setTextColor(getResources().getColor(R.color.black));
+        btn_set.setTextColor(getResources().getColor(R.color.white));
+        btn_about.setTextColor(getResources().getColor(R.color.white));
+    }
+    private void showset(){
+        btn_query.setBackground(getDrawable(R.drawable.setbtn_selected_bg));
+        btn_set.setBackground(getDrawable(R.drawable.setbtn_pressed_bg));
+        btn_about.setBackground(getDrawable(R.drawable.setbtn_selected_bg));
+
+        btn_query.setTextColor(getResources().getColor(R.color.white));
+        btn_set.setTextColor(getResources().getColor(R.color.black));
+        btn_about.setTextColor(getResources().getColor(R.color.white));
+    }
+    private void showabout(){
+        btn_query.setBackground(getDrawable(R.drawable.setbtn_selected_bg));
+        btn_set.setBackground(getDrawable(R.drawable.setbtn_selected_bg));
+        btn_about.setBackground(getDrawable(R.drawable.setbtn_pressed_bg));
+
+        btn_query.setTextColor(getResources().getColor(R.color.white));
+        btn_set.setTextColor(getResources().getColor(R.color.white));
+        btn_about.setTextColor(getResources().getColor(R.color.black));
+    }
+
 
 
     // Adapter for holding devices found through scanning.
@@ -767,7 +701,7 @@ public class DeviceControlActivity extends Activity implements View.OnClickListe
                     extras_device_address = device.getAddress();
                     if (mBluetoothLeService != null) { //先注释
                         final boolean result = mBluetoothLeService.connect(extras_device_address);
-                        updateConnectionState(R.string.Connection);
+                        updateConnectionState(R.string.Connection);//连接中
                         device_nameid.setText(extras_device_name);//设备名
                         scanLeDevice(false);
                         Log.d(TAG, "Connect request result=" + result);
