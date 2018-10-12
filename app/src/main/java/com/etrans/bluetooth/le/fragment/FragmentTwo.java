@@ -236,13 +236,89 @@ public class FragmentTwo extends Fragment implements View.OnClickListener{
 //                        ByteUtils.Decimal0(contentdata.length())+ //
                         contentdata;//数据单元
                 String validate_code = ByteUtils.checkXor(SendData.substring(4,SendData.length()));//验证码   cs
-                SendData += validate_code;//添加验证码
+                SendData += validate_code; //添加验证码 2a2a02FE011301033435360203313335030331323304023738D4
+
+
+
+                /**
+                 * 232300 1a 01 0000000000000000000000000000 ff
+                 2b2b00 2a2a03FE010801020304050a0f10E000 ff
+                 */
+                /**
+                 * 起始符 232300
+                 * 长度  1a
+                 * 包数  01
+                 * 补零  000000....
+                 * 校验 ff
+                 */
+
+                StringBuilder headInfo = new StringBuilder();
+                headInfo.delete(0, headInfo.length());//删除之前的StringBuilder
+                headInfo.append("232300");
+                headInfo.append(ByteUtils.integerToHexString(SendData.length()/2));//长度hex
+                headInfo.append(ByteUtils.integerToHexString((int) Math.ceil(SendData.length()/32))); //包数
+                String data = ByteUtils.addZeroForNum(headInfo.toString(),38);//补零
+
+                String validate_code1 = ByteUtils.checkXor(headInfo.toString().substring(4,headInfo.toString().length()));//验证码   cs
+                data += validate_code1;
+
+
+
+
+
+                /**
+                 * 2b2b00 2a2a03FE010801020304050a0f10E000 ff
+                 */
+                /**
+                 * 起始符 2b2b00
+                 * 单元数据2a2a03FE010801020304050a0f10E0
+                 * 补零  000000....
+                 * 校验 ff
+                 */
+                int index = 0;
+                StringBuilder contentInfo = new StringBuilder();
+                for (int i = 0; i < SendData.length(); i = i + 32) {
+                    final int finalI = i;
+                    if (SendData.length() - i >= 32) {
+                        StringBuilder info = new StringBuilder();
+                        info.delete(0, info.length());//删除之前的StringBuilder
+                        info.append("2b2b0");
+                        info.append(index+"");
+                        info.append(SendData.substring(finalI,finalI+32));
+                        String validate_code2 = ByteUtils.checkXor(info.toString().substring(4,info.toString().length()));//验证码   cs
+                        info.append(validate_code2);
+                        index++;
+                        contentInfo.append(info.toString());
+                        Log.i(TAG, "onClick: OK");
+//                        shortOrder[0] = finalHexdata.substring(finalI, finalI + 32);
+                    } else {
+                        StringBuilder info = new StringBuilder();
+                        info.delete(0, info.length());//删除之前的StringBuilder
+                        info.append("2b2b0");
+                        info.append(index+"");
+                        info.append(SendData.substring(finalI,SendData.length()));
+                        String data3 = ByteUtils.addZeroForNum(info.toString(),38);//补零
+                        String validate_code3 = ByteUtils.checkXor(info.toString().substring(4,info.toString().length()));//验证码   cs
+                        data3 += validate_code3;
+                        contentInfo.append(data3);
+                        Log.i(TAG, "onClick: OK");
+//                        shortOrder[0] = finalHexdata.substring(finalI, finalHexdata.length());
+                    }
+                }
+
+                Log.i(TAG, "onClick: contentInfo最终 = "+contentInfo.toString());
+                data+=contentInfo.toString();
+
+                Log.i(TAG, "onClick: data最终 = "+data);
+
+
+
                 Log.i(TAG, "发送设置数据: SendData = "+SendData);
                 Handler handler = DeviceControlActivity.getHandler();
                 if (handler != null) {
                     Message msg = Message.obtain();
                     msg.what = DeviceControlActivity.MSG_SENDALLORDER;
-                    msg.obj = SendData;
+                    msg.obj = data;
                     handler.sendMessage(msg);
                 }
                 Log.i(TAG, "onClick: OK");

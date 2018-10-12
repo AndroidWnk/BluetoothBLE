@@ -95,18 +95,63 @@ public class FragmentOne extends Fragment implements View.OnClickListener {
 
                 //2a2a03fe0103010203cs 查询前面三个参数
                 String validate_code = ByteUtils.checkXor(str.substring(4,str.length()));//验证码   cs
-                str += validate_code;//补上验证码
+                str += validate_code;//补上验证码 2a2a03FE010801020304050a0f10E0
+
+                /**
+                 * 232300 1a 01 0000000000000000000000000000 ff
+                   2b2b00 2a2a03FE010801020304050a0f10E000 ff
+                 */
+                /**
+                 * 起始符 232300
+                 * 长度  1a
+                 * 包数  01
+                 * 补零  000000....
+                 * 校验 ff
+                 */
+
+                StringBuilder headInfo = new StringBuilder();
+                headInfo.delete(0, headInfo.length());//删除之前的StringBuilder
+                headInfo.append("232300");
+                headInfo.append(ByteUtils.integerToHexString(str.length()/2));
+                headInfo.append(ByteUtils.integerToHexString((int) Math.ceil(str.length()/17)));
+                String data = ByteUtils.addZeroForNum(headInfo.toString(),38);//补零
+
+                String validate_code1 = ByteUtils.checkXor(headInfo.toString().substring(4,headInfo.toString().length()));//验证码   cs
+                data += validate_code1;
 
 
 
+
+
+                /**
+                 * 2b2b00 2a2a03FE010801020304050a0f10E000 ff
+                 */
+                /**
+                 * 起始符 2b2b00
+                 * 单元数据2a2a03FE010801020304050a0f10E0
+                 * 补零  000000....
+                 * 校验 ff
+                 */
+
+                StringBuilder contentInfo = new StringBuilder();
+                contentInfo.delete(0, contentInfo.length());//删除之前的StringBuilder
+                contentInfo.append("2b2b00");
+                contentInfo.append(str);
+                String data1 = ByteUtils.addZeroForNum(contentInfo.toString(),38);//补零
+                String validate_code2 = ByteUtils.checkXor(contentInfo.toString().substring(4,contentInfo.toString().length()));//验证码   cs
+                data1 += validate_code2;
+
+
+                data += data1;
 
 
                 Log.i(TAG, "发送查询数据: str = "+str);
+                Log.i(TAG, "发送查询数据: data = "+data);
                 Handler handler = DeviceControlActivity.getHandler();
                 if (handler != null) {
                     Message msg = Message.obtain();
                     msg.what = DeviceControlActivity.MSG_SENDALLORDER;
-                    msg.obj = str;
+                    msg.obj = data;
                     handler.sendMessage(msg);
                 }
                 break;

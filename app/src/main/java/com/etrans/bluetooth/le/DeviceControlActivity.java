@@ -63,6 +63,7 @@ import com.etrans.bluetooth.le.fragment.FragmentThree;
 import com.etrans.bluetooth.le.fragment.FragmentTwo;
 import com.etrans.bluetooth.le.utils.BaseBiz;
 import com.etrans.bluetooth.le.utils.ByteUtils;
+import com.etrans.bluetooth.le.utils.HexUtil;
 import com.etrans.bluetooth.le.utils.ToastFactory;
 
 import java.util.ArrayList;
@@ -395,7 +396,8 @@ public class DeviceControlActivity extends Activity implements View.OnClickListe
         if (data != null) {
             /* mDataField.append(data);*/
 
-            String str = ByteUtils.ShowData(data);
+//            String str = ByteUtils.ShowData(data);//解析不正确，暂时先注释
+            String str = "";
 
 //            Handler handler = FragmentOne.getHandler();
 //            if (handler != null) {
@@ -457,32 +459,33 @@ public class DeviceControlActivity extends Activity implements View.OnClickListe
      *
      * @param Hexdata
      */
+    byte[] sData = null;
     public void sendMsg2(String Hexdata) { //新发送代码
 //        Hexdata = ByteUtils.toHexString(Hexdata.getBytes());//转换成16进制
         if (Hexdata.length() > 0) {
             final boolean[] isSuccess = new boolean[1];
-            if (Hexdata.length() <= 20) {
-//                sData = HexUtil.hex2byte(currentSendOrder);
-                mNotifyCharacteristic.setValue(Hexdata);
+            if (Hexdata.length() <= 40) {
+                sData = HexUtil.hex2byte(Hexdata);
+                mNotifyCharacteristic.setValue(sData);
                 isSuccess[0] = this.mBluetoothLeService.writeCharacteristic(mNotifyCharacteristic);
             } else {
                 final String finalHexdata = Hexdata;
                 BaseBiz.dataEs.execute(new Runnable() {
                     @Override
                     public void run() {
-                        for (int i = 0; i < finalHexdata.length(); i = i + 20) {
+                        for (int i = 0; i < finalHexdata.length(); i = i + 40) {
                             final String[] shortOrder = {""};
                             final int finalI = i;
 
-                            if (finalHexdata.length() - i >= 20) {
-                                shortOrder[0] = finalHexdata.substring(finalI, finalI + 20);
+                            if (finalHexdata.length() - i >= 40) {
+                                shortOrder[0] = finalHexdata.substring(finalI, finalI + 40);
                             } else {
                                 shortOrder[0] = finalHexdata.substring(finalI, finalHexdata.length());
                             }
 
                             Log.e("--->", "shortOrder[0]2：" + shortOrder[0]);
-//                    sData = HexUtil.hex2byte(shortOrder[0]);//如果是16进制的字符串就要转成byte数组
-                            mNotifyCharacteristic.setValue(shortOrder[0]);
+                            sData = HexUtil.hex2byte(shortOrder[0]);//如果是16进制的字符串就要转成byte数组
+                            mNotifyCharacteristic.setValue(sData);
                             try {
                                 isSuccess[0] = mBluetoothLeService.writeCharacteristic(mNotifyCharacteristic);
                                 Thread.sleep(150);
