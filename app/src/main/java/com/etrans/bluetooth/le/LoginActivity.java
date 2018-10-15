@@ -1,33 +1,16 @@
 package com.etrans.bluetooth.le;
 
-import android.Manifest;
 import android.app.Activity;
 import android.content.Intent;
-import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.support.v4.app.ActivityCompat;
-import android.support.v4.content.ContextCompat;
-import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.EditText;
 
-import com.etrans.bluetooth.le.utils.AESCipher;
 import com.etrans.bluetooth.le.utils.SpUtil;
 import com.etrans.bluetooth.le.utils.ToastFactory;
-import com.etrans.bluetooth.le.utils.UUIDUtils;
-
-import java.io.UnsupportedEncodingException;
-import java.security.InvalidAlgorithmParameterException;
-import java.security.InvalidKeyException;
-import java.security.NoSuchAlgorithmException;
-
-import javax.crypto.BadPaddingException;
-import javax.crypto.IllegalBlockSizeException;
-import javax.crypto.NoSuchPaddingException;
-
-import static android.content.ContentValues.TAG;
 
 public class LoginActivity extends Activity implements View.OnClickListener, ActivityCompat.OnRequestPermissionsResultCallback {
     public final static int REQUEST_READ_PHONE_STATE = 1;
@@ -51,14 +34,14 @@ public class LoginActivity extends Activity implements View.OnClickListener, Act
         btn_login.setOnClickListener(this);
         btn_getname.setOnClickListener(this);
         //动态获取权限
-        int permissionCheck = ContextCompat.checkSelfPermission(this, Manifest.permission.READ_PHONE_STATE);
-        if (permissionCheck != PackageManager.PERMISSION_GRANTED) {
-            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.READ_PHONE_STATE}, REQUEST_READ_PHONE_STATE);
-        } else {
-            IMEI = UUIDUtils.getIMEI(this);
-            //设置密码
-            getpassword(IMEI);
-        }
+//        int permissionCheck = ContextCompat.checkSelfPermission(this, Manifest.permission.READ_PHONE_STATE);
+//        if (permissionCheck != PackageManager.PERMISSION_GRANTED) {
+//            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.READ_PHONE_STATE}, REQUEST_READ_PHONE_STATE);
+//        } else {
+//            IMEI = UUIDUtils.getIMEI(this);
+//            //设置密码
+//            getpassword(IMEI);
+//        }
         //******************
         //4.从SharedPreferences中取出记住密码的状态值
         boolean isremember = SpUtil.getBoolean(this, "isremember", false);
@@ -104,10 +87,10 @@ public class LoginActivity extends Activity implements View.OnClickListener, Act
                     ToastFactory.showToast(this, "请输入密码");
                     return;
                 }
-                else if(!pass.equals(Myapplication.AES_PASSWROD.substring(0, 5))){
-                    ToastFactory.showToast(this, "密码错误！");
-                    return;
-                }
+//                else if(!pass.equals(Myapplication.AES_PASSWROD.substring(0, 5))){
+//                    ToastFactory.showToast(this, "密码错误！");
+//                    return;
+//                }
 
 //                else if (!pass.equals(IMEI.substring(0, 5))) {  //输入错误
 //                    ToastFactory.showToast(this, "密码错误！");
@@ -138,43 +121,43 @@ public class LoginActivity extends Activity implements View.OnClickListener, Act
     }
 
 
-    @Override
-    public void onRequestPermissionsResult(int requestCode, String permissions[], int[] grantResults) {
-        switch (requestCode) {
-            case REQUEST_READ_PHONE_STATE:
-                if ((grantResults.length > 0) && (grantResults[0] == PackageManager.PERMISSION_GRANTED)) {
-                    IMEI = UUIDUtils.getIMEI(this);
-                    //设置密码
-                    getpassword(IMEI);
-                }
-                break;
-
-            default:
-                break;
-        }
-    }
-
-    private void getpassword(String Imei)  {
-        //加密
-        try {
-//            AESpasswrod = AESCipher.aesEncryptString(Imei, "16BytesLengthKey");
-            Myapplication.AES_PASSWROD = AESCipher.aesEncryptString(Imei, "16BytesLengthKey");
-        } catch (InvalidKeyException e) {
-            e.printStackTrace();
-        } catch (NoSuchAlgorithmException e) {
-            e.printStackTrace();
-        } catch (NoSuchPaddingException e) {
-            e.printStackTrace();
-        } catch (InvalidAlgorithmParameterException e) {
-            e.printStackTrace();
-        } catch (IllegalBlockSizeException e) {
-            e.printStackTrace();
-        } catch (BadPaddingException e) {
-            e.printStackTrace();
-        } catch (UnsupportedEncodingException e) {
-            e.printStackTrace();
-        }
-        Log.i(TAG, "AESKey: 加密前 = "+Imei+",加密后 = "+Myapplication.AES_PASSWROD);
-    }
+//    @Override
+//    public void onRequestPermissionsResult(int requestCode, String permissions[], int[] grantResults) {
+//        switch (requestCode) {
+//            case REQUEST_READ_PHONE_STATE:
+//                if ((grantResults.length > 0) && (grantResults[0] == PackageManager.PERMISSION_GRANTED)) {
+//                    IMEI = UUIDUtils.getIMEI(this);
+//                    //设置密码
+//                    getpassword(IMEI);
+//                }
+//                break;
+//
+//            default:
+//                break;
+//        }
+//    }
+//
+//    private void getpassword(String Imei)  {
+//        //加密
+//        try {
+////            AESpasswrod = AESCipher.aesEncryptString(Imei, "16BytesLengthKey");
+//            Myapplication.AES_PASSWROD = AESCipher.aesEncryptString(Imei, "16BytesLengthKey");
+//        } catch (InvalidKeyException e) {
+//            e.printStackTrace();
+//        } catch (NoSuchAlgorithmException e) {
+//            e.printStackTrace();
+//        } catch (NoSuchPaddingException e) {
+//            e.printStackTrace();
+//        } catch (InvalidAlgorithmParameterException e) {
+//            e.printStackTrace();
+//        } catch (IllegalBlockSizeException e) {
+//            e.printStackTrace();
+//        } catch (BadPaddingException e) {
+//            e.printStackTrace();
+//        } catch (UnsupportedEncodingException e) {
+//            e.printStackTrace();
+//        }
+//        Log.i(TAG, "AESKey: 加密前 = "+Imei+",加密后 = "+Myapplication.AES_PASSWROD);
+//    }
 
 }

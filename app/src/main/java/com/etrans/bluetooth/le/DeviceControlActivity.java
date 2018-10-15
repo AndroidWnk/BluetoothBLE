@@ -58,6 +58,7 @@ import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.etrans.bluetooth.le.bean.Resultbean;
 import com.etrans.bluetooth.le.fragment.FragmentOne;
 import com.etrans.bluetooth.le.fragment.FragmentThree;
 import com.etrans.bluetooth.le.fragment.FragmentTwo;
@@ -122,7 +123,11 @@ public class DeviceControlActivity extends Activity implements View.OnClickListe
             switch (msg.what) {
                 case DeviceControlActivity.MSG_SENDALLORDER:// 蓝牙设备名称
                     String Senddata = (String) msg.obj;
-                    sendMsg2(Senddata);
+                    if(mConnected){
+                        sendMsg2(Senddata);
+                    }else{
+                        ToastFactory.showToast(DeviceControlActivity.this,"蓝牙断开发送失败");
+                    }
                     break;
 
             }
@@ -396,8 +401,10 @@ public class DeviceControlActivity extends Activity implements View.OnClickListe
         if (data != null) {
             /* mDataField.append(data);*/
 
-//            String str = ByteUtils.ShowData(data);//解析不正确，暂时先注释
-            String str = "";
+            String str = ByteUtils.ShowData(data);//解析不正确，暂时先注释
+            Resultbean showdata = HexUtil.HexData(str);//解析不正确，暂时先注释
+//            Resultbean showdata = HexUtil.HexData("2a2a03FE010801020304050a0f10E0");//解析不正确，暂时先注释
+//            String str = "";
 
 //            Handler handler = FragmentOne.getHandler();
 //            if (handler != null) {
@@ -410,7 +417,7 @@ public class DeviceControlActivity extends Activity implements View.OnClickListe
             if (handler != null) {
                 Message msg = Message.obtain();
                 msg.what = Myapplication.MSG_APP_DATA;
-                msg.obj = str;
+                msg.obj = showdata;
                 handler.sendMessage(msg);
             }
 

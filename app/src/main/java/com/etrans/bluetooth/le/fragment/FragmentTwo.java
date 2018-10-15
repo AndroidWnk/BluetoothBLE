@@ -231,15 +231,11 @@ public class FragmentTwo extends Fragment implements View.OnClickListener{
                 String contentdata = JSONUtils.getString(map);//获取编辑的数据
                 Log.i(TAG, "JSONUtils.getString(map) = "+ JSONUtils.getString(map));
                 String SendData = IConstants.SET+ //添加起始符设置
-
-                        ByteUtils.integerToHexString(contentdata.length()/2)+ //数据单元长度
+                        "00"+ByteUtils.integerToHexString(contentdata.length()/2)+ //数据单元长度
 //                        ByteUtils.Decimal0(contentdata.length())+ //
                         contentdata;//数据单元
                 String validate_code = ByteUtils.checkXor(SendData.substring(4,SendData.length()));//验证码   cs
                 SendData += validate_code; //添加验证码 2a2a02FE011301033435360203313335030331323304023738D4
-
-
-
                 /**
                  * 232300 1a 01 0000000000000000000000000000 ff
                  2b2b00 2a2a03FE010801020304050a0f10E000 ff
@@ -256,15 +252,10 @@ public class FragmentTwo extends Fragment implements View.OnClickListener{
                 headInfo.delete(0, headInfo.length());//删除之前的StringBuilder
                 headInfo.append("232300");
                 headInfo.append(ByteUtils.integerToHexString(SendData.length()/2));//长度hex
-                headInfo.append(ByteUtils.integerToHexString((int) Math.ceil(SendData.length()/32))); //包数
+                headInfo.append(ByteUtils.integerToHexString((int) Math.ceil(SendData.length()/32.0))); //包数
                 String data = ByteUtils.addZeroForNum(headInfo.toString(),38);//补零
-
                 String validate_code1 = ByteUtils.checkXor(headInfo.toString().substring(4,headInfo.toString().length()));//验证码   cs
                 data += validate_code1;
-
-
-
-
 
                 /**
                  * 2b2b00 2a2a03FE010801020304050a0f10E000 ff
@@ -312,7 +303,6 @@ public class FragmentTwo extends Fragment implements View.OnClickListener{
                 Log.i(TAG, "onClick: data最终 = "+data);
 
 
-
                 Log.i(TAG, "发送设置数据: SendData = "+SendData);
                 Handler handler = DeviceControlActivity.getHandler();
                 if (handler != null) {
@@ -322,7 +312,6 @@ public class FragmentTwo extends Fragment implements View.OnClickListener{
                     handler.sendMessage(msg);
                 }
                 Log.i(TAG, "onClick: OK");
-
 
 
 //                //{"vin":"VFGBH12584LKDHF","id":"VERG12345678","callnum":"13725645879"}

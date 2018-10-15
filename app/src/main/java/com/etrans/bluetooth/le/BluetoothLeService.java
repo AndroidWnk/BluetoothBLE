@@ -64,7 +64,7 @@ public class BluetoothLeService extends Service {
     private BluetoothLeService mBluetoothLeService;
     private StringBuilder mreadInfo = new StringBuilder();
     private StringBuilder mwriteInfo = new StringBuilder();
-//    private StringBuilder mOutput = new StringBuilder();
+    //    private StringBuilder mOutput = new StringBuilder();
     public int number = 0;
 
     // GATT返回值，例如连接状态和service的改变 etc
@@ -150,6 +150,8 @@ public class BluetoothLeService extends Service {
 
     }
 
+    int datalen = 0;
+
     //广播的更新，包括数据的处理,读取heart的数据
     private void broadcastUpdate(final String action, final BluetoothGattCharacteristic characteristic) {
         final Intent intent = new Intent(action);
@@ -173,27 +175,21 @@ public class BluetoothLeService extends Service {
             //对于所有的profile，都是利用HEX来进行传递的
             final byte[] data = characteristic.getValue();
             if (data != null && data.length > 0) {
-//                mOutput.append(HexUtil.encodeHexStr(data)).append("\n");//在缓冲区做判断
-                if (HexUtil.encodeHexStr(data).indexOf("232300") != -1) { //如果缓冲区里包含起始符
-                    mreadInfo.delete(0, mreadInfo.length());//删除之前的StringBuilder
-//                    mreadInfo.append(HexUtil.encodeHexStr(data)).append("\n");//重新写进去
+                String hexdata = HexUtil.encodeHexStr(data);
+                if (hexdata.indexOf("232300") != -1) { //如果缓冲区里包含起始符
+                    mwriteInfo.delete(0, mwriteInfo.length());//删除之前的StringBuilder
+                    String substr3 = hexdata.substring(8, 10);//包数
+                    datalen = Integer.parseInt(substr3);//转成Int值  包数
+                    mwriteInfo.append(hexdata).append("\n");//否则直接写
+                } else {
+                    mwriteInfo.append(hexdata).append("\n");//否则直接写
+                    Log.i(TAG, "stateNKbroadcastUpdate: 接收回来的数据：" + mwriteInfo.toString());
+                    if (Integer.parseInt(hexdata.substring(4, 6)) == datalen - 1) {
+                        intent.putExtra(EXTRA_DATA, mwriteInfo.toString());
+                        sendBroadcast(intent);
+                    }
                 }
-//                else{
-//                    mreadInfo.append(HexUtil.encodeHexStr(data)).append("\n");//否则直接写
-//                }
-                mreadInfo.append(HexUtil.encodeHexStr(data)).append("\n");//否则直接写
-                Log.i(TAG, "stateNKbroadcastUpdate: 接收回来的数据：" + mreadInfo.toString());
-//                mOutput.delete(0,mOutput.length());//清空缓冲区
-//                final StringBuilder stringBuilder = new StringBuilder(data.length);
-//                for (byte byteChar : data) {
-//                    stringBuilder.append(String.format("%02X ", byteChar));
-//                }
-//                intent.putExtra(EXTRA_DATA, new String(data) + "\n" + stringBuilder.toString());
-//                intent.putExtra(EXTRA_DATA, new String(data));
-                if (HexUtil.encodeHexStr(data).indexOf("0a") != -1) {
-                    intent.putExtra(EXTRA_DATA, mreadInfo.toString());
-                    sendBroadcast(intent);
-                }
+                Log.i(TAG, "broadcastUpdate: OK");
 
 
                 //之前
@@ -212,41 +208,25 @@ public class BluetoothLeService extends Service {
             //对于所有的profile，都是利用HEX来进行传递的
             final byte[] data = characteristic.getValue();
             if (data != null && data.length > 0) {
-//                mOutput.append(HexUtil.encodeHexStr(data)).append("\n");//在缓冲区做判断
-                if (HexUtil.encodeHexStr(data).indexOf("232300") != -1) { //如果缓冲区里包含起始符
+
+                String hexdata = HexUtil.encodeHexStr(data);
+
+                if (hexdata.indexOf("232300") != -1) { //如果缓冲区里包含起始符
                     mwriteInfo.delete(0, mwriteInfo.length());//删除之前的StringBuilder
-//                    mwriteInfo.append(HexUtil.encodeHexStr(data)).append("\n");//重新写进去
+                    String substr3 = hexdata.substring(8, 10);//包数
+                    datalen = Integer.parseInt(substr3);//转成Int值  包数
+                    mwriteInfo.append(hexdata).append("\n");//否则直接写
+                } else {
+                    mwriteInfo.append(hexdata).append("\n");//否则直接写
+                    Log.i(TAG, "stateNKbroadcastUpdate: 发送出去的数据：" + mwriteInfo.toString());
+//                    if (Integer.parseInt(hexdata.substring(4, 6)) == datalen - 1) {//发送出去的数据暂时先注释
+//                        intent.putExtra(EXTRA_DATA, mwriteInfo.toString());
+//                        sendBroadcast(intent);
+//                    }
                 }
-//                else{
-//                    mwriteInfo.append(HexUtil.encodeHexStr(data)).append("\n");//否则直接写
-//                }
-                mwriteInfo.append(new String(data)).append("\n");//否则直接写
-                Log.i(TAG, "stateNKbroadcastUpdate: 发送出去的数据：" + mwriteInfo.toString());
-//                mOutput.delete(0,mOutput.length());//清空缓冲区
-//                final StringBuilder stringBuilder = new StringBuilder(data.length);
-//                for (byte byteChar : data) {
-//                    stringBuilder.append(String.format("%02X ", byteChar));
-//                }
-//                intent.putExtra(EXTRA_DATA, new String(data) + "\n" + stringBuilder.toString());
-//                intent.putExtra(EXTRA_DATA, new String(data));
-                if (HexUtil.encodeHexStr(data).indexOf("0a") != -1) {
-                    intent.putExtra(EXTRA_DATA, mwriteInfo.toString());
-                    sendBroadcast(intent);
-                }
-
-
-                //之前
-//                final StringBuilder stringBuilder = new StringBuilder(data.length);
-//                for (byte byteChar : data) {
-//                    stringBuilder.append(String.format("%02X ", byteChar));
-//                }
-//                intent.putExtra(EXTRA_DATA, new String(data) + "\n" + stringBuilder.toString());
-//                intent.putExtra(EXTRA_DATA, new String(data));
-
+                Log.i(TAG, "broadcastUpdate: OK");
 
             }
-            //TODO 处理数据
-
 
         }
 //        sendBroadcast(intent);

@@ -40,9 +40,17 @@ public class JSONUtils {
         String str = "";
         for (Map.Entry<String, Object> entry : map.entrySet()) {
             String key = entry.getKey();//参数
+
+            //val
+            String v = entry.getValue().toString();
+            //转成hex
+            String hexv = ByteUtils.toHexString(v.getBytes());
+            //长度
+            String len = ByteUtils.integerToHexString(hexv.length()/2);
+
 //            Object val = entry.getValue();
-            Object val = ByteUtils.integerToHexString(entry.getValue().toString().length())+ //数据单元长度(hex表示)
-                    ByteUtils.toHexString(entry.getValue().toString().getBytes()); //数据单元
+            Object val = len+ //数据单元长度(hex表示)
+                    hexv; //数据单元
             str += key + val;
         }
         return str;//返回字符串

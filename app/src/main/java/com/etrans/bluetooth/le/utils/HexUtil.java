@@ -1,11 +1,17 @@
 package com.etrans.bluetooth.le.utils;
 
+import android.util.Log;
+
+import com.etrans.bluetooth.le.bean.Resultbean;
+
 /**
  * @Description: 十六进制转换类
  * @author: <a href="http://www.xiaoyaoyou1212.com">DAWI</a>
  * @date: 16/8/7 21:57.
  */
 public class HexUtil {
+
+    private final static String TAG = "HexUtil";
     /**
      * 用于建立十六进制字符的输出的小写字符数组
      */
@@ -168,7 +174,7 @@ public class HexUtil {
      * @param bb
      * @param x
      * @param index 第几位开始
-     * @param flag 标识高低位顺序，高位在前为true，低位在前为false
+     * @param flag  标识高低位顺序，高位在前为true，低位在前为false
      */
     public static void intToByte(byte[] bb, int x, int index, boolean flag) {
         if (flag) {
@@ -189,7 +195,7 @@ public class HexUtil {
      *
      * @param bb
      * @param index 第几位开始
-     * @param flag 标识高低位顺序，高位在前为true，低位在前为false
+     * @param flag  标识高低位顺序，高位在前为true，低位在前为false
      * @return
      */
     public static int byteToInt(byte[] bb, int index, boolean flag) {
@@ -224,10 +230,10 @@ public class HexUtil {
     /**
      * 蓝牙传输 16进制 高低位 读数的 转换
      *
-     * @param data 截取数据源，字节数组
+     * @param data  截取数据源，字节数组
      * @param index 截取数据开始位置
      * @param count 截取数据长度，只能为2、4、8个字节
-     * @param flag 标识高低位顺序，高位在前为true，低位在前为false
+     * @param flag  标识高低位顺序，高位在前为true，低位在前为false
      * @return
      */
     public static long byteToLong(byte[] data, int index, int count, boolean flag) {
@@ -286,6 +292,163 @@ public class HexUtil {
     }
 
 
+    public static String senddata(String data) {
+        String dataNum = data.substring(0, 2); //得到数据名称
+        int datalen = ByteUtils.HexStringTointeger(data.substring(2, 4)); //单数据长度
+        String data6 = data.substring(0, datalen * 2 + 4); //截取该长度数据
+        return data6;
+    }
+
+
+    public static Resultbean HexData(String data) { //2a2a02fe0114 0103343536020331333503033132330403373839eb
+        StringBuilder mOutput = new StringBuilder();
+        Resultbean resultbean = new Resultbean();
+        if (data.contains("2a2a")) {
+            String cmd = data.substring(4, 6);
+            //截取参数的数据 140103343536020331333503033132330403373839
+            String data1 = data.substring(12, data.length()); //长度+数据
+            //这个是真实数据
+            String data4 = data1.substring(4, data1.length());//0103343536020331333503033132330403373839
+            if (cmd.equals("02")) {
+                Log.i(TAG, "HexData: 这是设置指令");
+                int num = data4.length();
+                int index = 0;
+                for (int i = 0; i < data4.length(); i = index) {
+                    if (num - i > index) {
+                        //获取长度
+                        int len = ByteUtils.HexStringTointeger(data4.substring(2, 4));
+
+                        String data2 = data4.substring(0, len * 2 + 4); //0103343536 020331333503033132330403373839
+//                    String data6 = senddata(data2);//得到单个真实数据 0103343536
+                        mOutput.append(data2).append("\n");//放进缓存
+                        data4 = data4.substring(data2.length(), data4.length());
+                        index = data2.length();//处理过的长度 010334353602
+                    }
+                }
+                /**
+                 * 010431323334
+                 0206313233343536
+                 0303313233
+                 04053132333435
+                 */
+                if (mOutput.toString() != null) {
+                    String[] temp = null;
+                    temp = data.split("\n");
+                    for (String dataInfo : temp) { //遍历配对列表
+
+                        switch (dataInfo.substring(0, 2)) {
+                            case "01":
+                                String vin = dataInfo.substring(6, dataInfo.length());
+                                resultbean.setVin_Num(vin != null ? vin : "");
+                                break;
+                            case "02":
+                                String phone = dataInfo.substring(6, dataInfo.length());
+                                resultbean.setPhone_Num(phone != null ? phone : "");
+                                break;
+                            case "03":
+                                String ID = dataInfo.substring(6, dataInfo.length());
+                                resultbean.setID_Num(ID != null ? ID : "");
+                                break;
+                            case "04":
+                                String carNum = dataInfo.substring(6, dataInfo.length());
+                                resultbean.setCar_Num(carNum != null ? carNum : "");
+                                break;
+                            case "05":
+                                String IP1 = dataInfo.substring(6, dataInfo.length());
+                                resultbean.setIP1(IP1 != null ? IP1 : "");
+                                break;
+                            case "0a":
+                                String port1 = dataInfo.substring(6, dataInfo.length());
+                                resultbean.setPort1(port1 != null ? port1 : "");
+                                break;
+                            case "0f":
+                                String software_ver = dataInfo.substring(6, dataInfo.length());
+                                resultbean.setSoftware_ver(software_ver != null ? software_ver : "");
+                                break;
+                            case "10":
+                                String hardware_ver = dataInfo.substring(6, dataInfo.length());
+                                resultbean.setHardware_ver(hardware_ver != null ? hardware_ver : "");
+                                break;
+                        }
+
+                    }
+
+                }
+            } else if (cmd.equals("03")) {
+                Log.i(TAG, "HexData: 这是查询指令");
+                int num = data4.length();
+                int index = 0;
+                for (int i = 0; i < data4.length(); i = index) {
+                    if (num - i > index) {
+                        //获取长度
+                        int len = ByteUtils.HexStringTointeger(data4.substring(4, 6));
+
+                        String data2 = data4.substring(0, len * 2 + 6); //0103343536 020331333503033132330403373839
+//                    String data6 = senddata(data2);//得到单个真实数据 0103343536
+                        mOutput.append(data2).append("\n");//放进缓存
+                        data4 = data4.substring(data2.length(), data4.length());
+                        index = data2.length();//处理过的长度 010334353602
+                    }
+                }
+
+                /**
+                 * 010431323334
+                 0206313233343536
+                 0303313233
+                 04053132333435
+                 */
+                if (mOutput.toString() != null) {
+                    String[] temp = null;
+                    temp = mOutput.toString().split("\n");
+                    for (String dataInfo : temp) { //遍历配对列表
+
+                        switch (dataInfo.substring(0, 2)) {
+                            case "01":
+                                String vin = dataInfo.substring(6, dataInfo.length());
+                                resultbean.setVin_Num(vin != null ? vin : "");
+                                break;
+                            case "02":
+                                String phone = dataInfo.substring(6, dataInfo.length());
+                                resultbean.setPhone_Num(phone != null ? phone : "");
+                                break;
+                            case "03":
+                                String ID = dataInfo.substring(6, dataInfo.length());
+                                resultbean.setID_Num(ID != null ? ID : "");
+                                break;
+                            case "04":
+                                String carNum = dataInfo.substring(6, dataInfo.length());
+                                resultbean.setCar_Num(carNum != null ? carNum : "");
+                                break;
+                            case "05":
+                                String IP1 = dataInfo.substring(6, dataInfo.length());
+                                resultbean.setIP1(IP1 != null ? IP1 : "");
+                                break;
+                            case "0a":
+                                String port1 = dataInfo.substring(6, dataInfo.length());
+                                resultbean.setPort1(port1 != null ? port1 : "");
+                                break;
+                            case "0f":
+                                String software_ver = dataInfo.substring(6, dataInfo.length());
+                                resultbean.setSoftware_ver(software_ver != null ? software_ver : "");
+                                break;
+                            case "10":
+                                String hardware_ver = dataInfo.substring(6, dataInfo.length());
+                                resultbean.setHardware_ver(hardware_ver != null ? hardware_ver : "");
+                                break;
+                        }
+
+                    }
+
+                }
+            }
+
+
+        }
+
+        return resultbean;
+    }
+
+
     /**
      * 十六进制串转化为byte数组
      */
@@ -303,4 +466,38 @@ public class HexUtil {
         return b;
     }
 
+
+    /**
+      * 16进制直接转换成为字符串(无需Unicode解码)
+      * @param hexStr
+      * @return
+      */
+    public static String hexStr2Str(String hexStr) {
+        String str = "0123456789ABCDEF";
+        return "";
+    }
+
+
+
+    public static String hexStringToString(String s) {
+        if (s == null || s.equals("")) {
+            return null;
+        }
+        s = s.replace(" ", "");
+        byte[] baKeyword = new byte[s.length() / 2];
+        for (int i = 0; i < baKeyword.length; i++) {
+            try {
+                baKeyword[i] = (byte) (0xff & Integer.parseInt(s.substring(i * 2, i * 2 + 2), 16));
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+        try {
+            s = new String(baKeyword, "UTF-8");
+            new String();
+        } catch (Exception e1) {
+            e1.printStackTrace();
+        }
+        return s;
+    }
 }

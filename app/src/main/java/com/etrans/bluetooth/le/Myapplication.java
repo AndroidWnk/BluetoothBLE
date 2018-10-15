@@ -3,6 +3,7 @@ package com.etrans.bluetooth.le;
 import android.app.Application;
 import android.os.Handler;
 
+import com.etrans.bluetooth.le.bean.Resultbean;
 import com.etrans.bluetooth.le.fragment.FragmentOne;
 
 public class Myapplication extends Application {
@@ -10,6 +11,7 @@ public class Myapplication extends Application {
     public static String AES_PASSWROD = "_PASSWROD";//
     public static Handler hand = null;
     public String data;
+    Resultbean showdata;
     private String IMEI = "";//设备串号  唯一ID号
 
     public static Handler getHandler() {
@@ -20,7 +22,7 @@ public class Myapplication extends Application {
         public void handleMessage(android.os.Message msg) {
             switch (msg.what) {
                 case MSG_APP_DATA:// 蓝牙设备名称
-                    data = (String) msg.obj;
+                    showdata = (Resultbean) msg.obj;
                     Handler handler = FragmentOne.getHandler();
                     if (handler != null) {
                         handler.sendEmptyMessage(FragmentOne.MSG_DATA);
@@ -43,5 +45,13 @@ public class Myapplication extends Application {
 
     public void setData(String data) {
         this.data = data;
+    }
+
+    public Resultbean getShowdata() {
+        return showdata;
+    }
+
+    public void setShowdata(Resultbean showdata) {
+        this.showdata = showdata;
     }
 }
