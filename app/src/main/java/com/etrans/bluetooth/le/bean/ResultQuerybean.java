@@ -8,6 +8,8 @@ public class ResultQuerybean {
     String ID_Num;
     String IP1;//05
     String port1;//0a
+    String IP2;//06
+    String port2;//0b
     String software_ver;//0f
     String hardware_ver;//10
 
@@ -59,6 +61,23 @@ public class ResultQuerybean {
 
     public void setPort1(String port1) {
         this.port1 = port1;
+    }
+
+
+    public String getIP2() {
+        return IP2;
+    }
+
+    public void setIP2(String IP2) {
+        this.IP2 = IP2;
+    }
+
+    public String getPort2() {
+        return port2;
+    }
+
+    public void setPort2(String port2) {
+        this.port2 = port2;
     }
 
     public String getSoftware_ver() {

@@ -8,6 +8,8 @@ public class ResultSetbean {
     boolean ID_Num;
     boolean IP1;//05
     boolean port1;//0a
+    boolean IP2;//06
+    boolean port2;//0b
     boolean software_ver;//0f
     boolean hardware_ver;//10
 
@@ -58,6 +60,22 @@ public class ResultSetbean {
 
     public void setPort1(boolean port1) {
         this.port1 = port1;
+    }
+
+    public boolean isIP2() {
+        return IP2;
+    }
+
+    public void setIP2(boolean IP2) {
+        this.IP2 = IP2;
+    }
+
+    public boolean isPort2() {
+        return port2;
+    }
+
+    public void setPort2(boolean port2) {
+        this.port2 = port2;
     }
 
     public boolean isSoftware_ver() {

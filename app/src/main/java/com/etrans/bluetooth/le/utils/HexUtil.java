@@ -370,6 +370,14 @@ public class HexUtil {
                                     String port1 = dataInfo.substring(6, dataInfo.length());
                                     resultQuerybean.setPort1(port1 != null ? port1 : "");
                                     break;
+                                case "06":
+                                    String IP2 = dataInfo.substring(6, dataInfo.length());
+                                    resultQuerybean.setIP2(IP2 != null ? IP2 : "");
+                                    break;
+                                case "0b":
+                                    String port2 = dataInfo.substring(6, dataInfo.length());
+                                    resultQuerybean.setPort2(port2 != null ? port2 : "");
+                                    break;
                                 case "0f":
                                     String software_ver = dataInfo.substring(6, dataInfo.length());
                                     resultQuerybean.setSoftware_ver(software_ver != null ? software_ver : "");
@@ -451,6 +459,14 @@ public class HexUtil {
                                     String port1 = dataInfo.substring(2, 4);
                                     resultSetbean.setPort1(port1.equals("00") ? true : false);
                                     break;
+                                case "06":
+                                    String IP2 = dataInfo.substring(2, 4);
+                                    resultSetbean.setIP2(IP2.equals("00") ? true : false);
+                                    break;
+                                case "0b":
+                                    String port2 = dataInfo.substring(2, 4);
+                                    resultSetbean.setPort2(port2.equals("00") ? true : false);
+                                    break;
                                 case "0f":
                                     String software_ver = dataInfo.substring(2, 4);
                                     resultSetbean.setSoftware_ver(software_ver.equals("00") ? true : false);
@@ -474,7 +490,6 @@ public class HexUtil {
      */
     public static void query() {
         String str = ByteUtils.Decimal0(IConstants.QUERYALL.length() / 2);//个数 08
-//        String str = "0" + IConstants.QUERYALL.length() / 2;//个数 08
         String SendData = IConstants.QUERY + //2a2a03FE01 00090801020304050a0f10
                 "00" + ByteUtils.integerToHexString(IConstants.QUERYALL.length() / 2 + str.length() / 2) + //长度hex值,总长度0009
 //                        ByteUtils.Decimal0(IConstants.QUERYALL.length())+

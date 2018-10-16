@@ -23,7 +23,7 @@ public class IConstants {
     //查询所有数据 2a2a 03 fe 01 03 01 02 03 cs
     public static String QUERY = BASE+CMD_QUERY+CMD_FE+AES01;
     public static String QUERY3  = VIN+PHONENUM+IDNUM;    //查询前面三个数据,03代表数据单元长度
-    public static String QUERYALL = VIN+PHONENUM+IDNUM+CARNUM+IP01+PORT01+SOFTWARE_VERSION+HARDWARE_VERSION;    //查询全部数据
+    public static String QUERYALL = VIN+PHONENUM+IDNUM+CARNUM+IP01+PORT01+IP02+PORT02+SOFTWARE_VERSION+HARDWARE_VERSION;    //查询全部数据
 
 
     //设置所编辑的数据 2a2a 02 fe 01

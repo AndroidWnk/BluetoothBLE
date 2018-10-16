@@ -69,9 +69,16 @@ public class JSONUtils {
                 Object val = len + //数据单元长度(hex表示)
                         hexv; //数据单元
                 str += key + val;
-            }
-
-            else{
+            }else if(key.equals(IConstants.PORT02)){
+                //转成hex
+                String hexv = ByteUtils.integerToHexString(Integer.parseInt(v));
+                //长度
+                String len = "00" + ByteUtils.integerToHexString(hexv.length() / 2);//0011
+                //            Object val = entry.getValue();
+                Object val = len + //数据单元长度(hex表示)
+                        hexv; //数据单元
+                str += key + val;
+            } else{
                 //转成hex
                 String hexv = ByteUtils.toHexString(v.getBytes());
                 //长度
@@ -84,7 +91,6 @@ public class JSONUtils {
             }
 
         }
-
         String indexNum = ByteUtils.integerToHexString(index);
         return indexNum + str;//返回字符串
 

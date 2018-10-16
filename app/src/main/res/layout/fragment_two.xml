@@ -34,8 +34,8 @@
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="5dp"
             android:layout_marginLeft="10dp"
+            android:layout_marginTop="5dp"
             android:layout_marginRight="10dp"
             android:orientation="horizontal">
 
@@ -53,14 +53,15 @@
                 android:id="@+id/et_vin"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:maxLength="17"
                 android:textSize="18sp" />
         </LinearLayout>
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="5dp"
             android:layout_marginLeft="10dp"
+            android:layout_marginTop="5dp"
             android:layout_marginRight="10dp"
             android:orientation="horizontal">
 
@@ -78,14 +79,15 @@
                 android:id="@+id/et_devicenum"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:maxLength="7"
                 android:textSize="18sp" />
         </LinearLayout>
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="5dp"
             android:layout_marginLeft="10dp"
+            android:layout_marginTop="5dp"
             android:layout_marginRight="10dp"
             android:orientation="horizontal">
 
@@ -103,6 +105,7 @@
                 android:id="@+id/et_callnum"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:digits="1234567890"
                 android:textSize="18sp" />
 
         </LinearLayout>
@@ -111,8 +114,8 @@
             android:id="@+id/ll_ip1"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="5dp"
             android:layout_marginLeft="10dp"
+            android:layout_marginTop="5dp"
             android:layout_marginRight="10dp"
             android:orientation="vertical">\
 
@@ -124,11 +127,13 @@
                     android:layout_width="match_parent"
                     android:layout_height="1dp"
                     android:background="@color/font_tab_0" />
+
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="通信服务器1"
                     android:textSize="18sp" />
+
                 <ImageView
                     android:id="@+id/img_add"
                     android:layout_width="wrap_content"
@@ -140,36 +145,48 @@
             </RelativeLayout>
 
 
-
             <LinearLayout
-                android:layout_width="wrap_content"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="horizontal">
 
-                <TextView
-                    android:layout_width="wrap_content"
+                <LinearLayout
+                    android:layout_width="0dp"
                     android:layout_height="wrap_content"
-                    android:text="域名/IP："
-                    />
+                    android:layout_weight="2">
 
-                <EditText
-                    android:id="@+id/et_ip"
-                    android:layout_width="wrap_content"
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="域名/IP：" />
+
+                    <EditText
+                        android:id="@+id/et_ip"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:textSize="15sp" />
+
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="0dp"
                     android:layout_height="wrap_content"
-                    />
+                    android:layout_weight="1">
 
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="端口：" />
 
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="端口："
-                    />
+                    <EditText
+                        android:id="@+id/et_port"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:digits="1234567890"
+                        android:maxLength="5"
+                        android:textSize="15sp" />
 
-                <EditText
-                    android:id="@+id/et_port"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    />
+                </LinearLayout>
 
             </LinearLayout>
 
@@ -177,9 +194,8 @@
 
         <LinearLayout
             android:id="@+id/ll_ip2"
-            android:layout_width="match_parent"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="5dp"
             android:layout_marginLeft="10dp"
             android:layout_marginRight="10dp"
             android:orientation="vertical">
@@ -192,12 +208,13 @@
                     android:layout_width="match_parent"
                     android:layout_height="1dp"
                     android:background="@color/font_tab_0" />
+
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="通信服务器1"
-                    android:textSize="18sp"
-                    />
+                    android:text="通信服务器2"
+                    android:textSize="18sp" />
+
                 <ImageView
                     android:id="@+id/img_reduce"
                     android:layout_width="wrap_content"
@@ -209,39 +226,49 @@
             </RelativeLayout>
 
 
-
             <LinearLayout
-                android:layout_width="wrap_content"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:orientation="horizontal">
 
-                <TextView
-                    android:layout_width="wrap_content"
+                <LinearLayout
+                    android:layout_width="0dp"
                     android:layout_height="wrap_content"
-                    android:text="域名/IP："
-                    />
+                    android:layout_weight="2">
 
-                <TextView
-                    android:id="@+id/tv_ip2"
-                    android:layout_width="wrap_content"
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="域名/IP：" />
+
+                    <EditText
+                        android:id="@+id/et_ip2"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:textSize="15sp" />
+
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="0dp"
                     android:layout_height="wrap_content"
-                    />
+                    android:layout_weight="1">
 
-                <Space
-                    android:layout_width="15dp"
-                    android:layout_height="wrap_content" />
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="端口：" />
 
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="端口："
-                    />
+                    <EditText
+                        android:id="@+id/et_port2"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:digits="1234567890"
+                        android:maxLength="5"
+                        android:textSize="15sp" />
 
-                <TextView
-                    android:id="@+id/tv_port2"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    />
+                </LinearLayout>
+
 
             </LinearLayout>
 

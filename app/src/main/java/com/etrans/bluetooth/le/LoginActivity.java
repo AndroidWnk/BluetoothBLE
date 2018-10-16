@@ -94,10 +94,10 @@ public class LoginActivity extends Activity implements View.OnClickListener, Act
                     ToastFactory.showToast(this, "请输入密码");
                     return;
                 }
-//                else if(!pass.equals(Myapplication.AES_PASSWROD.substring(0, 5))){
-//                    ToastFactory.showToast(this, "密码错误！");
-//                    return;
-//                }
+                else if(!pass.equals(Myapplication.AES_PASSWROD.substring(0, 5))){
+                    ToastFactory.showToast(this, "密码错误！");
+                    return;
+                }
 
 //                else if (!pass.equals(IMEI.substring(0, 5))) {  //输入错误
 //                    ToastFactory.showToast(this, "密码错误！");
@@ -151,12 +151,12 @@ public class LoginActivity extends Activity implements View.OnClickListener, Act
         } catch (Exception e) {
             Log.i("qing", "MainActivity----catch");
         }
-        String enString = mAes.encrypt(mBytes);
+        Myapplication.AES_PASSWROD = mAes.encrypt(mBytes);
 //        textView1.setText("加密后：" + enString);
-        String deString = mAes.decrypt(enString);
+        String deString = mAes.decrypt(Myapplication.AES_PASSWROD);
 //        textView2.setText("解密后：" + deString);
 
-        Log.i(TAG, "AESKey: 加密前 = "+deString+",加密后 = "+enString);
+        Log.i(TAG, "AESKey: 加密前 = "+deString+",加密后 = "+Myapplication.AES_PASSWROD);
 
 
         //加密

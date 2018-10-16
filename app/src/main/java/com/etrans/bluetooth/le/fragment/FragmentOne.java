@@ -34,7 +34,7 @@ public class FragmentOne extends Fragment implements View.OnClickListener {
 
 
     public static final int MSG_DATA = 29;//
-    private TextView tv_ID, tv_vin, tv_devicenum, tv_callnum, tv_ip, tv_port, tv_HardVersion, tv_PorVersion;
+    private TextView tv_ID, tv_vin, tv_devicenum, tv_callnum, tv_ip, tv_port, tv_ip2, tv_port2,tv_HardVersion, tv_PorVersion;
     private Button btn_query;
     //    private StringBuilder mOutput = new StringBuilder();
     private Myapplication myapp;
@@ -78,10 +78,13 @@ public class FragmentOne extends Fragment implements View.OnClickListener {
 //                        tv_devicenum.setText(HexUtil.hexStringToString(showdata.getCar_Num()));
                         tv_callnum.setText(HexUtil.hexStringToString(showdata.getPhone_Num()));
                         tv_ip.setText(HexUtil.hexStringToString(showdata.getIP1()));
+                        tv_ip2.setText(HexUtil.hexStringToString(showdata.getIP2()));
                         tv_port.setText(ByteUtils.HexStringTointeger(showdata.getPort1()) + "");
+                        tv_port2.setText(ByteUtils.HexStringTointeger(showdata.getPort2()) + "");
                         tv_HardVersion.setText(HexUtil.hexStringToString(showdata.getHardware_ver()));
                         tv_PorVersion.setText(HexUtil.hexStringToString(showdata.getSoftware_ver()));
 
+                        //设置车牌号
                         String str = showdata.getCar_Num();//D4A5414130303034
                         String data = str.substring(0,4);
                         try {
@@ -98,7 +101,9 @@ public class FragmentOne extends Fragment implements View.OnClickListener {
                         tv_devicenum.setText("");
                         tv_callnum.setText("");
                         tv_ip.setText("");
+                        tv_ip2.setText("");
                         tv_port.setText("");
+                        tv_port2.setText("");
                         tv_HardVersion.setText("");
                         tv_PorVersion.setText("");
                     }
@@ -131,7 +136,9 @@ public class FragmentOne extends Fragment implements View.OnClickListener {
         tv_devicenum = (TextView) view.findViewById(R.id.tv_devicenum);
         tv_callnum = (TextView) view.findViewById(R.id.tv_callnum);
         tv_ip = (TextView) view.findViewById(R.id.tv_ip);
+        tv_ip2 = (TextView) view.findViewById(R.id.tv_ip2);
         tv_port = (TextView) view.findViewById(R.id.tv_port);
+        tv_port2 = (TextView) view.findViewById(R.id.tv_port2);
         tv_HardVersion = (TextView) view.findViewById(R.id.tv_HardVersion);
         tv_PorVersion = (TextView) view.findViewById(R.id.tv_PorVersion);
         btn_query = view.findViewById(R.id.btn_query);

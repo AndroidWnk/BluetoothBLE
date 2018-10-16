@@ -49,8 +49,8 @@ public class FragmentTwo extends Fragment implements View.OnClickListener {
     private Myapplication myapp;
     private EditText et_ID, et_callnum, et_vin, et_devicenum;
     //    private TextView tv_ip, tv_port;
-    private EditText et_ip, et_port;
-    private boolean ID_Changed, callnum_Changed, vin_Changed, devicenum_Changed, port_Changed, ip_Changed;
+    private EditText et_ip, et_port,et_ip2, et_port2;
+    private boolean ID_Changed, callnum_Changed, vin_Changed, devicenum_Changed, port_Changed, ip_Changed,port2_Changed, ip2_Changed;
     private Button btn_upgrade, btn_set;
     private ImageView img_add, img_reduce;
     private LinearLayout ll_ip1, ll_ip2;
@@ -96,7 +96,9 @@ public class FragmentTwo extends Fragment implements View.OnClickListener {
                         et_devicenum.setText(HexUtil.hexStringToString(showdata.getCar_Num()));
                         et_callnum.setText(HexUtil.hexStringToString(showdata.getPhone_Num()));
                         et_ip.setText(HexUtil.hexStringToString(showdata.getIP1()));
+                        et_ip2.setText(HexUtil.hexStringToString(showdata.getIP2()));
                         et_port.setText(ByteUtils.HexStringTointeger(showdata.getPort1()) + "");
+                        et_port2.setText(ByteUtils.HexStringTointeger(showdata.getPort2()) + "");
                         String str = showdata.getCar_Num();//D4A5414130303034
                         String data = str.substring(0, 4);
                         try {
@@ -137,6 +139,14 @@ public class FragmentTwo extends Fragment implements View.OnClickListener {
 //                        et.setTextColor(Color.GREEN);
                         et_port.setTextColor(getResources().getColor(R.color.map_color));
                     }
+                    if (resultSetbean.isIP2()) {
+//                        et_ID.setTextColor(Color.GREEN);
+                        et_ip2.setTextColor(getResources().getColor(R.color.map_color));
+                    }
+                    if (resultSetbean.isPort2()) {
+//                        et.setTextColor(Color.GREEN);
+                        et_port2.setTextColor(getResources().getColor(R.color.map_color));
+                    }
 
                     if (resultSetbean.isVin_Num()) {
                         et_vin.setTextColor(getResources().getColor(R.color.map_color));
@@ -176,7 +186,9 @@ public class FragmentTwo extends Fragment implements View.OnClickListener {
         et_vin = (EditText) view.findViewById(R.id.et_vin);
         et_devicenum = (EditText) view.findViewById(R.id.et_devicenum);
         et_ip = (EditText) view.findViewById(R.id.et_ip);
+        et_ip2 = (EditText) view.findViewById(R.id.et_ip2);
         et_port = (EditText) view.findViewById(R.id.et_port);
+        et_port2 = (EditText) view.findViewById(R.id.et_port2);
         img_add = view.findViewById(R.id.img_add);
         img_reduce = view.findViewById(R.id.img_reduce);
         btn_upgrade = view.findViewById(R.id.btn_upgrade);
@@ -294,6 +306,40 @@ public class FragmentTwo extends Fragment implements View.OnClickListener {
                 Log.e("输入结束执行该方法", "输入结束");
             }
         });
+        et_ip2.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+                Log.e("输入前确认执行该方法", "开始输入");
+            }
+
+            @Override
+            public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+                Log.e("输入过程中执行该方法", "文字变化");
+                ip2_Changed = true;
+            }
+
+            @Override
+            public void afterTextChanged(Editable editable) {
+                Log.e("输入结束执行该方法", "输入结束");
+            }
+        });
+        et_port2.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+                Log.e("输入前确认执行该方法", "开始输入");
+            }
+
+            @Override
+            public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+                Log.e("输入过程中执行该方法", "文字变化");
+                port2_Changed = true;
+            }
+
+            @Override
+            public void afterTextChanged(Editable editable) {
+                Log.e("输入结束执行该方法", "输入结束");
+            }
+        });
     }
 
 
@@ -380,6 +426,24 @@ public class FragmentTwo extends Fragment implements View.OnClickListener {
                     if (et_port.getText().toString().trim().length() > 4) {
                         map.put(IConstants.PORT01, et_port.getText().toString().trim());
                         port_Changed = false;
+                    } else {
+//                        ToastFactory.showToast(getActivity(), "端口输入不正确！");
+                        Toast.makeText(getActivity(),"端口输入不正确",Toast.LENGTH_SHORT).show();
+                    }
+                }
+                if (ip2_Changed) {
+                    if (et_ip2.getText().toString().trim().length() > 1) {
+                        map.put(IConstants.IP02, et_ip2.getText().toString().trim());
+                        ip2_Changed = false;
+                    } else {
+//                        ToastFactory.showToast(getActivity(), "ip输入不正确！");
+                        Toast.makeText(getActivity(),"ip输入不正确",Toast.LENGTH_SHORT).show();
+                    }
+                }
+                if (port2_Changed) {
+                    if (et_port2.getText().toString().trim().length() > 4) {
+                        map.put(IConstants.PORT02, et_port2.getText().toString().trim());
+                        port2_Changed = false;
                     } else {
 //                        ToastFactory.showToast(getActivity(), "端口输入不正确！");
                         Toast.makeText(getActivity(),"端口输入不正确",Toast.LENGTH_SHORT).show();
