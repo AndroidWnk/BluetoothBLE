@@ -5,6 +5,7 @@ import android.app.Activity;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
+import android.os.SystemClock;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.util.Log;
@@ -12,6 +13,7 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.EditText;
+import android.widget.ImageView;
 
 import com.etrans.bluetooth.le.utils.SpUtil;
 import com.etrans.bluetooth.le.utils.ToastFactory;
@@ -24,6 +26,7 @@ public class LoginActivity extends Activity implements View.OnClickListener, Act
     private EditText edit_name, edit_pass;
     private CheckBox check_remember, check_automatic;
     private Button btn_login, btn_getname;
+    private ImageView img_logo;
     private String IMEI = "";
 //    private String AESpasswrod = "";
 
@@ -37,9 +40,11 @@ public class LoginActivity extends Activity implements View.OnClickListener, Act
         check_remember = (CheckBox) findViewById(R.id.check_pass);
         check_automatic = (CheckBox) findViewById(R.id.check_login);
         btn_login = (Button) findViewById(R.id.btn_login);
+        img_logo = (ImageView) findViewById(R.id.img_logo);
         btn_getname = (Button) findViewById(R.id.btn_getname);
         btn_login.setOnClickListener(this);
         btn_getname.setOnClickListener(this);
+        img_logo.setOnClickListener(this);
         //动态获取权限
         int permissionCheck = ContextCompat.checkSelfPermission(this, Manifest.permission.READ_PHONE_STATE);
         if (permissionCheck != PackageManager.PERMISSION_GRANTED) {
@@ -124,6 +129,11 @@ public class LoginActivity extends Activity implements View.OnClickListener, Act
                 //销毁页面
                 finish();
                 break;
+            case R.id.img_logo:
+
+                onDisplaySettingButton();
+
+                break;
         }
     }
 
@@ -179,6 +189,36 @@ public class LoginActivity extends Activity implements View.OnClickListener, Act
 //            e.printStackTrace();
 //        }
 //        Log.i(TAG, "AESKey: 加密前 = "+Imei+",加密后 = "+Myapplication.AES_PASSWROD);
+    }
+
+
+
+    //进入秘密通道
+    // 需要点击几次 就设置几
+    long [] mHits = null;
+    public void onDisplaySettingButton() {
+        if (mHits == null) {
+            mHits = new long[8];
+        }
+        System.arraycopy(mHits, 1, mHits, 0, mHits.length - 1);//把从第二位至最后一位之间的数字复制到第一位至倒数第一位
+        mHits[mHits.length - 1] = SystemClock.uptimeMillis();//记录一个时间
+        if (SystemClock.uptimeMillis() - mHits[0] <= 1000) {//一秒内连续点击。
+            mHits = null;	//这里说明一下，我们在进来以后需要还原状态，否则如果点击过快，第六次，第七次 都会不断进来触发该效果。重新开始计数即可
+
+            //跳转
+            Intent it = new Intent(LoginActivity.this, RegisterActivity.class);
+            startActivity(it);
+
+
+//            if (mShow) {
+//           //这里是你具体的操作
+//                mShow = false;
+//            } else {
+//           //这里也是你具体的操作
+//                mShow = true;
+//            }
+//            //这里一般会把mShow存储到sp中。
+        }
     }
 
 }

@@ -22,7 +22,7 @@
                 android:textSize="18sp" />
 
             <Space
-                android:layout_width="25dp"
+                android:layout_width="5dp"
                 android:layout_height="wrap_content" />
 
             <TextView
