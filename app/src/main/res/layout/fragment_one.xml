@@ -30,7 +30,7 @@
             android:text="查询"
             android:background="@drawable/corners_bg"
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content" />
+            android:layout_height="35dp" />
     </LinearLayout>
     <LinearLayout
         android:layout_width="match_parent"

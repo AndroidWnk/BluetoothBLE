@@ -1,6 +1,6 @@
 package com.etrans.bluetooth.le.bean;
 
-public class Resultbean {
+public class ResultQuerybean {
 
     String phone_Num;
     String vin_Num;

@@ -58,7 +58,8 @@ import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.etrans.bluetooth.le.bean.Resultbean;
+import com.etrans.bluetooth.le.bean.ResultQuerybean;
+import com.etrans.bluetooth.le.bean.ResultSetbean;
 import com.etrans.bluetooth.le.fragment.FragmentOne;
 import com.etrans.bluetooth.le.fragment.FragmentThree;
 import com.etrans.bluetooth.le.fragment.FragmentTwo;
@@ -92,7 +93,7 @@ public class DeviceControlActivity extends Activity implements View.OnClickListe
     /*private ExpandableListView mGattServicesList;*/
     private BluetoothLeService mBluetoothLeService;
     private ArrayList<ArrayList<BluetoothGattCharacteristic>> mGattCharacteristics = new ArrayList<ArrayList<BluetoothGattCharacteristic>>();
-    private boolean mConnected = false;
+//    private boolean mConnected = false;
     private BluetoothGattCharacteristic mNotifyCharacteristic, mBluetoothGattCharacteristicNotify, mBluetoothGattCharacteristicName;
 
     private final String LIST_NAME = "NAME";
@@ -110,6 +111,8 @@ public class DeviceControlActivity extends Activity implements View.OnClickListe
     private boolean showScan = false;
     private BluetoothAdapter mBluetoothAdapter;
     private BluetoothLeScanner bluetoothLeScanner;
+    private Myapplication myapp;
+//    private KProgressHUD dialog;
     private Handler mHandler;
     private static final long SCAN_PERIOD = 5000;
     public static Handler hand = null;
@@ -121,15 +124,14 @@ public class DeviceControlActivity extends Activity implements View.OnClickListe
     private Handler handler = new Handler() {
         public void handleMessage(android.os.Message msg) {
             switch (msg.what) {
-                case DeviceControlActivity.MSG_SENDALLORDER:// 蓝牙设备名称
+                case DeviceControlActivity.MSG_SENDALLORDER://
                     String Senddata = (String) msg.obj;
-                    if(mConnected){
+                    if(myapp.ismConnected()){
                         sendMsg2(Senddata);
                     }else{
                         ToastFactory.showToast(DeviceControlActivity.this,"蓝牙断开发送失败");
                     }
                     break;
-
             }
         }
     };
@@ -180,7 +182,7 @@ public class DeviceControlActivity extends Activity implements View.OnClickListe
             /* DeviceControlActivity.this.mBluetoothLeService.setCharacteristic(mNotifyCharacteristic, true);*/
 
             if (BluetoothLeService.ACTION_GATT_CONNECTED.equals(action)) {
-                mConnected = true;
+//                mConnected = true;
                 ShowConnectionbtn(false); //下面的断开或连接状态
                 updateConnectionState(R.string.connected);//已连接状态
 
@@ -188,14 +190,23 @@ public class DeviceControlActivity extends Activity implements View.OnClickListe
                 //TODO 刚加上
                 TboxData(intent.getStringExtra(BluetoothLeService.EXTRA_DATA));
             } else if (BluetoothLeService.ACTION_GATT_DISCONNECTED.equals(action)) {
-                mConnected = false;
+                myapp.setmConnected(false);
                 ShowConnectionbtn(true);//显示断开还是连接按钮
                 updateConnectionState(R.string.disconnected);//断开
+                Handler handler = Myapplication.getHandler();
+                if (handler != null) {
+                    Message msg = Message.obtain();
+                    msg.what = Myapplication.MSG_APP_DATA;
+                    msg.obj = null;
+                    handler.sendMessage(msg);
+                }
+
 //                invalidateOptionsMenu();
                 clearUI();
             } else if (BluetoothLeService.ACTION_GATT_SERVICES_DISCOVERED.equals(action)) { //GATT行动服务发现nk
                 //到这里就可以去获取数据了，可以去显示获取数据的按钮
                 ToastFactory.showToast(DeviceControlActivity.this,"连接成功可以主动获取数据了");
+                myapp.setmConnected(true);
                 /*displayGattServices(mBluetoothLeService.getSupportedGattServices());*/
                 //TODO在此处修改了，使得发现服务后直接开启获得数据,连接成功了就根据UUID获取数据
                 mNotifyCharacteristic = mBluetoothLeService.getBluetoothGattCharacteristic();//根据写UUID找到写特征,暂时先注释，有UUID的时候打开并获取
@@ -231,6 +242,8 @@ public class DeviceControlActivity extends Activity implements View.OnClickListe
         super.onCreate(savedInstanceState);
         setContentView(R.layout.gatt_services_characteristics3);
         hand = handler;
+        myapp = (Myapplication) getApplication();
+//        dialog = CheckUtils.showDialog(this);
         setView();//初始化监听nk
 //        final Intent intent = getIntent();
 //        mDeviceName = intent.getStringExtra(EXTRAS_DEVICE_NAME);
@@ -347,7 +360,7 @@ public class DeviceControlActivity extends Activity implements View.OnClickListe
             startActivityForResult(enableBtIntent, REQUEST_ENABLE_BT);
         }
         //扫描周边BLE设备，获取扫描到的设备。nk
-        if (!mConnected) {
+        if (!myapp.ismConnected()) {
             scanLeDevice(true); // 为了确保设备上蓝牙能使用, 如果当前蓝牙设备没启用,弹出对话框向用户要求授予权限来启用
         }
 
@@ -374,8 +387,6 @@ public class DeviceControlActivity extends Activity implements View.OnClickListe
         unbindService(mServiceConnection);
         mBluetoothLeService = null;
     }
-
-
     //显示当前连接状态
     private void updateConnectionState(final int resourceId) {
         runOnUiThread(new Runnable() {
@@ -401,9 +412,32 @@ public class DeviceControlActivity extends Activity implements View.OnClickListe
         if (data != null) {
             /* mDataField.append(data);*/
 
-            String str = ByteUtils.ShowData(data);//解析不正确，暂时先注释
-            Resultbean showdata = HexUtil.HexData(str);//解析不正确，暂时先注释
-//            Resultbean showdata = HexUtil.HexData("2a2a03FE010801020304050a0f10E0");//解析不正确，暂时先注释
+            String str = ByteUtils.ShowData(data);//返回2a2a数据
+            String type = str.substring(4, 6);
+            if (type.equals("02")) { //设置 2A2A0201010009 0401000201030104000B
+                ResultSetbean resultSETbean =  HexUtil.HexsetData(str);
+                Handler handler = FragmentTwo.getHandler();
+                if (handler != null) {
+                    Message msg = Message.obtain();
+                    msg.what = FragmentTwo.MSG_SET_DATA;
+                    msg.obj = resultSETbean;
+                    handler.sendMessage(msg);
+                }
+
+            }else if (type.equals("03")) { //查询 2a2a02fe0114 0103343536020331333503033132330403373839eb
+                ResultQuerybean showdata = HexUtil.HexqueryData(str);//解析2a2a查询数据
+                Log.i(TAG, "TboxData: 获取到主动查询返回数据！");
+                Handler handler = Myapplication.getHandler();
+                if (handler != null) {
+                    Message msg = Message.obtain();
+                    msg.what = Myapplication.MSG_APP_DATA;
+                    msg.obj = showdata;
+                    handler.sendMessage(msg);
+                }
+            }
+
+//            ResultQuerybean showdata = HexUtil.HexqueryData(str);//解析2a2a数据
+//            ResultQuerybean showdata = HexUtil.HexqueryData("2a2a03FE010801020304050a0f10E0");//解析不正确，暂时先注释
 //            String str = "";
 
 //            Handler handler = FragmentOne.getHandler();
@@ -413,13 +447,7 @@ public class DeviceControlActivity extends Activity implements View.OnClickListe
 //                msg.obj = data;
 //                handler.sendMessage(msg);
 //            }
-            Handler handler = Myapplication.getHandler();
-            if (handler != null) {
-                Message msg = Message.obtain();
-                msg.what = Myapplication.MSG_APP_DATA;
-                msg.obj = showdata;
-                handler.sendMessage(msg);
-            }
+
 
         }
     }
@@ -524,7 +552,7 @@ public class DeviceControlActivity extends Activity implements View.OnClickListe
 
         switch (v.getId()) {
             case R.id.ll_deviceconnection:
-                if (mConnected) {
+                if (myapp.ismConnected()) {
 //                    ll_deviceinfo.setVisibility(View.VISIBLE);
 //                    listview.setVisibility(View.GONE);
                 }
@@ -558,11 +586,18 @@ public class DeviceControlActivity extends Activity implements View.OnClickListe
 //                mFragmentTransaction.commit();
                 break;
             case R.id.btn_set:
-                if (fraTwo == null) {
-                    fraTwo = new FragmentTwo();
+
+                if(myapp.getShowdata()!=null){
+                    if (fraTwo == null) {
+                        fraTwo = new FragmentTwo();
+                    }
+                    mFragmentTransaction.replace(R.id.fl_main, fraTwo).commit();
+                    showset();
+                }else{
+                    ToastFactory.showToast(this,"没有查询数据！");
                 }
-                mFragmentTransaction.replace(R.id.fl_main, fraTwo).commit();
-                showset();
+
+
 //                mFragmentTransaction.addToBackStack(null);//添加fragment到返回栈
 //                mFragmentTransaction.commit();
                 break;
@@ -595,7 +630,7 @@ public class DeviceControlActivity extends Activity implements View.OnClickListe
 //                break;
             case R.id.btn_showconnection:
 
-                if (mConnected) {
+                if (myapp.ismConnected()) {
                     mBluetoothLeService.disconnect();
                 } else {
                     final boolean result = mBluetoothLeService.connect(extras_device_address);

@@ -1,13 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    >
+    android:layout_height="match_parent">
 
     <LinearLayout
-        android:layout_width="fill_parent"
-        android:orientation="vertical"
-        android:layout_height="fill_parent">
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical">
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -31,10 +30,13 @@
                 android:layout_height="wrap_content"
                 android:textSize="18sp" />
         </LinearLayout>
+
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_margin="10dp"
+            android:layout_marginTop="5dp"
+            android:layout_marginLeft="10dp"
+            android:layout_marginRight="10dp"
             android:orientation="horizontal">
 
             <TextView
@@ -44,7 +46,7 @@
                 android:textSize="18sp" />
 
             <Space
-                android:layout_width="6dp"
+                android:layout_width="3dp"
                 android:layout_height="wrap_content" />
 
             <EditText
@@ -53,10 +55,13 @@
                 android:layout_height="wrap_content"
                 android:textSize="18sp" />
         </LinearLayout>
+
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_margin="10dp"
+            android:layout_marginTop="5dp"
+            android:layout_marginLeft="10dp"
+            android:layout_marginRight="10dp"
             android:orientation="horizontal">
 
             <TextView
@@ -75,10 +80,13 @@
                 android:layout_height="wrap_content"
                 android:textSize="18sp" />
         </LinearLayout>
+
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_margin="10dp"
+            android:layout_marginTop="5dp"
+            android:layout_marginLeft="10dp"
+            android:layout_marginRight="10dp"
             android:orientation="horizontal">
 
             <TextView
@@ -101,135 +109,140 @@
 
         <LinearLayout
             android:id="@+id/ll_ip1"
-            android:layout_width="match_parent"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_margin="10dp"
+            android:layout_marginTop="5dp"
+            android:layout_marginLeft="10dp"
+            android:layout_marginRight="10dp"
             android:orientation="vertical">\
+
             <RelativeLayout
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content">
+
                 <ImageView
                     android:layout_width="match_parent"
                     android:layout_height="1dp"
                     android:background="@color/font_tab_0" />
-                <ImageView
-                    android:id="@+id/img_add"
-                    android:layout_alignParentRight="true"
+                <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
+                    android:text="通信服务器1"
+                    android:textSize="18sp" />
+                <ImageView
+                    android:id="@+id/img_add"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_alignParentRight="true"
                     android:background="@drawable/img_add" />
 
 
             </RelativeLayout>
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="通信服务器1"
-                android:textSize="18sp"
-                />
+
+
+
             <LinearLayout
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                >
+                android:orientation="horizontal">
+
                 <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
                     android:text="域名/IP："
-                    android:textSize="18sp"
+                    />
+
+                <EditText
+                    android:id="@+id/et_ip"
                     android:layout_width="wrap_content"
-                    android:layout_height="wrap_content" />
+                    android:layout_height="wrap_content"
+                    />
+
+
                 <TextView
-                    android:id="@+id/tv_ip"
-                    android:text="125.23.21.256"
-                    android:textSize="18sp"
                     android:layout_width="wrap_content"
-                    android:layout_height="wrap_content" />
-                <Space
-                    android:layout_width="15dp"
-                    android:layout_height="wrap_content" />
-                <TextView
+                    android:layout_height="wrap_content"
                     android:text="端口："
+                    />
+
+                <EditText
+                    android:id="@+id/et_port"
                     android:layout_width="wrap_content"
-                    android:textSize="18sp"
-                    android:layout_height="wrap_content" />
-                <TextView
-                    android:id="@+id/tv_port"
-                    android:text="8080"
-                    android:textSize="18sp"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content" />
-                <Button
-                    android:id="@+id/btn_add"
-                    android:text="+"
-                    android:visibility="gone"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content" />
+                    android:layout_height="wrap_content"
+                    />
+
             </LinearLayout>
 
         </LinearLayout>
+
         <LinearLayout
             android:id="@+id/ll_ip2"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_margin="10dp"
+            android:layout_marginTop="5dp"
+            android:layout_marginLeft="10dp"
+            android:layout_marginRight="10dp"
             android:orientation="vertical">
+
             <RelativeLayout
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content">
+
                 <ImageView
                     android:layout_width="match_parent"
                     android:layout_height="1dp"
                     android:background="@color/font_tab_0" />
-                <ImageView
-                    android:id="@+id/img_reduce"
-                    android:layout_alignParentRight="true"
+                <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
+                    android:text="通信服务器1"
+                    android:textSize="18sp"
+                    />
+                <ImageView
+                    android:id="@+id/img_reduce"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_alignParentRight="true"
                     android:background="@drawable/img_reduce" />
 
 
             </RelativeLayout>
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="通信服务器1"
-                android:textSize="18sp"
-                />
+
+
+
             <LinearLayout
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                >
+                android:orientation="horizontal">
+
                 <TextView
-                    android:text="域名/IP："
-                    android:textSize="18sp"
                     android:layout_width="wrap_content"
-                    android:layout_height="wrap_content" />
+                    android:layout_height="wrap_content"
+                    android:text="域名/IP："
+                    />
+
                 <TextView
                     android:id="@+id/tv_ip2"
-                    android:text="125.23.21.256"
-                    android:textSize="18sp"
                     android:layout_width="wrap_content"
-                    android:layout_height="wrap_content" />
+                    android:layout_height="wrap_content"
+                    />
+
                 <Space
                     android:layout_width="15dp"
                     android:layout_height="wrap_content" />
+
                 <TextView
-                    android:text="端口："
                     android:layout_width="wrap_content"
-                    android:textSize="18sp"
-                    android:layout_height="wrap_content" />
+                    android:layout_height="wrap_content"
+                    android:text="端口："
+                    />
+
                 <TextView
                     android:id="@+id/tv_port2"
-                    android:text="8080"
-                    android:textSize="18sp"
                     android:layout_width="wrap_content"
-                    android:layout_height="wrap_content" />
-                <Button
-                    android:id="@+id/btn_reduce"
-                    android:text="-"
-                    android:visibility="gone"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content" />
+                    android:layout_height="wrap_content"
+                    />
+
             </LinearLayout>
 
             <ImageView
@@ -237,6 +250,7 @@
                 android:layout_height="1dp"
                 android:background="@color/font_tab_0" />
         </LinearLayout>
+
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="40dp"
@@ -248,22 +262,21 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginRight="1dp"
-                android:background="@drawable/corners_bg"
                 android:layout_weight="1"
+                android:background="@drawable/corners_bg"
                 android:text="程序升级" />
 
             <Button
                 android:id="@+id/btn_set"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:background="@drawable/corners_bg"
                 android:layout_marginLeft="1dp"
                 android:layout_weight="1"
+                android:background="@drawable/corners_bg"
                 android:text="确定设置" />
 
         </LinearLayout>
     </LinearLayout>
-
 
 
 </ScrollView>

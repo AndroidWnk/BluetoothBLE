@@ -8,7 +8,7 @@ android {
         minSdkVersion 18
         targetSdkVersion 27
         versionCode 1
-        versionName "v1.0.181010"
+        versionName "v1.0.18101501"
     }
     buildTypes {
         release {
@@ -22,4 +22,5 @@ android {
 
 dependencies {
     compile 'com.android.support:support-v4:26.0.2'
+    compile 'com.kaopiz:kprogresshud:1.0.1'
 }

@@ -152,6 +152,11 @@ public class ByteUtils {
     }
 
 
+    /**
+     * 解析2323的原始数据
+     * @param data 原始数据
+     * @return
+     */
     public static String ShowData(String data) {
         int len = 0;
         StringBuilder mOutput = new StringBuilder();
@@ -167,7 +172,7 @@ public class ByteUtils {
 
                 mOutput.append(s3);
 
-            } else { //2323001B02000000000000000000000000000019
+            } else { //2323001B 02000000000000000000000000000019
                 len = HexStringTointeger(data.substring(6, 8)) * 2;//长度
 
                 mOutput.delete(0, mOutput.length());//删除之前的StringBuilder
@@ -227,7 +232,7 @@ public class ByteUtils {
      */
     public static String Decimal0(int num) {
         DecimalFormat df = new DecimalFormat("00");
-        return df.format(num / 2);
+        return df.format(num);
     }
 
 

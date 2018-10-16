@@ -9,9 +9,9 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 
-import com.etrans.bluetooth.le.Myapplication;
 import com.etrans.bluetooth.le.R;
 import com.etrans.bluetooth.le.utils.APKVersionCodeUtils;
+import com.etrans.bluetooth.le.utils.SpUtil;
 
 /**
  * 项目名称：蓝牙BLE项目
@@ -21,7 +21,7 @@ import com.etrans.bluetooth.le.utils.APKVersionCodeUtils;
  */
 public class FragmentThree extends Fragment {
 
-    private TextView tv_version,tv_password;
+    private TextView tv_version,tv_password,tv_userID;
 
 
     public static Handler hand = null;
@@ -54,12 +54,14 @@ public class FragmentThree extends Fragment {
 
         tv_version = (TextView) view.findViewById(R.id.tv_version);
         tv_password = (TextView) view.findViewById(R.id.tv_password);//登录密码
+        tv_userID = (TextView) view.findViewById(R.id.tv_userID);//登录密码
 
         setData();
     }
     private void setData(){
         tv_version.setText(APKVersionCodeUtils.getVerName(getActivity())+"");
-        tv_password.setText(Myapplication.AES_PASSWROD.substring(0, 5)+"");
+        tv_password.setText(SpUtil.getString(getActivity(), "pass", null));
+        tv_userID.setText(SpUtil.getString(getActivity(), "name", null));
     }
 
 }

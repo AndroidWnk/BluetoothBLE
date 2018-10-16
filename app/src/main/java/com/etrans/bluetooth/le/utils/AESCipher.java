@@ -29,13 +29,15 @@ public class AESCipher {
 	private static final String charset = "UTF-8";
 
 	//加密
-	@TargetApi(Build.VERSION_CODES.O)
 	public static String aesEncryptString(String content, String key) throws InvalidKeyException, NoSuchAlgorithmException, NoSuchPaddingException, InvalidAlgorithmParameterException, IllegalBlockSizeException, BadPaddingException, UnsupportedEncodingException {
 		byte[] contentBytes = content.getBytes(charset);
 		byte[] keyBytes = key.getBytes(charset);
 		byte[] encryptedBytes = aesEncryptBytes(contentBytes, keyBytes);
-		Encoder encoder = Base64.getEncoder();
-	    return encoder.encodeToString(encryptedBytes);
+		if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+			Encoder encoder = Base64.getEncoder();
+			return encoder.encodeToString(encryptedBytes);
+		}
+		return "";
 	}
 
 	//解密
