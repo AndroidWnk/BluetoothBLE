@@ -257,6 +257,7 @@ public class DeviceControlActivity extends Activity implements View.OnClickListe
             msg.obj = null;
             handler.sendMessage(msg);
         }
+        mFragmentTransaction = getFragmentManager().beginTransaction();
         if (fraOne == null) {
             fraOne = new FragmentOne();
         }
@@ -372,7 +373,7 @@ public class DeviceControlActivity extends Activity implements View.OnClickListe
 
     private void ShowScanbtn(boolean scan) {
         if (scan) {
-            btn_scan.setText("正在搜索");
+            btn_scan.setText("取消搜索");
         } else {
             btn_scan.setText("搜索");
         }

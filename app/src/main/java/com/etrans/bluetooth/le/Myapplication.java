@@ -5,6 +5,7 @@ import android.os.Handler;
 
 import com.etrans.bluetooth.le.bean.ResultQuerybean;
 import com.etrans.bluetooth.le.fragment.FragmentOne;
+import com.tencent.bugly.crashreport.CrashReport;
 
 public class Myapplication extends Application {
     public static final int MSG_APP_DATA = 1001;//
@@ -38,6 +39,8 @@ public class Myapplication extends Application {
     public void onCreate() {
         super.onCreate();
         hand = handler;
+        CrashReport.initCrashReport(getApplicationContext(), "fbc9f9ce3b", false);
+
     }
 
     public String getData() {

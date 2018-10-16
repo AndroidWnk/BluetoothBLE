@@ -18,9 +18,15 @@ android {
     }
     productFlavors {
     }
+    sourceSets{
+        main{
+            jniLibs.srcDirs = ['libs']
+        }
+    }
 }
 
 dependencies {
     compile 'com.android.support:support-v4:26.0.2'
     compile 'com.kaopiz:kprogresshud:1.0.1'
+    implementation files('libs/bugly_crash_release.jar')
 }
