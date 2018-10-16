@@ -15,6 +15,7 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.Toast;
 
 import com.etrans.bluetooth.le.DeviceControlActivity;
 import com.etrans.bluetooth.le.Myapplication;
@@ -55,6 +56,23 @@ public class FragmentTwo extends Fragment implements View.OnClickListener {
     private LinearLayout ll_ip1, ll_ip2;
     private ResultQuerybean showdata;
     private KProgressHUD dialog;
+
+    private boolean setstate = false;
+    private Handler mHandler = new Handler();
+    ;
+    private static final int TIME_DELAY = 10000;//10秒超时处理
+    private Runnable runnableset = new Runnable() {
+        public void run() {
+            if (setstate) { //30秒后如果还是正在关闭状态则恢复原来状态
+                setstate = false;
+                ToastFactory.showToast(getActivity(), "设置失败！");
+                if (dialog != null) {
+                    dialog.dismiss();
+                }
+            }
+        }
+    };
+
 
     public static Handler hand = null;
 
@@ -129,6 +147,7 @@ public class FragmentTwo extends Fragment implements View.OnClickListener {
                     if (resultSetbean.isHardware_ver()) {
 //                        et.setTextColor(Color.GREEN);
                     }
+                    mHandler.removeCallbacks(runnableset);
                     if (dialog != null) {
                         dialog.dismiss();
                     }
@@ -316,7 +335,8 @@ public class FragmentTwo extends Fragment implements View.OnClickListener {
                         map.put(IConstants.IDNUM, et_ID.getText().toString().trim());
                         ID_Changed = false;
                     } else {
-                        ToastFactory.showToast(getActivity(), "终端号输入不正确！");
+//                        ToastFactory.showToast(getActivity(), "终端号输入不正确！");
+                        Toast.makeText(getActivity(),"终端号输入不正确",Toast.LENGTH_SHORT).show();
                     }
                 }
                 if (callnum_Changed) {
@@ -324,7 +344,8 @@ public class FragmentTwo extends Fragment implements View.OnClickListener {
                         map.put(IConstants.PHONENUM, et_callnum.getText().toString().trim());
                         callnum_Changed = false;
                     } else {
-                        ToastFactory.showToast(getActivity(), "手机号输入不正确！");
+//                        ToastFactory.showToast(getActivity(), "手机号输入不正确！");
+                        Toast.makeText(getActivity(),"手机号输入不正确",Toast.LENGTH_SHORT).show();
                     }
                 }
                 if (vin_Changed) {
@@ -332,7 +353,8 @@ public class FragmentTwo extends Fragment implements View.OnClickListener {
                         map.put(IConstants.VIN, et_vin.getText().toString().trim());
                         vin_Changed = false;
                     } else {
-                        ToastFactory.showToast(getActivity(), "VIN号输入不正确！");
+//                        ToastFactory.showToast(getActivity(), "VIN号输入不正确！");
+                        Toast.makeText(getActivity(),"VIN号输入不正确",Toast.LENGTH_SHORT).show();
 
                     }
                 }
@@ -341,7 +363,8 @@ public class FragmentTwo extends Fragment implements View.OnClickListener {
                         map.put(IConstants.CARNUM, et_devicenum.getText().toString().trim());
                         devicenum_Changed = false;
                     } else {
-                        ToastFactory.showToast(getActivity(), "车牌号输入不正确！");
+//                        ToastFactory.showToast(getActivity(), "车牌号输入不正确！");
+                        Toast.makeText(getActivity(),"车牌号输入不正确",Toast.LENGTH_SHORT).show();
                     }
                 }
                 if (ip_Changed) {
@@ -349,7 +372,8 @@ public class FragmentTwo extends Fragment implements View.OnClickListener {
                         map.put(IConstants.IP01, et_ip.getText().toString().trim());
                         ip_Changed = false;
                     } else {
-                        ToastFactory.showToast(getActivity(), "ip输入不正确！");
+//                        ToastFactory.showToast(getActivity(), "ip输入不正确！");
+                        Toast.makeText(getActivity(),"ip输入不正确",Toast.LENGTH_SHORT).show();
                     }
                 }
                 if (port_Changed) {
@@ -357,9 +381,12 @@ public class FragmentTwo extends Fragment implements View.OnClickListener {
                         map.put(IConstants.PORT01, et_port.getText().toString().trim());
                         port_Changed = false;
                     } else {
-                        ToastFactory.showToast(getActivity(), "端口输入不正确！");
+//                        ToastFactory.showToast(getActivity(), "端口输入不正确！");
+                        Toast.makeText(getActivity(),"端口输入不正确",Toast.LENGTH_SHORT).show();
                     }
                 }
+
+
                 String contentdata = null;//获取编辑的数据
                 try {
                     contentdata = JSONUtils.getString(map);
@@ -368,92 +395,23 @@ public class FragmentTwo extends Fragment implements View.OnClickListener {
                     e.printStackTrace();
                 }
 
-
-                if (contentdata.length() > 6) {
-                    String SendData = IConstants.SET + //添加起始符设置
-                            "00" + ByteUtils.integerToHexString(contentdata.length() / 2) + //数据单元长度
-//                        ByteUtils.Decimal0(contentdata.length())+ //
-                            contentdata;//数据单元
-                    String validate_code = ByteUtils.checkXor(SendData.substring(4, SendData.length()));//验证码   cs
-                    SendData += validate_code; //添加验证码 2a2a02FE011301033435360203313335030331323304023738D4
-                    /**
-                     * 232300 1a 01 0000000000000000000000000000 ff
-                     2b2b00 2a2a03FE010801020304050a0f10E000 ff
-                     */
-                    /**
-                     * 起始符 232300
-                     * 长度  1a
-                     * 包数  01
-                     * 补零  000000....
-                     * 校验 ff
-                     */
-
-                    StringBuilder headInfo = new StringBuilder();
-                    headInfo.delete(0, headInfo.length());//删除之前的StringBuilder
-                    headInfo.append("232300");
-                    headInfo.append(ByteUtils.integerToHexString(SendData.length() / 2));//长度hex
-                    headInfo.append(ByteUtils.integerToHexString((int) Math.ceil(SendData.length() / 32.0))); //包数
-                    String data = ByteUtils.addZeroForNum(headInfo.toString(), 38);//补零
-                    String validate_code1 = ByteUtils.checkXor(headInfo.toString().substring(4, headInfo.toString().length()));//验证码   cs
-                    data += validate_code1;
-
-                    /**
-                     * 2b2b00 2a2a03FE010801020304050a0f10E000 ff
-                     */
-                    /**
-                     * 起始符 2b2b00
-                     * 单元数据2a2a03FE010801020304050a0f10E0
-                     * 补零  000000....
-                     * 校验 ff
-                     */
-                    int index = 0;
-                    StringBuilder contentInfo = new StringBuilder();
-                    for (int i = 0; i < SendData.length(); i = i + 32) {
-                        final int finalI = i;
-                        if (SendData.length() - i >= 32) {
-                            StringBuilder info = new StringBuilder();
-                            info.delete(0, info.length());//删除之前的StringBuilder
-                            info.append("2b2b0");
-                            info.append(index + "");
-                            info.append(SendData.substring(finalI, finalI + 32));
-                            String validate_code2 = ByteUtils.checkXor(info.toString().substring(4, info.toString().length()));//验证码   cs
-                            info.append(validate_code2);
-                            index++;
-                            contentInfo.append(info.toString());
-                            Log.i(TAG, "onClick: OK");
-//                        shortOrder[0] = finalHexdata.substring(finalI, finalI + 32);
-                        } else {
-                            StringBuilder info = new StringBuilder();
-                            info.delete(0, info.length());//删除之前的StringBuilder
-                            info.append("2b2b0");
-                            info.append(index + "");
-                            info.append(SendData.substring(finalI, SendData.length()));
-                            String data3 = ByteUtils.addZeroForNum(info.toString(), 38);//补零
-                            String validate_code3 = ByteUtils.checkXor(info.toString().substring(4, info.toString().length()));//验证码   cs
-                            data3 += validate_code3;
-                            contentInfo.append(data3);
-                            Log.i(TAG, "onClick: OK");
-//                        shortOrder[0] = finalHexdata.substring(finalI, finalHexdata.length());
-                        }
-                    }
-
-                    Log.i(TAG, "onClick: contentInfo最终 = " + contentInfo.toString());
-                    data += contentInfo.toString();
-
-                    Log.i(TAG, "onClick: data最终 = " + data);
-
-
-                    Log.i(TAG, "发送设置数据: SendData = " + SendData);
+                if (map.size() > 0) {
+                    String data = HexUtil.set(contentdata);
                     Handler handler = DeviceControlActivity.getHandler();
                     if (handler != null) {
                         Message msg = Message.obtain();
                         msg.what = DeviceControlActivity.MSG_SENDALLORDER;
                         msg.obj = data;
                         handler.sendMessage(msg);
-                        dialog.show();
+                        dialog.show();//显示加载框
+                        setstate = true;//改变状态为正在设置中
+                        mHandler.postDelayed(runnableset, TIME_DELAY);//30秒后如果还是正在关闭状态则恢复状态
+
+
                     }
                 } else {
-                    ToastFactory.showToast(getActivity(), "数据没有变化");
+//                    ToastFactory.showToast(getActivity(), "数据没有变化");
+                    Toast.makeText(getActivity(),"数据没有变化",Toast.LENGTH_SHORT).show();
                 }
                 Log.i(TAG, "onClick: OK");
                 break;

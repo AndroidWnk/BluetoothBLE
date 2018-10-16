@@ -43,6 +43,21 @@ public class FragmentOne extends Fragment implements View.OnClickListener {
     private ResultQuerybean showdata;
     private KProgressHUD dialog;
     public static Handler hand = null;
+    private boolean querystate = false;
+    private Handler mHandler = new Handler();;
+    private static final int TIME_DELAY = 10000;//10秒超时处理
+    private Runnable runnablequery = new Runnable() {
+        public void run() {
+            if (querystate) { //30秒后如果还是正在关闭状态则恢复原来状态
+                querystate = false;
+                ToastFactory.showToast(getActivity(),"查询失败！");
+                if (dialog != null) {
+                    dialog.dismiss();
+                }
+            }
+        }
+    };
+
 
     public static Handler getHandler() {
         return hand;
@@ -87,6 +102,7 @@ public class FragmentOne extends Fragment implements View.OnClickListener {
                         tv_HardVersion.setText("");
                         tv_PorVersion.setText("");
                     }
+                    mHandler.removeCallbacks(runnablequery);
                     if (dialog != null) {
                         dialog.dismiss();
                     }
@@ -144,110 +160,15 @@ public class FragmentOne extends Fragment implements View.OnClickListener {
                 if(myapp.ismConnected()){
                     HexUtil.query();
                     dialog.show();
+                    querystate = true;
+                    mHandler.postDelayed(runnablequery, TIME_DELAY);//30秒后如果还是正在关闭状态则恢复状态
                 }else{
                     ToastFactory.showToast(getActivity(),"蓝牙断开发送失败");
                 }
-
-//                dialog.show();
                 break;
 
         }
 
     }
 
-//    public void query() {
-//        String str = "0" + IConstants.QUERYALL.length() / 2;//个数
-//        String SendData = IConstants.QUERY +
-//                "00" + ByteUtils.integerToHexString(IConstants.QUERYALL.length() / 2 + str.length() / 2) + //长度hex值
-////                        ByteUtils.Decimal0(IConstants.QUERYALL.length())+
-//                str +//个数
-//                IConstants.QUERYALL;
-//        //2a2a 03 fe 01 //上文
-////                String str1 = IConstants.QUERY3;//01 02 03  //下文
-////                String str2 = str1.length()+"";//01 02 03  //下文
-////                ByteUtils.Decimal0(str1.length());
-//
-//        //2a2a03fe0103010203cs 查询前面三个参数
-//        String validate_code = ByteUtils.checkXor(SendData.substring(4, SendData.length()));//验证码   cs
-//        SendData += validate_code;//补上验证码 2a2a03FE010801020304050a0f10E0
-//
-//        /**
-//         * 232300 1a 01 0000000000000000000000000000 ff
-//         2b2b00 2a2a03FE010801020304050a0f10E000 ff
-//         */
-//        /**
-//         * 起始符 232300
-//         * 长度  1a
-//         * 包数  01
-//         * 补零  000000....
-//         * 校验 ff
-//         */
-//
-//        StringBuilder headInfo = new StringBuilder();
-//        headInfo.delete(0, headInfo.length());//删除之前的StringBuilder
-//        headInfo.append("232300");
-//        headInfo.append(ByteUtils.integerToHexString(SendData.length() / 2));//长度hex
-//        headInfo.append(ByteUtils.integerToHexString((int) Math.ceil(SendData.length() / 32.0))); //包数
-//        String data = ByteUtils.addZeroForNum(headInfo.toString(), 38);//补零
-//
-//        String validate_code1 = ByteUtils.checkXor(headInfo.toString().substring(4, headInfo.toString().length()));//验证码   cs
-//        data += validate_code1;
-//
-//
-//        /**
-//         * 2b2b00 2a2a03FE010801020304050a0f10E000 ff
-//         */
-//        /**
-//         * 起始符 2b2b00
-//         * 单元数据2a2a03FE010801020304050a0f10E0
-//         * 补零  000000....
-//         * 校验 ff
-//         */
-//        int index = 0;
-//        StringBuilder contentInfo = new StringBuilder();
-//        for (int i = 0; i < SendData.length(); i = i + 32) {
-//            final int finalI = i;
-//            if (SendData.length() - i >= 32) {
-//                StringBuilder info = new StringBuilder();
-//                info.delete(0, info.length());//删除之前的StringBuilder
-//                info.append("2b2b0");
-//                info.append(index + "");
-//                info.append(SendData.substring(finalI, finalI + 32));
-//                String validate_code2 = ByteUtils.checkXor(info.toString().substring(4, info.toString().length()));//验证码   cs
-//                info.append(validate_code2);
-//                index++;
-//                contentInfo.append(info.toString());
-//                Log.i(TAG, "onClick: OK");
-////                        shortOrder[0] = finalHexdata.substring(finalI, finalI + 32);
-//            } else {
-//                StringBuilder info = new StringBuilder();
-//                info.delete(0, info.length());//删除之前的StringBuilder
-//                info.append("2b2b0");
-//                info.append(index + "");
-//                info.append(SendData.substring(finalI, SendData.length()));
-//                String data3 = ByteUtils.addZeroForNum(info.toString(), 38);//补零
-//                String validate_code3 = ByteUtils.checkXor(info.toString().substring(4, info.toString().length()));//验证码   cs
-//                data3 += validate_code3;
-//                contentInfo.append(data3);
-//                Log.i(TAG, "onClick: OK");
-////                        shortOrder[0] = finalHexdata.substring(finalI, finalHexdata.length());
-//            }
-//        }
-//
-//        Log.i(TAG, "onClick: contentInfo最终 = " + contentInfo.toString());
-//        data += contentInfo.toString();
-//
-//        Log.i(TAG, "onClick: data最终 = " + data);
-//
-//
-//        Log.i(TAG, "发送设置数据: SendData = " + SendData);
-//        Handler handler = DeviceControlActivity.getHandler();
-//        if (handler != null) {
-//            Message msg = Message.obtain();
-//            msg.what = DeviceControlActivity.MSG_SENDALLORDER;
-//            msg.obj = data;
-//            handler.sendMessage(msg);
-//        }
-//        Log.i(TAG, "onClick: OK");
-//    }
 }

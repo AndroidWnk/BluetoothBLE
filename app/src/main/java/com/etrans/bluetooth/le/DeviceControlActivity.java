@@ -65,8 +65,10 @@ import com.etrans.bluetooth.le.fragment.FragmentThree;
 import com.etrans.bluetooth.le.fragment.FragmentTwo;
 import com.etrans.bluetooth.le.utils.BaseBiz;
 import com.etrans.bluetooth.le.utils.ByteUtils;
+import com.etrans.bluetooth.le.utils.CheckUtils;
 import com.etrans.bluetooth.le.utils.HexUtil;
 import com.etrans.bluetooth.le.utils.ToastFactory;
+import com.kaopiz.kprogresshud.KProgressHUD;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -112,15 +114,30 @@ public class DeviceControlActivity extends Activity implements View.OnClickListe
     private BluetoothAdapter mBluetoothAdapter;
     private BluetoothLeScanner bluetoothLeScanner;
     private Myapplication myapp;
-//    private KProgressHUD dialog;
     private Handler mHandler;
-    private static final long SCAN_PERIOD = 5000;
-    public static Handler hand = null;
+//    private static final long SCAN_PERIOD = 5000;
+    private KProgressHUD dialog;
+    private boolean connectstate = false;
+    private Handler connectHandler = new Handler();;
+    private static final int TIME_DELAY = 10000;//10秒超时处理
+    private Runnable runnableconnect = new Runnable() {
+        public void run() {
+            if (connectstate) { //30秒后如果还是正在关闭状态则恢复原来状态
+                connectstate = false;
+                ToastFactory.showToast(DeviceControlActivity.this,"连接失败！");
+                if (dialog != null) {
+                    dialog.dismiss();
+                }
+            }
+        }
+    };
 
+
+
+    public static Handler hand = null;
     public static Handler getHandler() {
         return hand;
     }
-
     private Handler handler = new Handler() {
         public void handleMessage(android.os.Message msg) {
             switch (msg.what) {
@@ -185,21 +202,19 @@ public class DeviceControlActivity extends Activity implements View.OnClickListe
 //                mConnected = true;
                 ShowConnectionbtn(false); //下面的断开或连接状态
                 updateConnectionState(R.string.connected);//已连接状态
-
+                connectHandler.removeCallbacks(runnableconnect);//释放超时处理
+                if (dialog != null) {
+                    dialog.dismiss();
+                }
 //                invalidateOptionsMenu();
                 //TODO 刚加上
+                Log.i(TAG, "onReceive: 获取到数据1");
                 TboxData(intent.getStringExtra(BluetoothLeService.EXTRA_DATA));
             } else if (BluetoothLeService.ACTION_GATT_DISCONNECTED.equals(action)) {
                 myapp.setmConnected(false);
                 ShowConnectionbtn(true);//显示断开还是连接按钮
                 updateConnectionState(R.string.disconnected);//断开
-                Handler handler = Myapplication.getHandler();
-                if (handler != null) {
-                    Message msg = Message.obtain();
-                    msg.what = Myapplication.MSG_APP_DATA;
-                    msg.obj = null;
-                    handler.sendMessage(msg);
-                }
+
 
 //                invalidateOptionsMenu();
                 clearUI();
@@ -219,10 +234,12 @@ public class DeviceControlActivity extends Activity implements View.OnClickListe
                 mBluetoothLeService.setCharacteristic(mNotifyCharacteristic, true);//设置开启之后，才能在 onCharacteristicRead() 这个方法中收到数据。//发送数据
                 mBluetoothLeService.setCharacteristic(mBluetoothGattCharacteristicNotify, true);//设置开启之后，才能在 onCharacteristicRead() 这个方法中收到数据。//接收数据
                 //TODO 刚加上
+                Log.i(TAG, "onReceive: 获取到数据2");
                 TboxData(intent.getStringExtra(BluetoothLeService.EXTRA_DATA));
             } else if (BluetoothLeService.ACTION_DATA_AVAILABLE.equals(action)) {
                 //TODO在此处修改了，使得发现服务后直接开启获得数据
                 mBluetoothLeService.setCharacteristic(mNotifyCharacteristic, true);
+                Log.i(TAG, "onReceive: 获取到数据3");
                 TboxData(intent.getStringExtra(BluetoothLeService.EXTRA_DATA));
                 //使得定时的textview里面不显示数据
                 /*String str2 = intent.getStringExtra(BluetoothLeService.EXTRA_DATA);
@@ -233,6 +250,20 @@ public class DeviceControlActivity extends Activity implements View.OnClickListe
 
     //设备未连接时清除界面内容
     private void clearUI() {
+        Handler handler = Myapplication.getHandler();
+        if (handler != null) {
+            Message msg = Message.obtain();
+            msg.what = Myapplication.MSG_APP_DATA;
+            msg.obj = null;
+            handler.sendMessage(msg);
+        }
+        if (fraOne == null) {
+            fraOne = new FragmentOne();
+        }
+        mFragmentTransaction.replace(R.id.fl_main, fraOne).commit();
+        showquery();
+
+
         /* mGattServicesList.setAdapter((SimpleExpandableListAdapter) null);*/
 //        mDataField.setText(R.string.no_data);
     }
@@ -248,7 +279,7 @@ public class DeviceControlActivity extends Activity implements View.OnClickListe
 //        final Intent intent = getIntent();
 //        mDeviceName = intent.getStringExtra(EXTRAS_DEVICE_NAME);
 //        mDeviceAddress = intent.getStringExtra(EXTRAS_DEVICE_ADDRESS);
-
+        dialog = CheckUtils.showDialog(this);
         mHandler = new Handler();
 
         // 检查当前手机是否支持ble 蓝牙,如果不支持退出程序
@@ -327,7 +358,10 @@ public class DeviceControlActivity extends Activity implements View.OnClickListe
         showquery();
     }
 
-
+    /**
+     * 按键显示
+     * @param connection 断开还是连接
+     */
     private void ShowConnectionbtn(boolean connection) {
         if (connection) {
             btn_showconnection.setText("连接");
@@ -387,7 +421,11 @@ public class DeviceControlActivity extends Activity implements View.OnClickListe
         unbindService(mServiceConnection);
         mBluetoothLeService = null;
     }
-    //显示当前连接状态
+
+    /**
+     * 显示当前连接状态
+     * @param resourceId   图标
+     */
     private void updateConnectionState(final int resourceId) {
         runOnUiThread(new Runnable() {
             @Override
@@ -610,30 +648,15 @@ public class DeviceControlActivity extends Activity implements View.OnClickListe
 //                mFragmentTransaction.addToBackStack(null);//添加fragment到返回栈
 //                mFragmentTransaction.commit();
                 break;
-//            case R.id.btn_setdata:
-//                //发送广播
-//                Intent it = new Intent("android.media.testtesk");
-//                it.setComponent(new ComponentName("com.etrans.bluetooth.le",
-//                        "com.etrans.bluetooth.le.receiver.XxTestReceiver"));
-//                sendBroadcast(it);
-//
-//
-//                //发送数据
-////                if (mConnected == false) {
-////                    Toast.makeText(DeviceControlActivity.this, "请先连接设备", Toast.LENGTH_SHORT).show();
-////                } else {
-//////                    sendMsg("Sopen_led1E");
-//////                    sendMsg("12345678901234567890123456789012345678901234567890");
-////                    sendMsg2("abcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyz");
-//////                    sendMsg("abcabcabcabcabcabc");
-////                }
-//                break;
             case R.id.btn_showconnection:
 
-                if (myapp.ismConnected()) {
+                if (myapp.ismConnected()) { //断开连接
                     mBluetoothLeService.disconnect();
-                } else {
+                } else { //尝试连接
                     final boolean result = mBluetoothLeService.connect(extras_device_address);
+                    dialog.show();
+                    connectstate = true;
+                    connectHandler.postDelayed(runnableconnect, TIME_DELAY);//30秒后如果还是正在关闭状态则恢复状态
                 }
 
                 break;

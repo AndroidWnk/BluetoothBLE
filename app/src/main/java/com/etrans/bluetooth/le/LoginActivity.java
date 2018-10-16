@@ -13,19 +13,10 @@ import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.EditText;
 
-import com.etrans.bluetooth.le.utils.AESCipher;
 import com.etrans.bluetooth.le.utils.SpUtil;
 import com.etrans.bluetooth.le.utils.ToastFactory;
 import com.etrans.bluetooth.le.utils.UUIDUtils;
-
-import java.io.UnsupportedEncodingException;
-import java.security.InvalidAlgorithmParameterException;
-import java.security.InvalidKeyException;
-import java.security.NoSuchAlgorithmException;
-
-import javax.crypto.BadPaddingException;
-import javax.crypto.IllegalBlockSizeException;
-import javax.crypto.NoSuchPaddingException;
+import com.etrans.bluetooth.le.utils.demo.AES;
 
 public class LoginActivity extends Activity implements View.OnClickListener, ActivityCompat.OnRequestPermissionsResultCallback {
     private final static String TAG = "LoginActivity";
@@ -153,26 +144,41 @@ public class LoginActivity extends Activity implements View.OnClickListener, Act
         }
     }
     private void getpassword(String Imei)  {
-        //加密
+        byte[] mBytes = null;
+        AES mAes = new AES();
         try {
-//            AESpasswrod = AESCipher.aesEncryptString(Imei, "16BytesLengthKey");
-            Myapplication.AES_PASSWROD = AESCipher.aesEncryptString(Imei, "16BytesLengthKey");
-        } catch (InvalidKeyException e) {
-            e.printStackTrace();
-        } catch (NoSuchAlgorithmException e) {
-            e.printStackTrace();
-        } catch (NoSuchPaddingException e) {
-            e.printStackTrace();
-        } catch (InvalidAlgorithmParameterException e) {
-            e.printStackTrace();
-        } catch (IllegalBlockSizeException e) {
-            e.printStackTrace();
-        } catch (BadPaddingException e) {
-            e.printStackTrace();
-        } catch (UnsupportedEncodingException e) {
-            e.printStackTrace();
+            mBytes = Imei.getBytes("UTF8");
+        } catch (Exception e) {
+            Log.i("qing", "MainActivity----catch");
         }
-        Log.i(TAG, "AESKey: 加密前 = "+Imei+",加密后 = "+Myapplication.AES_PASSWROD);
+        String enString = mAes.encrypt(mBytes);
+//        textView1.setText("加密后：" + enString);
+        String deString = mAes.decrypt(enString);
+//        textView2.setText("解密后：" + deString);
+
+        Log.i(TAG, "AESKey: 加密前 = "+deString+",加密后 = "+enString);
+
+
+        //加密
+//        try {
+////            AESpasswrod = AESCipher.aesEncryptString(Imei, "16BytesLengthKey");
+//            Myapplication.AES_PASSWROD = AESCipher.aesEncryptString(Imei, "16BytesLengthKey");
+//        } catch (InvalidKeyException e) {
+//            e.printStackTrace();
+//        } catch (NoSuchAlgorithmException e) {
+//            e.printStackTrace();
+//        } catch (NoSuchPaddingException e) {
+//            e.printStackTrace();
+//        } catch (InvalidAlgorithmParameterException e) {
+//            e.printStackTrace();
+//        } catch (IllegalBlockSizeException e) {
+//            e.printStackTrace();
+//        } catch (BadPaddingException e) {
+//            e.printStackTrace();
+//        } catch (UnsupportedEncodingException e) {
+//            e.printStackTrace();
+//        }
+//        Log.i(TAG, "AESKey: 加密前 = "+Imei+",加密后 = "+Myapplication.AES_PASSWROD);
     }
 
 }
