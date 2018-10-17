@@ -94,21 +94,16 @@ public class FragmentTwo extends Fragment implements View.OnClickListener {
 //                    Myapplication.app.data = (String) msg.obj;
                         et_ID.setText(HexUtil.hexStringToString(showdata.getID_Num()));
                         et_vin.setText(HexUtil.hexStringToString(showdata.getVin_Num()));
-                        et_devicenum.setText(HexUtil.hexStringToString(showdata.getCar_Num()));
                         et_callnum.setText(HexUtil.hexStringToString(showdata.getPhone_Num()));
                         et_ip.setText(HexUtil.hexStringToString(showdata.getIP1()));
                         et_ip2.setText(HexUtil.hexStringToString(showdata.getIP2()));
                         et_port.setText(ByteUtils.HexStringTointeger(showdata.getPort1()) + "");
                         et_port2.setText(ByteUtils.HexStringTointeger(showdata.getPort2()) + "");
-                        String str = showdata.getCar_Num();//D4A5414130303034
-                        String data = str.substring(0, 4);
                         try {
-                            String decodedata = GbkCode.decode(data);//豫
-                            et_devicenum.setText(decodedata + HexUtil.hexStringToString(str.substring(data.length(), str.length())));
+                            et_devicenum.setText(GbkCode.decode(showdata.getCar_Num()));
                         } catch (UnsupportedEncodingException e) {
                             e.printStackTrace();
                         }
-
 
                         ID_Changed = false;
                         callnum_Changed = false;

@@ -46,50 +46,36 @@ public class JSONUtils {
             String key = entry.getKey();//参数
             //val
             String v = entry.getValue().toString();
-
-            if(key.equals(IConstants.CARNUM)){
-                //中文转GBK
-                String encodedata = GbkCode.encode(v.substring(0,1));
-                //转成hex
-//                v.substring(1,v.length()).getBytes();
-                String hexv = ByteUtils.toHexString(v.substring(1,v.length()).getBytes());
-
-                String hexv1 = encodedata+hexv;
-                //长度
-                String len = "00" + ByteUtils.integerToHexString(hexv1.length() / 2);//0011
-                Object val = len + //数据单元长度(hex表示)
-                        hexv1; //数据单元
-                str += key + val;
-            }else if(key.equals(IConstants.PORT01)){
-                //转成hex
-                String hexv = ByteUtils.integerToHexString(Integer.parseInt(v));
-                //长度
-                String len = "00" + ByteUtils.integerToHexString(hexv.length() / 2);//0011
-                //            Object val = entry.getValue();
-                Object val = len + //数据单元长度(hex表示)
-                        hexv; //数据单元
-                str += key + val;
-            }else if(key.equals(IConstants.PORT02)){
-                //转成hex
-                String hexv = ByteUtils.integerToHexString(Integer.parseInt(v));
-                //长度
-                String len = "00" + ByteUtils.integerToHexString(hexv.length() / 2);//0011
-                //            Object val = entry.getValue();
-                Object val = len + //数据单元长度(hex表示)
-                        hexv; //数据单元
-                str += key + val;
-            } else{
-                //转成hex
-                String hexv = ByteUtils.toHexString(v.getBytes());
-                //长度
-                String len = "00" + ByteUtils.integerToHexString(hexv.length() / 2);//0011
+            if(v.length()>1){
+                if(key.equals(IConstants.CARNUM)){
+                    //中文转GBK
+                    String hexv = GbkCode.encode(v);
+                    //长度
+                    String len = "00" + ByteUtils.integerToHexString(hexv.length() / 2);//0011
+                    Object val = len + //数据单元长度(hex表示)
+                            hexv; //数据单元
+                    str += key + val;
+                }else if(key.equals(IConstants.PORT01)||key.equals(IConstants.PORT02)){
+                    //转成hex
+                    String hexv = ByteUtils.integerToHexString(Integer.parseInt(v));
+                    //长度
+                    String len = "00" + ByteUtils.integerToHexString(hexv.length() / 2);//0011
+                    //            Object val = entry.getValue();
+                    Object val = len + //数据单元长度(hex表示)
+                            hexv; //数据单元
+                    str += key + val;
+                }else{
+                    //转成hex
+                    String hexv = ByteUtils.toHexString(v.getBytes());
+                    //长度
+                    String len = "00" + ByteUtils.integerToHexString(hexv.length() / 2);//0011
 
 //            Object val = entry.getValue();
-                Object val = len + //数据单元长度(hex表示)
-                        hexv; //数据单元
-                str += key + val;
+                    Object val = len + //数据单元长度(hex表示)
+                            hexv; //数据单元
+                    str += key + val;
+                }
             }
-
         }
         String indexNum = ByteUtils.integerToHexString(index);
         return indexNum + str;//返回字符串

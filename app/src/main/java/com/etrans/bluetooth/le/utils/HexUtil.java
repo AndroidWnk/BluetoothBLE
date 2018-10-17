@@ -452,67 +452,69 @@ public class HexUtil {
                 Log.i(TAG, "HexsetData: 这是设置应答");
                 int num = data4.length();//02010100 09 0401000201030104000B
                 int index = 0;
-                for (int i = 0; i < data4.length(); i = index) {
-                    if (num - i > index) {
-                        //获取长度
+                if(num>4){
+                    for (int i = 0; i < data4.length(); i = index) {
+                        if (num - i > index) {
+                            //获取长度
 //                            int len = ByteUtils.HexStringTointeger(data4.substring(4, 6));
-                        String data2 = data4.substring(0, 4); //0100
-                        msetOutput.append(data2).append("\n");//放进缓存
-                        data4 = data4.substring(data2.length(), data4.length());
-                        index = data2.length();//处理过的长度 010334353602
+                            String data2 = data4.substring(0, 4); //0100
+                            msetOutput.append(data2).append("\n");//放进缓存
+                            data4 = data4.substring(data2.length(), data4.length());
+                            index = data2.length();//处理过的长度 010334353602
+                        }
                     }
-                }
-                /**
-                 * 01 00
-                 * 02 01
-                 * 03 01
-                 * 04 00
-                 */
-                if (msetOutput.toString() != null) {
-                    String[] temp = null;
-                    temp = msetOutput.toString().split("\n");
-                    for (String dataInfo : temp) { //遍历配对列表
-                        switch (dataInfo.substring(0, 2)) {
-                            case "01":
-                                String vin = dataInfo.substring(2, 4);//返回01或者00
-                                resultSetbean.setVin_Num(vin.equals("00") ? true : false);
-                                break;
-                            case "02":
-                                String phone = dataInfo.substring(2, 4);
-                                resultSetbean.setPhone_Num(phone.equals("00") ? true : false);
-                                break;
-                            case "03":
-                                String ID = dataInfo.substring(2, 4);
-                                resultSetbean.setID_Num(ID.equals("00") ? true : false);
-                                break;
-                            case "04":
-                                String carNum = dataInfo.substring(2, 4);
-                                resultSetbean.setCar_Num(carNum.equals("00") ? true : false);
-                                break;
-                            case "05":
-                                String IP1 = dataInfo.substring(2, 4);
-                                resultSetbean.setIP1(IP1.equals("00") ? true : false);
-                                break;
-                            case "0a":
-                                String port1 = dataInfo.substring(2, 4);
-                                resultSetbean.setPort1(port1.equals("00") ? true : false);
-                                break;
-                            case "06":
-                                String IP2 = dataInfo.substring(2, 4);
-                                resultSetbean.setIP2(IP2.equals("00") ? true : false);
-                                break;
-                            case "0b":
-                                String port2 = dataInfo.substring(2, 4);
-                                resultSetbean.setPort2(port2.equals("00") ? true : false);
-                                break;
-                            case "0f":
-                                String software_ver = dataInfo.substring(2, 4);
-                                resultSetbean.setSoftware_ver(software_ver.equals("00") ? true : false);
-                                break;
-                            case "10":
-                                String hardware_ver = dataInfo.substring(2, 4);
-                                resultSetbean.setHardware_ver(hardware_ver.equals("00") ? true : false);
-                                break;
+                    /**
+                     * 01 00
+                     * 02 01
+                     * 03 01
+                     * 04 00
+                     */
+                    if (msetOutput.toString() != null) {
+                        String[] temp = null;
+                        temp = msetOutput.toString().split("\n");
+                        for (String dataInfo : temp) { //遍历配对列表
+                            switch (dataInfo.substring(0, 2)) {
+                                case "01":
+                                    String vin = dataInfo.substring(2, dataInfo.length());//返回01或者00
+                                    resultSetbean.setVin_Num(vin.equals("00") ? true : false);
+                                    break;
+                                case "02":
+                                    String phone = dataInfo.substring(2, dataInfo.length());
+                                    resultSetbean.setPhone_Num(phone.equals("00") ? true : false);
+                                    break;
+                                case "03":
+                                    String ID = dataInfo.substring(2, dataInfo.length());
+                                    resultSetbean.setID_Num(ID.equals("00") ? true : false);
+                                    break;
+                                case "04":
+                                    String carNum = dataInfo.substring(2, dataInfo.length());
+                                    resultSetbean.setCar_Num(carNum.equals("00") ? true : false);
+                                    break;
+                                case "05":
+                                    String IP1 = dataInfo.substring(2, dataInfo.length());
+                                    resultSetbean.setIP1(IP1.equals("00") ? true : false);
+                                    break;
+                                case "0a":
+                                    String port1 = dataInfo.substring(2, dataInfo.length());
+                                    resultSetbean.setPort1(port1.equals("00") ? true : false);
+                                    break;
+                                case "06":
+                                    String IP2 = dataInfo.substring(2, dataInfo.length());
+                                    resultSetbean.setIP2(IP2.equals("00") ? true : false);
+                                    break;
+                                case "0b":
+                                    String port2 = dataInfo.substring(2, dataInfo.length());
+                                    resultSetbean.setPort2(port2.equals("00") ? true : false);
+                                    break;
+                                case "0f":
+                                    String software_ver = dataInfo.substring(2, dataInfo.length());
+                                    resultSetbean.setSoftware_ver(software_ver.equals("00") ? true : false);
+                                    break;
+                                case "10":
+                                    String hardware_ver = dataInfo.substring(2, dataInfo.length());
+                                    resultSetbean.setHardware_ver(hardware_ver.equals("00") ? true : false);
+                                    break;
+                            }
                         }
                     }
                 }
