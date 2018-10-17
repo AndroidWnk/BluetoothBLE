@@ -306,12 +306,49 @@ public class HexUtil {
 
 
     /**
+     * 解析2323的原始数据
+     *
+     * @param data 原始数据
+     * @return
+     */
+    public static String ShowData(String data) {
+        int len = 0;
+        StringBuilder mOutput = new StringBuilder();
+        if (data.length() < 6) {
+            return "2a2a00";
+        }
+        String[] temp = null;
+        temp = data.split("\n");
+        for (String dataInfo : temp) { //遍历配对列表
+            if (!dataInfo.contains("232300")) { //不包含起始符 2b2b002a2a02FE011401033435360203313335EA
+                //先截取每个包的真实数据
+                String s3 = dataInfo.substring(6, dataInfo.length() - 2); //2a2a02FE011401033435360203313335
+
+                mOutput.append(s3);
+
+            } else { //2323001B 02000000000000000000000000000019
+                len = ByteUtils.HexStringTointeger(data.substring(6, 8)) * 2;//长度
+
+                mOutput.delete(0, mOutput.length());//删除之前的StringBuilder
+            }
+        }
+        String data3 = mOutput.toString().substring(0, len);
+        Log.i(TAG, "ShowData: ok");
+//        byte[] sb = ByteUtils.getInstance().toByteArray(mOutput.toString());
+//        //byte数组转字符串
+//        String str = new String(sb);
+        return data3;
+    }
+
+
+    /**
      * 查询应答
+     *
      * @param data
      * @return
      */
     public static ResultQuerybean HexqueryData(String data) { //2A2A03 01 01 00 6B 02 0100113030303030303030303030303030303030 02000C303030303133323831340000 75
-        Log.e(TAG, "HexqueryData: data = "+data);
+        Log.e(TAG, "HexqueryData: data = " + data);
         StringBuilder mqueryOutput = new StringBuilder();
         ResultQuerybean resultQuerybean = new ResultQuerybean();
         if (data.contains("2a2a")) {
@@ -320,76 +357,76 @@ public class HexUtil {
             String data1 = data.substring(12, data.length()); //长度+数据 6B+数据
             //这个是真实数据
             String data4 = data1.substring(4, data1.length());//0100 11 3030303030303030303030303030303030 02 00 0C 303030303133323831340000
-                    if(cmd.equals("01")){
-                    Log.i(TAG, "HexqueryData: 这是查询应答");
-                    int num = data4.length();
-                    int index = 0;
-                    for (int i = 0; i < data4.length(); i = index) {
-                        if (num - i > index) {
-                            //获取长度
-                            int len = ByteUtils.HexStringTointeger(data4.substring(4, 6)); //第一个数据单元的长度11
-                            String data2 = data4.substring(0, len * 2 + 6); //0到长度加6，这是第一个数据单元
-                            mqueryOutput.append(data2).append("\n");//放进缓存
-                            data4 = data4.substring(data2.length(), data4.length());
-                            index = data2.length();//处理过的长度 0100 11 3030303030303030303030303030303030
-                        }
+            if (cmd.equals("01")) {
+                Log.i(TAG, "HexqueryData: 这是查询应答");
+                int num = data4.length();
+                int index = 0;
+                for (int i = 0; i < data4.length(); i = index) {
+                    if (num - i > index) {
+                        //获取长度
+                        int len = ByteUtils.HexStringTointeger(data4.substring(4, 6)); //第一个数据单元的长度11
+                        String data2 = data4.substring(0, len * 2 + 6); //0到长度加6，这是第一个数据单元
+                        mqueryOutput.append(data2).append("\n");//放进缓存
+                        data4 = data4.substring(data2.length(), data4.length());
+                        index = data2.length();//处理过的长度 0100 11 3030303030303030303030303030303030
                     }
-                    /**
-                     * 010431323334
-                     0206313233343536
-                     0303313233
-                     04053132333435
-                     */
-                    if (mqueryOutput.toString() != null) {
-                        String[] temp = null;
-                        temp = mqueryOutput.toString().split("\n");
-                        for (String dataInfo : temp) { //遍历配对列表
+                }
+                /**
+                 * 010431323334
+                 0206313233343536
+                 0303313233
+                 04053132333435
+                 */
+                if (mqueryOutput.toString() != null) {
+                    String[] temp = null;
+                    temp = mqueryOutput.toString().split("\n");
+                    for (String dataInfo : temp) { //遍历配对列表
 
-                            switch (dataInfo.substring(0, 2)) {
-                                case "01":
-                                    String vin = dataInfo.substring(6, dataInfo.length());
-                                    resultQuerybean.setVin_Num(vin != null ? vin : "");
-                                    break;
-                                case "02":
-                                    String phone = dataInfo.substring(6, dataInfo.length());
-                                    resultQuerybean.setPhone_Num(phone != null ? phone : "");
-                                    break;
-                                case "03":
-                                    String ID = dataInfo.substring(6, dataInfo.length());
-                                    resultQuerybean.setID_Num(ID != null ? ID : "");
-                                    break;
-                                case "04":
-                                    String carNum = dataInfo.substring(6, dataInfo.length());
-                                    resultQuerybean.setCar_Num(carNum != null ? carNum : "");
-                                    break;
-                                case "05":
-                                    String IP1 = dataInfo.substring(6, dataInfo.length());
-                                    resultQuerybean.setIP1(IP1 != null ? IP1 : "");
-                                    break;
-                                case "0a":
-                                    String port1 = dataInfo.substring(6, dataInfo.length());
-                                    resultQuerybean.setPort1(port1 != null ? port1 : "");
-                                    break;
-                                case "06":
-                                    String IP2 = dataInfo.substring(6, dataInfo.length());
-                                    resultQuerybean.setIP2(IP2 != null ? IP2 : "");
-                                    break;
-                                case "0b":
-                                    String port2 = dataInfo.substring(6, dataInfo.length());
-                                    resultQuerybean.setPort2(port2 != null ? port2 : "");
-                                    break;
-                                case "0f":
-                                    String software_ver = dataInfo.substring(6, dataInfo.length());
-                                    resultQuerybean.setSoftware_ver(software_ver != null ? software_ver : "");
-                                    break;
-                                case "10":
-                                    String hardware_ver = dataInfo.substring(6, dataInfo.length());
-                                    resultQuerybean.setHardware_ver(hardware_ver != null ? hardware_ver : "");
-                                    break;
-                            }
+                        switch (dataInfo.substring(0, 2)) {
+                            case "01":
+                                String vin = dataInfo.substring(6, dataInfo.length());
+                                resultQuerybean.setVin_Num(vin != null ? vin : "");
+                                break;
+                            case "02":
+                                String phone = dataInfo.substring(6, dataInfo.length());
+                                resultQuerybean.setPhone_Num(phone != null ? phone : "");
+                                break;
+                            case "03":
+                                String ID = dataInfo.substring(6, dataInfo.length());
+                                resultQuerybean.setID_Num(ID != null ? ID : "");
+                                break;
+                            case "04":
+                                String carNum = dataInfo.substring(6, dataInfo.length());
+                                resultQuerybean.setCar_Num(carNum != null ? carNum : "");
+                                break;
+                            case "05":
+                                String IP1 = dataInfo.substring(6, dataInfo.length());
+                                resultQuerybean.setIP1(IP1 != null ? IP1 : "");
+                                break;
+                            case "0a":
+                                String port1 = dataInfo.substring(6, dataInfo.length());
+                                resultQuerybean.setPort1(port1 != null ? port1 : "");
+                                break;
+                            case "06":
+                                String IP2 = dataInfo.substring(6, dataInfo.length());
+                                resultQuerybean.setIP2(IP2 != null ? IP2 : "");
+                                break;
+                            case "0b":
+                                String port2 = dataInfo.substring(6, dataInfo.length());
+                                resultQuerybean.setPort2(port2 != null ? port2 : "");
+                                break;
+                            case "0f":
+                                String software_ver = dataInfo.substring(6, dataInfo.length());
+                                resultQuerybean.setSoftware_ver(software_ver != null ? software_ver : "");
+                                break;
+                            case "10":
+                                String hardware_ver = dataInfo.substring(6, dataInfo.length());
+                                resultQuerybean.setHardware_ver(hardware_ver != null ? hardware_ver : "");
+                                break;
                         }
                     }
                 }
+            }
         }
 
         return resultQuerybean;
@@ -397,11 +434,12 @@ public class HexUtil {
 
     /**
      * 设置应答
+     *
      * @param data
      * @return
      */
     public static ResultSetbean HexsetData(String data) { //2A2A02010100 09 0401000201030104000B
-        Log.e(TAG, "HexsetData: data = "+data);
+        Log.e(TAG, "HexsetData: data = " + data);
         StringBuilder msetOutput = new StringBuilder();
         ResultSetbean resultSetbean = new ResultSetbean();
         if (data.contains("2a2a")) {
@@ -410,75 +448,75 @@ public class HexUtil {
             String data1 = data.substring(12, data.length()); //长度+数据 09+数据 09 04 01000201030104000B
             //这个是真实数据
             String data4 = data1.substring(4, data1.length());//0100 0201 0301 0400 真实数据
-                    if(cmd.equals("01")){
-                    Log.i(TAG, "HexsetData: 这是设置应答");
-                    int num = data4.length();//02010100 09 0401000201030104000B
-                    int index = 0;
-                    for (int i = 0; i < data4.length(); i = index) {
-                        if (num - i > index) {
-                            //获取长度
+            if (cmd.equals("01")) {
+                Log.i(TAG, "HexsetData: 这是设置应答");
+                int num = data4.length();//02010100 09 0401000201030104000B
+                int index = 0;
+                for (int i = 0; i < data4.length(); i = index) {
+                    if (num - i > index) {
+                        //获取长度
 //                            int len = ByteUtils.HexStringTointeger(data4.substring(4, 6));
-                            String data2 = data4.substring(0, 4); //0100
-                            msetOutput.append(data2).append("\n");//放进缓存
-                            data4 = data4.substring(data2.length(), data4.length());
-                            index = data2.length();//处理过的长度 010334353602
-                        }
+                        String data2 = data4.substring(0, 4); //0100
+                        msetOutput.append(data2).append("\n");//放进缓存
+                        data4 = data4.substring(data2.length(), data4.length());
+                        index = data2.length();//处理过的长度 010334353602
                     }
-                    /**
-                     * 01 00
-                     * 02 01
-                     * 03 01
-                     * 04 00
-                     */
-                    if (msetOutput.toString() != null) {
-                        String[] temp = null;
-                        temp = msetOutput.toString().split("\n");
-                        for (String dataInfo : temp) { //遍历配对列表
-                            switch (dataInfo.substring(0, 2)) {
-                                case "01":
-                                    String vin = dataInfo.substring(2, 4);//返回01或者00
-                                    resultSetbean.setVin_Num(vin.equals("00") ? true : false);
-                                    break;
-                                case "02":
-                                    String phone = dataInfo.substring(2, 4);
-                                    resultSetbean.setPhone_Num(phone.equals("00") ? true : false);
-                                    break;
-                                case "03":
-                                    String ID = dataInfo.substring(2, 4);
-                                    resultSetbean.setID_Num(ID.equals("00") ? true : false);
-                                    break;
-                                case "04":
-                                    String carNum = dataInfo.substring(2, 4);
-                                    resultSetbean.setCar_Num(carNum.equals("00") ? true : false);
-                                    break;
-                                case "05":
-                                    String IP1 = dataInfo.substring(2, 4);
-                                    resultSetbean.setIP1(IP1.equals("00") ? true : false);
-                                    break;
-                                case "0a":
-                                    String port1 = dataInfo.substring(2, 4);
-                                    resultSetbean.setPort1(port1.equals("00") ? true : false);
-                                    break;
-                                case "06":
-                                    String IP2 = dataInfo.substring(2, 4);
-                                    resultSetbean.setIP2(IP2.equals("00") ? true : false);
-                                    break;
-                                case "0b":
-                                    String port2 = dataInfo.substring(2, 4);
-                                    resultSetbean.setPort2(port2.equals("00") ? true : false);
-                                    break;
-                                case "0f":
-                                    String software_ver = dataInfo.substring(2, 4);
-                                    resultSetbean.setSoftware_ver(software_ver.equals("00") ? true : false);
-                                    break;
-                                case "10":
-                                    String hardware_ver = dataInfo.substring(2, 4);
-                                    resultSetbean.setHardware_ver(hardware_ver.equals("00") ? true : false);
-                                    break;
-                            }
+                }
+                /**
+                 * 01 00
+                 * 02 01
+                 * 03 01
+                 * 04 00
+                 */
+                if (msetOutput.toString() != null) {
+                    String[] temp = null;
+                    temp = msetOutput.toString().split("\n");
+                    for (String dataInfo : temp) { //遍历配对列表
+                        switch (dataInfo.substring(0, 2)) {
+                            case "01":
+                                String vin = dataInfo.substring(2, 4);//返回01或者00
+                                resultSetbean.setVin_Num(vin.equals("00") ? true : false);
+                                break;
+                            case "02":
+                                String phone = dataInfo.substring(2, 4);
+                                resultSetbean.setPhone_Num(phone.equals("00") ? true : false);
+                                break;
+                            case "03":
+                                String ID = dataInfo.substring(2, 4);
+                                resultSetbean.setID_Num(ID.equals("00") ? true : false);
+                                break;
+                            case "04":
+                                String carNum = dataInfo.substring(2, 4);
+                                resultSetbean.setCar_Num(carNum.equals("00") ? true : false);
+                                break;
+                            case "05":
+                                String IP1 = dataInfo.substring(2, 4);
+                                resultSetbean.setIP1(IP1.equals("00") ? true : false);
+                                break;
+                            case "0a":
+                                String port1 = dataInfo.substring(2, 4);
+                                resultSetbean.setPort1(port1.equals("00") ? true : false);
+                                break;
+                            case "06":
+                                String IP2 = dataInfo.substring(2, 4);
+                                resultSetbean.setIP2(IP2.equals("00") ? true : false);
+                                break;
+                            case "0b":
+                                String port2 = dataInfo.substring(2, 4);
+                                resultSetbean.setPort2(port2.equals("00") ? true : false);
+                                break;
+                            case "0f":
+                                String software_ver = dataInfo.substring(2, 4);
+                                resultSetbean.setSoftware_ver(software_ver.equals("00") ? true : false);
+                                break;
+                            case "10":
+                                String hardware_ver = dataInfo.substring(2, 4);
+                                resultSetbean.setHardware_ver(hardware_ver.equals("00") ? true : false);
+                                break;
                         }
                     }
                 }
+            }
         }
 
         return resultSetbean;
@@ -572,10 +610,9 @@ public class HexUtil {
         Log.i(TAG, "onClick: contentInfo最终 = " + contentInfo.toString());
         data += contentInfo.toString();
 
-        Log.i(TAG, "onClick: data最终 = " + data);
+        Log.e(TAG, "onClick: 查询指令SendData未封装 = " + SendData);
+        Log.e(TAG, "onClick: 查询指令data最终已封装 = " + data);
 
-
-        Log.i(TAG, "发送设置数据: SendData = " + SendData);
         Handler handler = DeviceControlActivity.getHandler();
         if (handler != null) {
             Message msg = Message.obtain();
@@ -659,7 +696,7 @@ public class HexUtil {
         }
         Log.i(TAG, "onClick: contentInfo最终 = " + contentInfo.toString());
         data += contentInfo.toString();
-        Log.i(TAG, "onClick: data最终 = " + data);
+        Log.e(TAG, "onClick: 设置指令data最终 = " + data);
         Log.i(TAG, "发送设置数据: SendData = " + SendData);
 
         return data;

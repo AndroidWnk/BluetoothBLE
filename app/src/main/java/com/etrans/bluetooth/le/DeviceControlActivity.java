@@ -95,7 +95,7 @@ public class DeviceControlActivity extends Activity implements View.OnClickListe
     /*private ExpandableListView mGattServicesList;*/
     private BluetoothLeService mBluetoothLeService;
     private ArrayList<ArrayList<BluetoothGattCharacteristic>> mGattCharacteristics = new ArrayList<ArrayList<BluetoothGattCharacteristic>>();
-//    private boolean mConnected = false;
+    //    private boolean mConnected = false;
     private BluetoothGattCharacteristic mNotifyCharacteristic, mBluetoothGattCharacteristicNotify, mBluetoothGattCharacteristicName;
 
     private final String LIST_NAME = "NAME";
@@ -115,16 +115,17 @@ public class DeviceControlActivity extends Activity implements View.OnClickListe
     private BluetoothLeScanner bluetoothLeScanner;
     private Myapplication myapp;
     private Handler mHandler;
-//    private static final long SCAN_PERIOD = 5000;
+    //    private static final long SCAN_PERIOD = 5000;
     private KProgressHUD dialog;
     private boolean connectstate = false;
-    private Handler connectHandler = new Handler();;
+    private Handler connectHandler = new Handler();
+    ;
     private static final int TIME_DELAY = 10000;//10秒超时处理
     private Runnable runnableconnect = new Runnable() {
         public void run() {
             if (connectstate) { //30秒后如果还是正在关闭状态则恢复原来状态
                 connectstate = false;
-                ToastFactory.showToast(DeviceControlActivity.this,"连接失败！");
+                ToastFactory.showToast(DeviceControlActivity.this, "连接失败！");
                 if (dialog != null) {
                     dialog.dismiss();
                 }
@@ -133,20 +134,21 @@ public class DeviceControlActivity extends Activity implements View.OnClickListe
     };
 
 
-
     public static Handler hand = null;
+
     public static Handler getHandler() {
         return hand;
     }
+
     private Handler handler = new Handler() {
         public void handleMessage(android.os.Message msg) {
             switch (msg.what) {
                 case DeviceControlActivity.MSG_SENDALLORDER://
                     String Senddata = (String) msg.obj;
-                    if(myapp.ismConnected()){
+                    if (myapp.ismConnected()) {
                         sendMsg2(Senddata);
-                    }else{
-                        ToastFactory.showToast(DeviceControlActivity.this,"蓝牙断开发送失败");
+                    } else {
+                        ToastFactory.showToast(DeviceControlActivity.this, "蓝牙断开发送失败");
                     }
                     break;
             }
@@ -220,7 +222,7 @@ public class DeviceControlActivity extends Activity implements View.OnClickListe
                 clearUI();
             } else if (BluetoothLeService.ACTION_GATT_SERVICES_DISCOVERED.equals(action)) { //GATT行动服务发现nk
                 //到这里就可以去获取数据了，可以去显示获取数据的按钮
-                ToastFactory.showToast(DeviceControlActivity.this,"连接成功可以主动获取数据了");
+                ToastFactory.showToast(DeviceControlActivity.this, "连接成功可以主动获取数据了");
                 myapp.setmConnected(true);
                 /*displayGattServices(mBluetoothLeService.getSupportedGattServices());*/
                 //TODO在此处修改了，使得发现服务后直接开启获得数据,连接成功了就根据UUID获取数据
@@ -361,6 +363,7 @@ public class DeviceControlActivity extends Activity implements View.OnClickListe
 
     /**
      * 按键显示
+     *
      * @param connection 断开还是连接
      */
     private void ShowConnectionbtn(boolean connection) {
@@ -425,13 +428,14 @@ public class DeviceControlActivity extends Activity implements View.OnClickListe
 
     /**
      * 显示当前连接状态
-     * @param resourceId   图标
+     *
+     * @param resourceId 图标
      */
     private void updateConnectionState(final int resourceId) {
         runOnUiThread(new Runnable() {
             @Override
             public void run() {
-                switch (resourceId){
+                switch (resourceId) {
                     case R.string.connected: //连接
                         img_device_state.setImageResource(R.drawable.img_bluetooth_connect);
                         device_state.setVisibility(View.GONE);
@@ -451,10 +455,11 @@ public class DeviceControlActivity extends Activity implements View.OnClickListe
         if (data != null) {
             /* mDataField.append(data);*/
 
-            String str = ByteUtils.ShowData(data);//返回2a2a数据
+            Log.i(TAG, "TboxData: 原始数据 data = " + data);
+            String str = HexUtil.ShowData(data);//返回2a2a数据
             String type = str.substring(4, 6);
             if (type.equals("02")) { //设置 2A2A0201010009 0401000201030104000B
-                ResultSetbean resultSETbean =  HexUtil.HexsetData(str);
+                ResultSetbean resultSETbean = HexUtil.HexsetData(str);
                 Handler handler = FragmentTwo.getHandler();
                 if (handler != null) {
                     Message msg = Message.obtain();
@@ -463,7 +468,7 @@ public class DeviceControlActivity extends Activity implements View.OnClickListe
                     handler.sendMessage(msg);
                 }
 
-            }else if (type.equals("03")) { //查询 2a2a02fe0114 0103343536020331333503033132330403373839eb
+            } else if (type.equals("03")) { //查询 2a2a02fe0114 0103343536020331333503033132330403373839eb
                 ResultQuerybean showdata = HexUtil.HexqueryData(str);//解析2a2a查询数据
                 Log.i(TAG, "TboxData: 获取到主动查询返回数据！");
                 Handler handler = Myapplication.getHandler();
@@ -490,7 +495,6 @@ public class DeviceControlActivity extends Activity implements View.OnClickListe
 
         }
     }
-
 
 
     //发送消息
@@ -534,6 +538,7 @@ public class DeviceControlActivity extends Activity implements View.OnClickListe
      * @param Hexdata
      */
     byte[] sData = null;
+
     public void sendMsg2(String Hexdata) { //新发送代码
 //        Hexdata = ByteUtils.toHexString(Hexdata.getBytes());//转换成16进制
         if (Hexdata.length() > 0) {
@@ -549,12 +554,12 @@ public class DeviceControlActivity extends Activity implements View.OnClickListe
                     public void run() {
                         for (int i = 0; i < finalHexdata.length(); i = i + 40) {
                             final String[] shortOrder = {""};
-                            final int finalI = i;
+                            final int finalI = i; //获取到当前长度位置
 
                             if (finalHexdata.length() - i >= 40) {
-                                shortOrder[0] = finalHexdata.substring(finalI, finalI + 40);
+                                shortOrder[0] = finalHexdata.substring(finalI, finalI + 40); //长度位置到指定截取长度
                             } else {
-                                shortOrder[0] = finalHexdata.substring(finalI, finalHexdata.length());
+                                shortOrder[0] = finalHexdata.substring(finalI, finalHexdata.length()); //长度位置到末尾
                             }
 
                             Log.e("--->", "shortOrder[0]2：" + shortOrder[0]);
@@ -626,14 +631,14 @@ public class DeviceControlActivity extends Activity implements View.OnClickListe
                 break;
             case R.id.btn_set:
 
-                if(myapp.getShowdata()!=null){
+                if (myapp.getShowdata() != null) {
                     if (fraTwo == null) {
                         fraTwo = new FragmentTwo();
                     }
                     mFragmentTransaction.replace(R.id.fl_main, fraTwo).commit();
                     showset();
-                }else{
-                    ToastFactory.showToast(this,"没有查询数据！");
+                } else {
+                    ToastFactory.showToast(this, "没有查询数据！");
                 }
 
 
@@ -665,7 +670,7 @@ public class DeviceControlActivity extends Activity implements View.OnClickListe
     }
 
 
-    private void showquery(){
+    private void showquery() {
         btn_query.setBackground(getDrawable(R.drawable.setbtn_pressed_bg));
         btn_set.setBackground(getDrawable(R.drawable.setbtn_selected_bg));
         btn_about.setBackground(getDrawable(R.drawable.setbtn_selected_bg));
@@ -674,7 +679,8 @@ public class DeviceControlActivity extends Activity implements View.OnClickListe
         btn_set.setTextColor(getResources().getColor(R.color.white));
         btn_about.setTextColor(getResources().getColor(R.color.white));
     }
-    private void showset(){
+
+    private void showset() {
         btn_query.setBackground(getDrawable(R.drawable.setbtn_selected_bg));
         btn_set.setBackground(getDrawable(R.drawable.setbtn_pressed_bg));
         btn_about.setBackground(getDrawable(R.drawable.setbtn_selected_bg));
@@ -683,7 +689,8 @@ public class DeviceControlActivity extends Activity implements View.OnClickListe
         btn_set.setTextColor(getResources().getColor(R.color.black));
         btn_about.setTextColor(getResources().getColor(R.color.white));
     }
-    private void showabout(){
+
+    private void showabout() {
         btn_query.setBackground(getDrawable(R.drawable.setbtn_selected_bg));
         btn_set.setBackground(getDrawable(R.drawable.setbtn_selected_bg));
         btn_about.setBackground(getDrawable(R.drawable.setbtn_pressed_bg));
@@ -692,7 +699,6 @@ public class DeviceControlActivity extends Activity implements View.OnClickListe
         btn_set.setTextColor(getResources().getColor(R.color.white));
         btn_about.setTextColor(getResources().getColor(R.color.black));
     }
-
 
 
     // Adapter for holding devices found through scanning.

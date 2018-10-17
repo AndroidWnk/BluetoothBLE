@@ -49,8 +49,9 @@ public class FragmentTwo extends Fragment implements View.OnClickListener {
     private Myapplication myapp;
     private EditText et_ID, et_callnum, et_vin, et_devicenum;
     //    private TextView tv_ip, tv_port;
-    private EditText et_ip, et_port,et_ip2, et_port2;
-    private boolean ID_Changed, callnum_Changed, vin_Changed, devicenum_Changed, port_Changed, ip_Changed,port2_Changed, ip2_Changed;
+    private EditText et_ip, et_port, et_ip2, et_port2;
+    private boolean ID_Changed, callnum_Changed, vin_Changed, devicenum_Changed,
+            port_Changed, ip_Changed, port2_Changed, ip2_Changed;
     private Button btn_upgrade, btn_set;
     private ImageView img_add, img_reduce;
     private LinearLayout ll_ip1, ll_ip2;
@@ -115,6 +116,8 @@ public class FragmentTwo extends Fragment implements View.OnClickListener {
                         devicenum_Changed = false;
                         ip_Changed = false;
                         port_Changed = false;
+                        ip2_Changed = false;
+                        port2_Changed = false;
                         SetListener();
                     }
                     break;
@@ -382,7 +385,7 @@ public class FragmentTwo extends Fragment implements View.OnClickListener {
                         ID_Changed = false;
                     } else {
 //                        ToastFactory.showToast(getActivity(), "终端号输入不正确！");
-                        Toast.makeText(getActivity(),"终端号输入不正确",Toast.LENGTH_SHORT).show();
+                        Toast.makeText(getActivity(), "终端号输入不正确", Toast.LENGTH_SHORT).show();
                     }
                 }
                 if (callnum_Changed) {
@@ -391,7 +394,7 @@ public class FragmentTwo extends Fragment implements View.OnClickListener {
                         callnum_Changed = false;
                     } else {
 //                        ToastFactory.showToast(getActivity(), "手机号输入不正确！");
-                        Toast.makeText(getActivity(),"手机号输入不正确",Toast.LENGTH_SHORT).show();
+                        Toast.makeText(getActivity(), "手机号输入不正确", Toast.LENGTH_SHORT).show();
                     }
                 }
                 if (vin_Changed) {
@@ -400,7 +403,7 @@ public class FragmentTwo extends Fragment implements View.OnClickListener {
                         vin_Changed = false;
                     } else {
 //                        ToastFactory.showToast(getActivity(), "VIN号输入不正确！");
-                        Toast.makeText(getActivity(),"VIN号输入不正确",Toast.LENGTH_SHORT).show();
+                        Toast.makeText(getActivity(), "VIN号输入不正确", Toast.LENGTH_SHORT).show();
 
                     }
                 }
@@ -410,7 +413,7 @@ public class FragmentTwo extends Fragment implements View.OnClickListener {
                         devicenum_Changed = false;
                     } else {
 //                        ToastFactory.showToast(getActivity(), "车牌号输入不正确！");
-                        Toast.makeText(getActivity(),"车牌号输入不正确",Toast.LENGTH_SHORT).show();
+                        Toast.makeText(getActivity(), "车牌号输入不正确", Toast.LENGTH_SHORT).show();
                     }
                 }
                 if (ip_Changed) {
@@ -419,7 +422,7 @@ public class FragmentTwo extends Fragment implements View.OnClickListener {
                         ip_Changed = false;
                     } else {
 //                        ToastFactory.showToast(getActivity(), "ip输入不正确！");
-                        Toast.makeText(getActivity(),"ip输入不正确",Toast.LENGTH_SHORT).show();
+                        Toast.makeText(getActivity(), "ip输入不正确", Toast.LENGTH_SHORT).show();
                     }
                 }
                 if (port_Changed) {
@@ -428,7 +431,7 @@ public class FragmentTwo extends Fragment implements View.OnClickListener {
                         port_Changed = false;
                     } else {
 //                        ToastFactory.showToast(getActivity(), "端口输入不正确！");
-                        Toast.makeText(getActivity(),"端口输入不正确",Toast.LENGTH_SHORT).show();
+                        Toast.makeText(getActivity(), "端口输入不正确", Toast.LENGTH_SHORT).show();
                     }
                 }
                 if (ip2_Changed) {
@@ -437,7 +440,7 @@ public class FragmentTwo extends Fragment implements View.OnClickListener {
                         ip2_Changed = false;
                     } else {
 //                        ToastFactory.showToast(getActivity(), "ip输入不正确！");
-                        Toast.makeText(getActivity(),"ip输入不正确",Toast.LENGTH_SHORT).show();
+                        Toast.makeText(getActivity(), "ip输入不正确", Toast.LENGTH_SHORT).show();
                     }
                 }
                 if (port2_Changed) {
@@ -446,7 +449,7 @@ public class FragmentTwo extends Fragment implements View.OnClickListener {
                         port2_Changed = false;
                     } else {
 //                        ToastFactory.showToast(getActivity(), "端口输入不正确！");
-                        Toast.makeText(getActivity(),"端口输入不正确",Toast.LENGTH_SHORT).show();
+                        Toast.makeText(getActivity(), "端口输入不正确", Toast.LENGTH_SHORT).show();
                     }
                 }
 
@@ -469,13 +472,12 @@ public class FragmentTwo extends Fragment implements View.OnClickListener {
                         handler.sendMessage(msg);
                         dialog.show();//显示加载框
                         setstate = true;//改变状态为正在设置中
-                        mHandler.postDelayed(runnableset, TIME_DELAY);//30秒后如果还是正在关闭状态则恢复状态
-
+                        mHandler.postDelayed(runnableset, TIME_DELAY);//10秒后如果还是正在关闭状态则恢复状态
 
                     }
                 } else {
 //                    ToastFactory.showToast(getActivity(), "数据没有变化");
-                    Toast.makeText(getActivity(),"数据没有变化",Toast.LENGTH_SHORT).show();
+                    Toast.makeText(getActivity(), "数据没有变化", Toast.LENGTH_SHORT).show();
                 }
                 Log.i(TAG, "onClick: OK");
                 break;

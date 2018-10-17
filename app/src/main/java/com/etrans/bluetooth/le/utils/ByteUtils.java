@@ -1,7 +1,5 @@
 package com.etrans.bluetooth.le.utils;
 
-import android.util.Log;
-
 import java.text.DecimalFormat;
 import java.util.List;
 
@@ -152,39 +150,7 @@ public class ByteUtils {
     }
 
 
-    /**
-     * 解析2323的原始数据
-     * @param data 原始数据
-     * @return
-     */
-    public static String ShowData(String data) {
-        int len = 0;
-        StringBuilder mOutput = new StringBuilder();
-        if (data == null) {
-            return "";
-        }
-        String[] temp = null;
-        temp = data.split("\n");
-        for (String dataInfo : temp) { //遍历配对列表
-            if (!dataInfo.contains("232300")) { //不包含起始符 2b2b002a2a02FE011401033435360203313335EA
-                //先截取每个包的真实数据
-                String s3 = dataInfo.substring(6, dataInfo.length() - 2); //2a2a02FE011401033435360203313335
 
-                mOutput.append(s3);
-
-            } else { //2323001B 02000000000000000000000000000019
-                len = HexStringTointeger(data.substring(6, 8)) * 2;//长度
-
-                mOutput.delete(0, mOutput.length());//删除之前的StringBuilder
-            }
-        }
-        String data3 = mOutput.toString().substring(0, len);
-        Log.i(TAG, "ShowData: ok");
-//        byte[] sb = ByteUtils.getInstance().toByteArray(mOutput.toString());
-//        //byte数组转字符串
-//        String str = new String(sb);
-        return data3;
-    }
 
     /**
      * 异或校验
