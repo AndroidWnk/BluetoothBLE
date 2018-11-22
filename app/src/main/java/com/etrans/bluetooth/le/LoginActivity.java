@@ -17,7 +17,6 @@ import android.widget.ImageView;
 
 import com.etrans.bluetooth.le.utils.SpUtil;
 import com.etrans.bluetooth.le.utils.ToastFactory;
-import com.etrans.bluetooth.le.utils.UUIDUtils;
 import com.etrans.bluetooth.le.utils.demo.AES;
 
 public class LoginActivity extends Activity implements View.OnClickListener, ActivityCompat.OnRequestPermissionsResultCallback {

@@ -12,7 +12,6 @@ import android.widget.Button;
 import android.widget.EditText;
 
 import com.etrans.bluetooth.le.utils.ToastFactory;
-import com.etrans.bluetooth.le.utils.UUIDUtils;
 import com.etrans.bluetooth.le.utils.demo.AES;
 
 /**
