@@ -12,6 +12,10 @@ import java.util.HashMap;
 public class UUIDUtils {
 
     public static HashMap<String, String> attributes = new HashMap();
+    public static HashMap<String, String> attributes1 = new HashMap();
+    public static HashMap<String, String> attributes2 = new HashMap();
+    public static HashMap<String, String> attributes3 = new HashMap();
+    public static HashMap<String, String> attributes4 = new HashMap();
 
     static {
         // Sample Services.
